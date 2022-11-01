@@ -1,0 +1,6 @@
+pandas
+numpy
+pre-commit
+pylint
+black
+isort

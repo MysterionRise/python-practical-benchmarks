@@ -1,0 +1,26 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.2.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.10.1
+    hooks:
+      - id: isort
+        exclude: doc/data/messages/(r/reimported|w/wrong-import-order|u/ungrouped-imports|m/misplaced-future)/bad.py
+        args: ["--profile", "black"]
+  - repo: https://github.com/psf/black
+    rev: 22.3.0
+    hooks:
+      - id: black
+        args: [--safe]
+  - repo: local
+    hooks:
+      - id: pylint
+        name: pylint
+        entry: pylint
+        language: system
+        types: [python]
+        args: ["-rn", "-sn", "--rcfile=.pylintrc", "--fail-on=I"]
+        exclude: tests/functional/|model/generate|tests(/\w*)*data/|doc/
