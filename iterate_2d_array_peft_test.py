@@ -40,9 +40,7 @@ def perf_test2():
     current_board = [[0 for _ in range(ARRAY_SIZE)] for _ in range(ARRAY_SIZE)]
     for row in current_board:
         for cell in row:
-            current_board[current_board.index(row)][
-                row.index(cell)
-            ] = current_board.index(row) * row.index(cell)
+            current_board[current_board.index(row)][row.index(cell)] = current_board.index(row) * row.index(cell)
             if current_board[current_board.index(row)][row.index(cell)] > LIMIT:
                 current_board[current_board.index(row)][row.index(cell)] = 0
 

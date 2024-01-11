@@ -60,9 +60,7 @@ def random_value(data_type, seed=None):
         return tuple(random_value(type, seed) for i in range(length))
     elif data_type == dict:
         length = random.randint(0, 10)
-        return {
-            random_value(str, seed): random_value(type, seed) for i in range(length)
-        }
+        return {random_value(str, seed): random_value(type, seed) for i in range(length)}
     else:
         raise ValueError("Unsupported data type")
 
@@ -97,29 +95,29 @@ d = {i: random_value(str, seed=i) for i in range(DICTIONARY_SIZE)}
 
 # method 1: using dict[key]
 def method1():
-    l = []
+    llist = []
     for key in dict_iteration(TYPE):
         x = d[key]
         v = random.random() * x
-        l.append(v)
+        llist.append(v)
 
 
 # method 2: using dict.get(key)
 def method2():
-    l = []
+    llist = []
     for key in dict_iteration(TYPE):
         x = d.get(key)
         v = random.random() * x
-        l.append(v)
+        llist.append(v)
 
 
 # method 3: using dict.setdefault(key, default)
 def method3():
-    l = []
+    llist = []
     for key in dict_iteration(TYPE):
         x = d.setdefault(key, 0)
         v = random.random() * x
-        l.append(v)
+        llist.append(v)
 
 
 # method 4: using defaultdict
@@ -128,11 +126,11 @@ dd.update(d)
 
 
 def method4():
-    l = []
+    llist = []
     for key in dict_iteration(TYPE):
         x = dd[key]
         v = random.random() * x
-        l.append(v)
+        llist.append(v)
 
 
 # measure the time taken by each method
@@ -143,12 +141,6 @@ t4 = timeit.timeit(method4, number=PERF_ITERATIONS)
 
 # print the results
 print(f"Using dict[key]: {t1:.6f} seconds and per iteration {t1 / PERF_ITERATIONS:.6f}")
-print(
-    f"Using dict.get(key): {t2:.6f} seconds and per iteration {t2 / PERF_ITERATIONS:.6f}"
-)
-print(
-    f"Using dict.setdefault(key, default): {t3:.6f} seconds and per iteration {t3 / PERF_ITERATIONS:.6f}"
-)
-print(
-    f"Using defaultdict: {t4:.6f} seconds and per iteration {t4 / PERF_ITERATIONS:.6f}"
-)
+print(f"Using dict.get(key): {t2:.6f} seconds and per iteration {t2 / PERF_ITERATIONS:.6f}")
+print(f"Using dict.setdefault(key, default): {t3:.6f} seconds and per iteration {t3 / PERF_ITERATIONS:.6f}")
+print(f"Using defaultdict: {t4:.6f} seconds and per iteration {t4 / PERF_ITERATIONS:.6f}")
