@@ -4,3 +4,8 @@ pre-commit
 pylint
 black
 isort
+
+# Optional: Fast JSON libraries for json_perf_test.py
+# Uncomment to test alternative JSON implementations
+# ujson
+# orjson
