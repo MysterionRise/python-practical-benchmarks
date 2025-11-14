@@ -19,6 +19,7 @@ buffered reading (64KB)          0.3876s            0.0039s
 import pathlib
 import tempfile
 import os
+import atexit
 
 PERF_ITERATIONS = 100
 NUM_LINES = 10000
@@ -33,6 +34,23 @@ def setup_test_file():
         for i in range(NUM_LINES):
             f.write(f"This is line {i} with some sample text to make it realistic and longer.\n")
     return TEST_FILE
+
+
+def cleanup_test_file():
+    """Clean up the temporary test file"""
+    global TEST_FILE
+    if TEST_FILE and os.path.exists(TEST_FILE):
+        try:
+            os.unlink(TEST_FILE)
+        except OSError:
+            pass
+        TEST_FILE = None
+
+
+# Initialize test file when module is imported
+setup_test_file()
+# Register cleanup to run at exit
+atexit.register(cleanup_test_file)
 
 
 def perf_test1():
