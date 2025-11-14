@@ -1,5 +1,10 @@
 # python-practical-benchmarks
 
+[![Benchmark Tests](https://github.com/MysterionRise/python-practical-benchmarks/workflows/Benchmark%20Tests/badge.svg)](https://github.com/MysterionRise/python-practical-benchmarks/actions/workflows/tests.yml)
+[![Linting](https://github.com/MysterionRise/python-practical-benchmarks/workflows/Linting/badge.svg)](https://github.com/MysterionRise/python-practical-benchmarks/actions/workflows/lint.yml)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Comparing practical options for routine tasks in Python. This repository provides empirical performance data to help developers make informed decisions about which approach to use for common programming tasks.
 
 ## Table of Contents
