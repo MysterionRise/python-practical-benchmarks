@@ -17,10 +17,10 @@ buffered reading (8KB)           0.4567s            0.0046s
 buffered reading (64KB)          0.3876s            0.0039s
 """
 
+import atexit
+import os
 import pathlib
 import tempfile
-import os
-import atexit
 
 PERF_ITERATIONS = 100
 NUM_LINES = 10000

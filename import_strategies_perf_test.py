@@ -111,9 +111,9 @@ def perf_test4_builtin_import():
 # Eager loading simulation
 def eager_function_setup():
     """Simulate eager import at module level"""
+    import datetime
     import json
     import re
-    import datetime
 
     return json, re, datetime
 
