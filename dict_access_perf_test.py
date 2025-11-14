@@ -33,6 +33,7 @@ Approach                         Total time         Per iteration
 - dict.setdefault(key, default)     0.066943s            0.000067s
 - using defaultdict                 0.052413s            0.000052s
 """
+
 import random
 import timeit
 from collections import defaultdict

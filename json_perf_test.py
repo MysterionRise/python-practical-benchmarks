@@ -21,6 +21,7 @@ json.loads()                     1.8234s            0.0018s
 ujson.loads()                    0.6543s            0.0007s
 orjson.loads()                   0.5123s            0.0005s
 """
+
 import json
 
 # Optional fast JSON libraries - will skip if not installed

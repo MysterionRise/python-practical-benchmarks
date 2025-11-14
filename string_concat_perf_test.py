@@ -16,6 +16,7 @@ io.StringIO                      0.4521s            0.0045s
 List comprehension + join        0.2987s            0.0030s
 ''.join(generator)               0.3102s            0.0031s
 """
+
 import io
 
 PERF_ITERATIONS = 100

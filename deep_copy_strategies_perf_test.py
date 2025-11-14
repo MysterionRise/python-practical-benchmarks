@@ -47,6 +47,7 @@ KEY FINDINGS:
 - Manual copy constructors are fastest for custom objects
 - Be aware: shallow copies share nested object references!
 """
+
 import copy
 import json
 import pickle
@@ -90,9 +91,7 @@ class Person:
 
     def manual_copy(self):
         """Manual copy constructor"""
-        return Person(
-            name=self.name, age=self.age, emails=self.emails.copy(), metadata=self.metadata.copy()
-        )
+        return Person(name=self.name, age=self.age, emails=self.emails.copy(), metadata=self.metadata.copy())
 
 
 PERSON_OBJ = Person(
@@ -359,7 +358,8 @@ if __name__ == "__main__":
     print("\n" + "=" * 80)
     print("DECISION GUIDE")
     print("=" * 80)
-    print("""
+    print(
+        """
     SHALLOW COPY (when nested objects don't need copying):
     → Lists: list.copy() or list[:] - fastest
     → Dicts: dict.copy() - fastest
@@ -392,4 +392,5 @@ if __name__ == "__main__":
     → Pickle for complex objects (slower but handles more types)
     → Manual recursion for known structures (fastest but more code)
     → Immutable data structures (no copy needed!)
-    """)
+    """
+    )

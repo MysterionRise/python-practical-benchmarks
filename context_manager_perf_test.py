@@ -43,6 +43,7 @@ KEY FINDINGS:
 - Suppressing exceptions is 5x faster than re-raising
 - Always use context managers for resources - overhead is worth safety!
 """
+
 import timeit
 from contextlib import ExitStack, contextmanager, nullcontext, suppress
 
@@ -280,19 +281,13 @@ if __name__ == "__main__":
     print(f"No context manager:              {t1:.6f}s  ({t1*1e9/ITERATIONS:.0f}ns per iter) [baseline]")
 
     t2 = timeit.timeit(stmt="perf_test2_class_based()", number=1, globals=globals())
-    print(
-        f"Class-based __enter__/__exit__:  {t2:.6f}s  ({t2*1e9/ITERATIONS:.0f}ns per iter) {t2/t1:.1f}x overhead"
-    )
+    print(f"Class-based __enter__/__exit__:  {t2:.6f}s  ({t2*1e9/ITERATIONS:.0f}ns per iter) {t2/t1:.1f}x overhead")
 
     t3 = timeit.timeit(stmt="perf_test3_decorator_based()", number=1, globals=globals())
-    print(
-        f"@contextmanager decorator:       {t3:.6f}s  ({t3*1e9/ITERATIONS:.0f}ns per iter) {t3/t1:.1f}x overhead"
-    )
+    print(f"@contextmanager decorator:       {t3:.6f}s  ({t3*1e9/ITERATIONS:.0f}ns per iter) {t3/t1:.1f}x overhead")
 
     t4 = timeit.timeit(stmt="perf_test4_nullcontext()", number=1, globals=globals())
-    print(
-        f"contextlib.nullcontext():        {t4:.6f}s  ({t4*1e9/ITERATIONS:.0f}ns per iter) {t4/t1:.1f}x overhead"
-    )
+    print(f"contextlib.nullcontext():        {t4:.6f}s  ({t4*1e9/ITERATIONS:.0f}ns per iter) {t4/t1:.1f}x overhead")
 
     t5 = timeit.timeit(stmt="perf_test5_manual_try_finally()", number=1, globals=globals())
     print(
@@ -349,7 +344,8 @@ if __name__ == "__main__":
     print("\n" + "=" * 80)
     print("DECISION GUIDE")
     print("=" * 80)
-    print("""
+    print(
+        """
     WHEN TO USE CONTEXT MANAGERS:
     ✓ Resource management (files, locks, connections)
     ✓ Setup/teardown patterns
@@ -474,4 +470,5 @@ if __name__ == "__main__":
 
     Remember: The overhead is worth it! Resource leaks, deadlocks,
     and other cleanup failures cost far more than the 2-4x overhead.
-    """)
+    """
+    )

@@ -46,6 +46,7 @@ KEY FINDINGS:
 - Import at top level unless lazy loading is needed
 - Heavy imports in hot paths can cause 100ms+ delays
 """
+
 import importlib
 import sys
 import time
@@ -113,6 +114,7 @@ def eager_function_setup():
     import json
     import re
     import datetime
+
     return json, re, datetime
 
 
@@ -249,14 +251,10 @@ if __name__ == "__main__":
     print(f"from module import name:         {t2:.6f}s  ({t2*1e9/ITERATIONS:.2f}ns per import) ✓ cached")
 
     t3 = timeit.timeit(stmt="perf_test3_importlib()", number=1, globals=globals())
-    print(
-        f"importlib.import_module():       {t3:.6f}s  ({t3*1e6/ITERATIONS:.2f}μs per import) ⚠ {t3/t1:.0f}x slower!"
-    )
+    print(f"importlib.import_module():       {t3:.6f}s  ({t3*1e6/ITERATIONS:.2f}μs per import) ⚠ {t3/t1:.0f}x slower!")
 
     t4 = timeit.timeit(stmt="perf_test4_builtin_import()", number=1, globals=globals())
-    print(
-        f"__import__() builtin:            {t4:.6f}s  ({t4*1e6/ITERATIONS:.2f}μs per import) ⚠ {t4/t1:.0f}x slower!"
-    )
+    print(f"__import__() builtin:            {t4:.6f}s  ({t4*1e6/ITERATIONS:.2f}μs per import) ⚠ {t4/t1:.0f}x slower!")
 
     # ========================================================================
     # LAZY VS EAGER
@@ -285,9 +283,7 @@ if __name__ == "__main__":
     print("=" * 80)
 
     t7 = timeit.timeit(stmt="perf_test7_access_direct()", number=1, globals=globals())
-    print(
-        f"import datetime; datetime.datetime:  {t7:.6f}s  ({t7*1e9/ACCESS_ITERATIONS:.0f}ns per access) [baseline]"
-    )
+    print(f"import datetime; datetime.datetime:  {t7:.6f}s  ({t7*1e9/ACCESS_ITERATIONS:.0f}ns per access) [baseline]")
 
     t8 = timeit.timeit(stmt="perf_test8_access_from()", number=1, globals=globals())
     print(
@@ -305,7 +301,8 @@ if __name__ == "__main__":
     print("\n" + "=" * 80)
     print("DECISION GUIDE")
     print("=" * 80)
-    print("""
+    print(
+        """
     IMPORT AT MODULE TOP (STANDARD PATTERN):
     ✓ Best practice for most code
     ✓ Clear dependencies
@@ -456,4 +453,5 @@ if __name__ == "__main__":
 
     Remember: Premature optimization is the root of all evil.
     Profile first, optimize if startup time is actually a problem!
-    """)
+    """
+    )

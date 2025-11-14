@@ -35,6 +35,7 @@ KEY FINDINGS:
 - Descriptors add ~3x overhead (reasonable for validation/ORM use cases)
 - Use __slots__ for high-volume objects with known attributes
 """
+
 import timeit
 from functools import cached_property
 
@@ -377,7 +378,8 @@ if __name__ == "__main__":
     print("\n" + "=" * 80)
     print("DECISION GUIDE")
     print("=" * 80)
-    print("""
+    print(
+        """
     WHEN TO USE EACH PATTERN:
 
     DIRECT ATTRIBUTES (obj.attr):
@@ -463,4 +465,5 @@ if __name__ == "__main__":
         def statistics(self):
             # Expensive computation done once
             return compute_stats(self.data)
-    """)
+    """
+    )

@@ -30,6 +30,7 @@ List comp with membership         12.3456s            0.0123s
 Set union (|)                     0.2567s            0.0003s
 List extend + deduplicate         0.8234s            0.0008s
 """
+
 import random
 
 PERF_ITERATIONS = 1000

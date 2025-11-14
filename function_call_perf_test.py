@@ -18,6 +18,7 @@ Decorator overhead               0.4891s            0.0000049s
 @lru_cache (cached)              0.1234s            0.0000012s
 @lru_cache (uncached)            0.5432s            0.0000054s
 """
+
 from functools import lru_cache, wraps
 
 PERF_ITERATIONS = 100000

@@ -43,6 +43,7 @@ KEY FINDINGS:
 - Return codes are much faster than exceptions for expected errors
 - Use EAFP for "happy path" scenarios, LBYL for validation
 """
+
 import timeit
 
 ITERATIONS = 1000000
@@ -268,9 +269,7 @@ if __name__ == "__main__":
     print(f"LBYL: if key in dict:            {t1:.6f}s  ({t1*1e6/ITERATIONS:.3f}μs per access) [baseline]")
 
     t2 = timeit.timeit(stmt="perf_test2_dict_eafp_no_errors()", number=1, globals=globals())
-    print(
-        f"EAFP: try/except (90% success):  {t2:.6f}s  ({t2*1e6/ITERATIONS:.3f}μs per access) {t2/t1:.2f}x slower ⚠"
-    )
+    print(f"EAFP: try/except (90% success):  {t2:.6f}s  ({t2*1e6/ITERATIONS:.3f}μs per access) {t2/t1:.2f}x slower ⚠")
 
     t3 = timeit.timeit(stmt="perf_test3_dict_eafp_only_success()", number=1, globals=globals())
     print(
@@ -296,9 +295,7 @@ if __name__ == "__main__":
     print(f"LBYL: hasattr():                 {t6:.6f}s  ({t6*1e6/ITERATIONS:.3f}μs per access) [baseline]")
 
     t7 = timeit.timeit(stmt="perf_test7_attr_eafp()", number=1, globals=globals())
-    print(
-        f"EAFP: try/except (90% success):  {t7:.6f}s  ({t7*1e6/ITERATIONS:.3f}μs per access) {t7/t6:.2f}x slower ⚠"
-    )
+    print(f"EAFP: try/except (90% success):  {t7:.6f}s  ({t7*1e6/ITERATIONS:.3f}μs per access) {t7/t6:.2f}x slower ⚠")
 
     t8 = timeit.timeit(stmt="perf_test8_attr_getattr_default()", number=1, globals=globals())
     print(
@@ -316,9 +313,7 @@ if __name__ == "__main__":
     print(f"LBYL: isinstance():              {t9:.6f}s  ({t9*1e6/ITERATIONS:.3f}μs per check) ✓ fastest")
 
     t10 = timeit.timeit(stmt="perf_test10_type_eafp()", number=1, globals=globals())
-    print(
-        f"EAFP: try operation:             {t10:.6f}s  ({t10*1e6/ITERATIONS:.3f}μs per check) {t10/t9:.2f}x slower"
-    )
+    print(f"EAFP: try operation:             {t10:.6f}s  ({t10*1e6/ITERATIONS:.3f}μs per check) {t10/t9:.2f}x slower")
 
     t11 = timeit.timeit(stmt="perf_test11_type_duck()", number=1, globals=globals())
     print(f"Duck typing (no check):          {t11:.6f}s  ({t11*1e6/ITERATIONS:.3f}μs per op) (risky!)")
@@ -359,7 +354,8 @@ if __name__ == "__main__":
     print("\n" + "=" * 80)
     print("DECISION GUIDE: EAFP vs LBYL")
     print("=" * 80)
-    print("""
+    print(
+        """
     FUNDAMENTAL RULE:
     → Exceptions are ~200x slower than normal code flow
     → Use exceptions for EXCEPTIONAL conditions, not control flow
@@ -475,4 +471,5 @@ if __name__ == "__main__":
 
     Remember: Profile your specific use case. The 1% vs 10% thresholds
     are guidelines - measure to know for sure.
-    """)
+    """
+    )

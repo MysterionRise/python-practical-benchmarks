@@ -46,6 +46,7 @@ KEY FINDINGS:
 - dataclass provides best developer experience with comparable performance
 - dict is slowest and uses most memory
 """
+
 from collections import namedtuple
 from dataclasses import dataclass
 from typing import Optional
@@ -385,7 +386,8 @@ if __name__ == "__main__":
     print("\n" + "=" * 80)
     print("DECISION GUIDE")
     print("=" * 80)
-    print("""
+    print(
+        """
     IMMUTABLE DATA (read-only after creation):
     → namedtuple: Fastest, minimal memory, built-in
     → dataclass(frozen=True): Better readability, type hints
@@ -415,4 +417,5 @@ if __name__ == "__main__":
     AVOID:
     ✗ dict for structured data (no type hints, slower, more memory)
     ✗ Regular class without __slots__ for high-volume objects
-    """)
+    """
+    )

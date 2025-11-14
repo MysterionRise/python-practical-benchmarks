@@ -40,6 +40,7 @@ KEY FINDINGS:
 - JSON is best for interoperability (but slowest)
 - YAML/TOML are too slow for performance use cases (70x slower!)
 """
+
 import json
 import marshal
 import pickle
@@ -89,6 +90,7 @@ SMALL_DICT = {
     "tags": ["python", "data", "ml"],
     "metadata": {"created": "2024-01-01", "updated": "2024-12-01"},
 }
+
 
 # Nested objects (~50KB)
 @dataclass
@@ -336,9 +338,7 @@ if __name__ == "__main__":
         t5_ser = timeit.timeit("perf_test5_orjson_serialize_small()", number=1, globals=globals())
         t5_des = timeit.timeit("perf_test6_orjson_deserialize_small()", number=1, globals=globals())
         size5 = len(orjson.dumps(SMALL_DICT))
-        print(
-            f"orjson          {t5_ser:.6f}s   {t5_des:.6f}s   {size5:>6} bytes ✓ {t3_ser/t5_ser:.1f}x faster"
-        )
+        print(f"orjson          {t5_ser:.6f}s   {t5_des:.6f}s   {size5:>6} bytes ✓ {t3_ser/t5_ser:.1f}x faster")
 
     if HAS_MSGPACK:
         t7_ser = timeit.timeit("perf_test7_msgpack_serialize_small()", number=1, globals=globals())
@@ -369,9 +369,7 @@ if __name__ == "__main__":
         t13_ser = timeit.timeit("perf_test13_orjson_serialize_nested()", number=1, globals=globals())
         t13_des = timeit.timeit("perf_test14_orjson_deserialize_nested()", number=1, globals=globals())
         size13 = len(orjson.dumps(NESTED_OBJECTS))
-        print(
-            f"orjson          {t13_ser:.6f}s   {t13_des:.6f}s   {size13:>6} bytes ✓ {t11_ser/t13_ser:.1f}x faster"
-        )
+        print(f"orjson          {t13_ser:.6f}s   {t13_des:.6f}s   {size13:>6} bytes ✓ {t11_ser/t13_ser:.1f}x faster")
 
     if HAS_MSGPACK:
         t15_ser = timeit.timeit("perf_test15_msgpack_serialize_nested()", number=1, globals=globals())
@@ -404,9 +402,7 @@ if __name__ == "__main__":
 
     t20 = timeit.timeit("perf_test20_numpy_serialize()", number=1, globals=globals())
     size20 = len(NUMPY_ARRAY.tobytes())
-    print(
-        f"numpy binary    {t20:.6f}s   {size20:>8} bytes ✓✓ {t17/t20:.1f}x faster, {size17/size20:.1f}x smaller!"
-    )
+    print(f"numpy binary    {t20:.6f}s   {size20:>8} bytes ✓✓ {t17/t20:.1f}x faster, {size17/size20:.1f}x smaller!")
 
     # ========================================================================
     # DECISION GUIDE
@@ -414,7 +410,8 @@ if __name__ == "__main__":
     print("\n" + "=" * 80)
     print("DECISION GUIDE")
     print("=" * 80)
-    print("""
+    print(
+        """
     USE PICKLE WHEN:
     ✓ Python-to-Python communication only
     ✓ Need to serialize complex Python objects
@@ -512,4 +509,5 @@ if __name__ == "__main__":
 
     Note: orjson requires compilation (binary wheel)
     msgpack has pure-Python fallback
-    """)
+    """
+    )

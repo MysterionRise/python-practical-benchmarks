@@ -16,6 +16,7 @@ pathlib.Path.read_text()         0.3398s            0.0034s
 buffered reading (8KB)           0.4567s            0.0046s
 buffered reading (64KB)          0.3876s            0.0039s
 """
+
 import pathlib
 import tempfile
 import os

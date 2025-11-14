@@ -34,6 +34,7 @@ KEY FINDINGS:
 - Keep regex patterns simple when possible
 - re.search() is slightly slower than re.match() but more flexible
 """
+
 import re
 import timeit
 
@@ -41,17 +42,11 @@ PERF_ITERATIONS = 1000
 NUM_STRINGS = 10000
 
 # Generate test data
-TEST_STRINGS = [
-    f"user{i}@example.com" if i % 3 == 0 else f"invalid_email_{i}" for i in range(NUM_STRINGS)
-]
+TEST_STRINGS = [f"user{i}@example.com" if i % 3 == 0 else f"invalid_email_{i}" for i in range(NUM_STRINGS)]
 
-TEST_URLS = [
-    f"https://example.com/path/{i}" if i % 2 == 0 else f"not_a_url_{i}" for i in range(NUM_STRINGS)
-]
+TEST_URLS = [f"https://example.com/path/{i}" if i % 2 == 0 else f"not_a_url_{i}" for i in range(NUM_STRINGS)]
 
-TEST_PHONE_NUMBERS = [
-    f"+1-555-{i:04d}" if i % 4 == 0 else f"invalid_phone_{i}" for i in range(NUM_STRINGS)
-]
+TEST_PHONE_NUMBERS = [f"+1-555-{i:04d}" if i % 4 == 0 else f"invalid_phone_{i}" for i in range(NUM_STRINGS)]
 
 # Pre-compiled patterns
 COMPILED_SIMPLE = re.compile(r"^user\d+@")
@@ -225,9 +220,7 @@ if __name__ == "__main__":
     print(f"re.search() pre-compiled:        {t4:.6f}s  (per iter: {t4/PERF_ITERATIONS:.6f}s) ✓ {t3/t4:.1f}x faster")
 
     t5 = timeit.timeit(stmt="perf_test5_startswith()", number=PERF_ITERATIONS, globals=globals())
-    print(
-        f"str.startswith() + 'in':         {t5:.6f}s  (per iter: {t5/PERF_ITERATIONS:.6f}s) ✓ {t1/t5:.1f}x faster"
-    )
+    print(f"str.startswith() + 'in':         {t5:.6f}s  (per iter: {t5/PERF_ITERATIONS:.6f}s) ✓ {t1/t5:.1f}x faster")
 
     t6 = timeit.timeit(stmt="perf_test6_string_in()", number=PERF_ITERATIONS, globals=globals())
     print(f"'in' operator:                   {t6:.6f}s  (per iter: {t6/PERF_ITERATIONS:.6f}s) ✓ {t1/t6:.1f}x faster")
@@ -243,14 +236,10 @@ if __name__ == "__main__":
     print(f"RFC-compliant regex (complex):   {t7:.6f}s  (per iter: {t7/PERF_ITERATIONS:.6f}s)")
 
     t8 = timeit.timeit(stmt="perf_test8_email_simple()", number=PERF_ITERATIONS, globals=globals())
-    print(
-        f"Simple practical regex:          {t8:.6f}s  (per iter: {t8/PERF_ITERATIONS:.6f}s) ✓ {t7/t8:.1f}x faster"
-    )
+    print(f"Simple practical regex:          {t8:.6f}s  (per iter: {t8/PERF_ITERATIONS:.6f}s) ✓ {t7/t8:.1f}x faster")
 
     t9 = timeit.timeit(stmt="perf_test9_email_string_methods()", number=PERF_ITERATIONS, globals=globals())
-    print(
-        f"String methods validation:       {t9:.6f}s  (per iter: {t9/PERF_ITERATIONS:.6f}s) ✓ {t7/t9:.1f}x faster"
-    )
+    print(f"String methods validation:       {t9:.6f}s  (per iter: {t9/PERF_ITERATIONS:.6f}s) ✓ {t7/t9:.1f}x faster")
 
     # ========================================================================
     # COMPLEX OPERATIONS
@@ -281,7 +270,8 @@ if __name__ == "__main__":
     print("\n" + "=" * 80)
     print("BEST PRACTICES")
     print("=" * 80)
-    print("""
+    print(
+        """
     ✓ ALWAYS pre-compile regex patterns used more than 2-3 times
     ✓ Use string methods (startswith, endswith, in) for simple patterns
     ✓ Keep regex patterns as simple as possible
@@ -307,4 +297,5 @@ if __name__ == "__main__":
     → Use uncompiled for one-time operations
     → Pre-compile for 3+ uses (2x speedup)
     → Pre-compile at module level for frequent use
-    """)
+    """
+    )

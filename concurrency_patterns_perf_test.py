@@ -30,6 +30,7 @@ Async/await                      1.234s        High I/O, light CPU
 Threading                        1.567s        Moderate I/O + CPU
 Multiprocessing                  0.987s        CPU-intensive tasks
 """
+
 import asyncio
 import concurrent.futures
 import multiprocessing
@@ -236,7 +237,8 @@ if __name__ == "__main__":
     print("\n" + "=" * 80)
     print("DECISION GUIDE")
     print("=" * 80)
-    print("""
+    print(
+        """
     I/O-BOUND (network, files, database):
     → Use async/await (asyncio) for high concurrency with low overhead
     → Use threading for simpler code or when mixing sync libraries
@@ -253,4 +255,5 @@ if __name__ == "__main__":
     ✗ Async/await for CPU-bound work (adds overhead, no benefit)
     ✗ Threading for CPU-bound work (GIL prevents parallelism)
     ✗ Multiprocessing for I/O-bound work (high overhead for context switching)
-    """)
+    """
+    )

@@ -36,6 +36,7 @@ Set membership                   0.0512s            0.0001s
 Array lookup                     8.2341s            0.0082s
 Numpy array lookup               0.1456s            0.0001s
 """
+
 import array
 import bisect
 import random
