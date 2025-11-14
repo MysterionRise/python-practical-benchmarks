@@ -16,6 +16,7 @@ map() + list()                   0.0823s            0.0008s
 Pre-allocated list + indices     0.0891s            0.0009s
 itertools.chain() + list()       0.0734s            0.0007s
 """
+
 import itertools
 
 PERF_ITERATIONS = 100

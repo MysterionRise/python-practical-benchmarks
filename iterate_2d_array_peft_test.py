@@ -15,6 +15,7 @@ Approach                         Total time    Per iteration
 - numpy ndarray (NON-STDLIB)     28.0520s            0.2805s
 
 """
+
 import numpy as np
 
 LIMIT = 500

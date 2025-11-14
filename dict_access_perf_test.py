@@ -33,6 +33,7 @@ Approach                         Total time         Per iteration
 - dict.setdefault(key, default)     0.066943s            0.000067s
 - using defaultdict                 0.052413s            0.000052s
 """
+
 import random
 import timeit
 from collections import defaultdict
@@ -98,7 +99,7 @@ def method1():
     llist = []
     for key in dict_iteration(TYPE):
         x = d[key]
-        v = random.random() * x
+        v = len(x) + random.randint(0, 10)
         llist.append(v)
 
 
@@ -107,7 +108,7 @@ def method2():
     llist = []
     for key in dict_iteration(TYPE):
         x = d.get(key)
-        v = random.random() * x
+        v = len(x) + random.randint(0, 10)
         llist.append(v)
 
 
@@ -115,13 +116,13 @@ def method2():
 def method3():
     llist = []
     for key in dict_iteration(TYPE):
-        x = d.setdefault(key, 0)
-        v = random.random() * x
+        x = d.setdefault(key, "")
+        v = len(x) + random.randint(0, 10)
         llist.append(v)
 
 
 # method 4: using defaultdict
-dd = defaultdict(lambda: 0)
+dd = defaultdict(lambda: "")
 dd.update(d)
 
 
@@ -129,7 +130,7 @@ def method4():
     llist = []
     for key in dict_iteration(TYPE):
         x = dd[key]
-        v = random.random() * x
+        v = len(x) + random.randint(0, 10)
         llist.append(v)
 
 

@@ -5,7 +5,16 @@ pylint
 black
 isort
 
-# Optional: Fast JSON libraries for json_perf_test.py
+# Optional: Fast JSON libraries for json_perf_test.py and serialization_formats_perf_test.py
 # Uncomment to test alternative JSON implementations
 # ujson
 # orjson
+
+# Optional: attrs library for object_creation_patterns_perf_test.py
+# Uncomment to test attrs vs dataclass performance
+# attrs
+
+# Optional: Serialization libraries for serialization_formats_perf_test.py
+# Uncomment to test alternative serialization formats
+# msgpack
+# cbor2

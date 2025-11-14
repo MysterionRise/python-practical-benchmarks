@@ -1,0 +1,107 @@
+name: Benchmark Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test-benchmarks:
+    name: Test benchmarks on Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Install optional dependencies
+      run: |
+        pip install orjson ujson msgpack attrs || true
+        echo "Optional dependencies installed (some may have failed)"
+
+    - name: Run basic benchmarks
+      run: |
+        python run_all_tests.py --category basic --quick
+
+    - name: Run advanced benchmarks
+      run: |
+        python run_all_tests.py --category advanced --quick
+
+    - name: Run expert benchmarks
+      run: |
+        python run_all_tests.py --category expert --quick
+
+    - name: Run all benchmarks (sanity check)
+      run: |
+        python run_all_tests.py --all --quick
+
+  test-with-optional-deps:
+    name: Test with all optional dependencies
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+        cache: 'pip'
+
+    - name: Install all dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install orjson ujson msgpack cbor2 attrs
+
+    - name: Run serialization benchmarks with all formats
+      run: |
+        python serialization_formats_perf_test.py
+
+    - name: Run object creation with attrs
+      run: |
+        python object_creation_patterns_perf_test.py
+
+    - name: Run JSON benchmarks with orjson
+      run: |
+        python json_perf_test.py
+
+  test-minimal-deps:
+    name: Test with minimal dependencies
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+        cache: 'pip'
+
+    - name: Install minimal dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pandas numpy
+
+    - name: Run core benchmarks (no optional deps)
+      run: |
+        python run_all_tests.py --all --quick
