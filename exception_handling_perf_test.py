@@ -1,6 +1,11 @@
 """
 What is the performance impact of exception handling in Python? EAFP vs LBYL.
 
+PYTHON VERSION NOTE:
+Python 3.11+ introduced "zero-cost" exceptions - try/except blocks have virtually
+no overhead when no exception is raised. This significantly improves EAFP performance.
+Run this benchmark on 3.10 vs 3.11+ to see the difference.
+
 Performance test comparing different error handling strategies:
 
 DICTIONARY KEY ACCESS (1,000,000 iterations, 90% success rate):

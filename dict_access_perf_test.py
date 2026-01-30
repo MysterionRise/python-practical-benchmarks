@@ -1,6 +1,11 @@
 """
 What is the most efficient way to access dictionary value by key for best algorithmic performance?
 
+PYTHON VERSION NOTE:
+Python 3.11+ introduced inline caching for dictionary operations, making dict access
+faster when the same keys are accessed repeatedly. This benchmark shows improved
+performance on 3.11+ for all dictionary access patterns.
+
 Simple perf test with random strings as values and int as keys
 
 Performance results:

@@ -1,6 +1,11 @@
 """
 What is the overhead of different function call patterns in Python?
 
+PYTHON VERSION NOTE:
+Python 3.11+ introduced the "specializing adaptive interpreter" which significantly
+speeds up function calls by specializing bytecode for common patterns. This benchmark
+will show different results on 3.10 vs 3.11+, with function calls becoming faster.
+
 Simple performance test of different function call approaches:
 Performance results:
 

@@ -44,6 +44,8 @@ BENCHMARKS = {
         "serialization_formats_perf_test",
         "context_manager_perf_test",
         "import_strategies_perf_test",
+        "free_threaded_perf_test",
+        "jit_numeric_perf_test",
     ],
 }
 
@@ -77,6 +79,8 @@ QUICK_ITERATIONS = {
     "serialization_formats_perf_test": {"ITERATIONS": 10},
     "context_manager_perf_test": {"ITERATIONS": 1000, "NESTED_ITERATIONS": 100, "FILE_ITERATIONS": 100},
     "import_strategies_perf_test": {"ITERATIONS": 1000, "ACCESS_ITERATIONS": 10000},
+    "free_threaded_perf_test": {"NUM_WORKERS": 2, "WORK_ITERATIONS": 10000},
+    "jit_numeric_perf_test": {"PERF_ITERATIONS": 2, "NUMERIC_ITERATIONS": 10000, "MANDELBROT_SIZE": 50},
 }
 
 
@@ -172,6 +176,7 @@ def main():
     print("\n" + "=" * 80)
     print("BENCHMARK TEST RUNNER")
     print("=" * 80)
+    print(f"Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
     print(f"Running {len(to_run)} benchmarks")
     print(f"Quick mode: {args.quick}")
     print(f"{'='*80}\n")

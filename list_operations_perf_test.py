@@ -1,6 +1,11 @@
 """
 What is the most efficient way to build and manipulate lists in Python?
 
+PYTHON VERSION NOTE:
+Python 3.12+ improved list comprehension performance by inlining the comprehension
+code, eliminating the overhead of creating a separate function object. Expect
+10-20% faster comprehensions on 3.12+ compared to earlier versions.
+
 Simple performance test of different approaches to list operations:
 Performance results:
 
