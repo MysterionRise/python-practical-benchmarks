@@ -36,13 +36,11 @@ jobs:
 
     - name: Lint with flake8
       run: |
-        flake8 *.py --max-line-length=120 --ignore=W605,E203,W503,E501
-      continue-on-error: true
+        flake8 *.py --max-line-length=120 --ignore=W605,E203,W503,E501,E226
 
     - name: Lint with pylint
       run: |
         pylint *.py --max-line-length=120 --disable=C,R,W
-      continue-on-error: true
 
   pre-commit:
     name: Pre-commit checks

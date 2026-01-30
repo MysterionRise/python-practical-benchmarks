@@ -358,8 +358,7 @@ if __name__ == "__main__":
     print("\n" + "=" * 80)
     print("DECISION GUIDE")
     print("=" * 80)
-    print(
-        """
+    print("""
     SHALLOW COPY (when nested objects don't need copying):
     → Lists: list.copy() or list[:] - fastest
     → Dicts: dict.copy() - fastest
@@ -392,5 +391,4 @@ if __name__ == "__main__":
     → Pickle for complex objects (slower but handles more types)
     → Manual recursion for known structures (fastest but more code)
     → Immutable data structures (no copy needed!)
-    """
-    )
+    """)

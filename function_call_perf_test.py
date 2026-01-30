@@ -32,7 +32,8 @@ def simple_function(x, y):
 
 
 # Lambda function
-lambda_function = lambda x, y: x + y
+def lambda_function(x, y):
+    return x + y
 
 
 # Class for method testing

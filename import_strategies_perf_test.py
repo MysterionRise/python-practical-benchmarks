@@ -82,13 +82,13 @@ def measure_import_time(module_name):
 def perf_test1_regular_import():
     """Regular import statement (already cached)"""
     for _ in range(ITERATIONS):
-        import json
+        import json  # noqa: F401
 
 
 def perf_test2_from_import():
     """From import statement (already cached)"""
     for _ in range(ITERATIONS):
-        from json import dumps
+        from json import dumps  # noqa: F401
 
 
 def perf_test3_importlib():
@@ -128,7 +128,7 @@ def perf_test5_eager():
     """Eager loading: import at top, use later"""
     for _ in range(10000):
         modules = eager_function_setup()
-        result = eager_function_use(*modules)
+        _result = eager_function_use(*modules)  # noqa: F841
 
 
 # Lazy loading simulation
@@ -157,7 +157,7 @@ def perf_test6_lazy():
     """Lazy loading: import on first use"""
     for _ in range(10000):
         lazy = LazyImporter()
-        result = lazy_function_use(lazy)
+        _result = lazy_function_use(lazy)  # noqa: F841
 
 
 # ============================================================================
@@ -171,7 +171,7 @@ def perf_test7_access_direct():
 
     total = 0
     for _ in range(ACCESS_ITERATIONS):
-        cls = datetime.datetime
+        _cls = datetime.datetime  # noqa: F841
         total += 1
     return total
 
@@ -182,7 +182,7 @@ def perf_test8_access_from():
 
     total = 0
     for _ in range(ACCESS_ITERATIONS):
-        cls = datetime
+        _cls = datetime  # noqa: F841
         total += 1
     return total
 
@@ -193,7 +193,7 @@ def perf_test9_access_alias():
 
     total = 0
     for _ in range(ACCESS_ITERATIONS):
-        cls = dt.datetime
+        _cls = dt.datetime  # noqa: F841
         total += 1
     return total
 
@@ -266,14 +266,14 @@ if __name__ == "__main__":
     print("\nEager import (import at module top):")
     t5 = timeit.timeit(stmt="perf_test5_eager()", number=1, globals=globals())
     print(f"Total time:                      {t5:.6f}s")
-    print(f"  - Faster first use (already imported)")
-    print(f"  - Slower startup (all imports upfront)")
+    print("  - Faster first use (already imported)")
+    print("  - Slower startup (all imports upfront)")
 
     print("\nLazy import (import on first use):")
     t6 = timeit.timeit(stmt="perf_test6_lazy()", number=1, globals=globals())
     print(f"Total time:                      {t6:.6f}s")
-    print(f"  - Faster startup (deferred imports)")
-    print(f"  - Slower first use (import overhead)")
+    print("  - Faster startup (deferred imports)")
+    print("  - Slower first use (import overhead)")
 
     # ========================================================================
     # ATTRIBUTE ACCESS
@@ -301,8 +301,7 @@ if __name__ == "__main__":
     print("\n" + "=" * 80)
     print("DECISION GUIDE")
     print("=" * 80)
-    print(
-        """
+    print("""
     IMPORT AT MODULE TOP (STANDARD PATTERN):
     ✓ Best practice for most code
     ✓ Clear dependencies
@@ -453,5 +452,4 @@ if __name__ == "__main__":
 
     Remember: Premature optimization is the root of all evil.
     Profile first, optimize if startup time is actually a problem!
-    """
-    )
+    """)

@@ -44,7 +44,6 @@ KEY FINDINGS:
 
 import sys
 from itertools import chain, islice
-from typing import Iterator
 
 DATASET_SIZE = 1000000
 PIPELINE_SIZE = 100000
@@ -334,8 +333,7 @@ if __name__ == "__main__":
     print("\n" + "=" * 80)
     print("DECISION GUIDE")
     print("=" * 80)
-    print(
-        """
+    print("""
     USE LISTS WHEN:
     ✓ Need random access (indexing: my_list[5])
     ✓ Need to iterate multiple times
@@ -392,5 +390,4 @@ if __name__ == "__main__":
     filtered = (x for x in data if condition(x))
     transformed = (transform(x) for x in filtered)
     result = sum(transformed)  # Single pass, minimal memory
-    """
-    )
+    """)

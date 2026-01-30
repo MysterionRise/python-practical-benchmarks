@@ -49,7 +49,6 @@ KEY FINDINGS:
 
 from collections import namedtuple
 from dataclasses import dataclass
-from typing import Optional
 
 # Try to import attrs (optional)
 try:
@@ -174,7 +173,7 @@ def perf_test6_create_attrs():
     if not HAS_ATTRS:
         return None
     for i in range(PERF_ITERATIONS):
-        obj = AttrsPerson(f"User{i}", 25 + (i % 50), f"user{i}@example.com", "NYC")
+        obj = AttrsPerson(f"User{i}", 25 + (i % 50), f"user{i}@example.com", "NYC")  # pylint: disable=E0606
     return obj
 
 
@@ -183,7 +182,7 @@ def perf_test7_create_attrs_slotted():
     if not HAS_ATTRS:
         return None
     for i in range(PERF_ITERATIONS):
-        obj = AttrsSlottedPerson(f"User{i}", 25 + (i % 50), f"user{i}@example.com", "NYC")
+        obj = AttrsSlottedPerson(f"User{i}", 25 + (i % 50), f"user{i}@example.com", "NYC")  # pylint: disable=E0606
     return obj
 
 
@@ -257,7 +256,7 @@ def perf_test14_access_attrs():
         return 0
     total = 0
     for _ in range(ACCESS_ITERATIONS):
-        total += attrs_obj.age
+        total += attrs_obj.age  # pylint: disable=E0606
     return total
 
 
@@ -267,7 +266,7 @@ def perf_test15_access_attrs_slotted():
         return 0
     total = 0
     for _ in range(ACCESS_ITERATIONS):
-        total += attrs_slotted_obj.age
+        total += attrs_slotted_obj.age  # pylint: disable=E0606
     return total
 
 
@@ -386,8 +385,7 @@ if __name__ == "__main__":
     print("\n" + "=" * 80)
     print("DECISION GUIDE")
     print("=" * 80)
-    print(
-        """
+    print("""
     IMMUTABLE DATA (read-only after creation):
     → namedtuple: Fastest, minimal memory, built-in
     → dataclass(frozen=True): Better readability, type hints
@@ -417,5 +415,4 @@ if __name__ == "__main__":
     AVOID:
     ✗ dict for structured data (no type hints, slower, more memory)
     ✗ Regular class without __slots__ for high-volume objects
-    """
-    )
+    """)

@@ -12,10 +12,10 @@ Usage:
     python run_all_tests.py --category expert       # Run only expert benchmarks
     python run_all_tests.py --list                  # List all benchmarks
 """
+
 import argparse
 import importlib
 import sys
-from pathlib import Path
 
 # Benchmark categorization
 BENCHMARKS = {
@@ -103,7 +103,7 @@ def run_benchmark(module_name, quick=False):
         else:
             # Most modules use if __name__ == "__main__"
             # We'll execute a minimal test instead
-            print(f"  Testing basic functions...")
+            print("  Testing basic functions...")
 
             # Find and run a test function
             test_functions = [
@@ -116,7 +116,7 @@ def run_benchmark(module_name, quick=False):
                 result = test_func()
                 print(f"  ✓ {test_functions[0]}() completed: {result}")
             else:
-                print(f"  ⚠ No test functions found, assuming module is OK")
+                print("  No test functions found, assuming module is OK")
 
         print(f"✓ {module_name} completed successfully")
         return True
@@ -169,9 +169,9 @@ def main():
     elif args.category:
         to_run = BENCHMARKS[args.category]
 
-    print(f"\n{'='*80}")
-    print(f"BENCHMARK TEST RUNNER")
-    print(f"{'='*80}")
+    print("\n" + "=" * 80)
+    print("BENCHMARK TEST RUNNER")
+    print("=" * 80)
     print(f"Running {len(to_run)} benchmarks")
     print(f"Quick mode: {args.quick}")
     print(f"{'='*80}\n")
@@ -183,9 +183,9 @@ def main():
         results[module_name] = success
 
     # Summary
-    print(f"\n{'='*80}")
-    print(f"SUMMARY")
-    print(f"{'='*80}")
+    print("\n" + "=" * 80)
+    print("SUMMARY")
+    print("=" * 80)
 
     passed = sum(1 for success in results.values() if success)
     failed = len(results) - passed

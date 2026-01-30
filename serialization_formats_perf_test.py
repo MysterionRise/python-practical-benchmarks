@@ -46,7 +46,6 @@ import marshal
 import pickle
 import timeit
 from dataclasses import dataclass
-from typing import Any, Dict, List
 
 import numpy as np
 
@@ -66,7 +65,7 @@ except ImportError:
     HAS_MSGPACK = False
 
 try:
-    import cbor2
+    import cbor2  # noqa: F401
 
     HAS_CBOR2 = True
 except ImportError:
@@ -321,7 +320,7 @@ if __name__ == "__main__":
     print("=" * 80)
     print(f"SMALL DICT (~1KB, {ITERATIONS:,} iterations)")
     print("=" * 80)
-    print(f"Format          Serialize    Deserialize  Size")
+    print("Format          Serialize    Deserialize  Size")
     print("-" * 60)
 
     t1_ser = timeit.timeit("perf_test1_pickle_serialize_small()", number=1, globals=globals())
@@ -357,7 +356,7 @@ if __name__ == "__main__":
     print("\n" + "=" * 80)
     print(f"NESTED OBJECTS (~50KB, {ITERATIONS:,} iterations)")
     print("=" * 80)
-    print(f"Format          Serialize    Deserialize  Size")
+    print("Format          Serialize    Deserialize  Size")
     print("-" * 60)
 
     t11_ser = timeit.timeit("perf_test11_pickle_serialize_nested()", number=1, globals=globals())
@@ -383,7 +382,7 @@ if __name__ == "__main__":
     print("\n" + "=" * 80)
     print(f"NUMERIC ARRAYS (10,000 integers, {ITERATIONS:,} iterations)")
     print("=" * 80)
-    print(f"Format          Serialize    Size        Notes")
+    print("Format          Serialize    Size        Notes")
     print("-" * 60)
 
     t17 = timeit.timeit("perf_test17_pickle_serialize_numbers()", number=1, globals=globals())
@@ -410,8 +409,7 @@ if __name__ == "__main__":
     print("\n" + "=" * 80)
     print("DECISION GUIDE")
     print("=" * 80)
-    print(
-        """
+    print("""
     USE PICKLE WHEN:
     ✓ Python-to-Python communication only
     ✓ Need to serialize complex Python objects
@@ -509,5 +507,4 @@ if __name__ == "__main__":
 
     Note: orjson requires compilation (binary wheel)
     msgpack has pure-Python fallback
-    """
-    )
+    """)

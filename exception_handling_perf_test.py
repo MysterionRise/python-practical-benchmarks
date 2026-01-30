@@ -354,8 +354,7 @@ if __name__ == "__main__":
     print("\n" + "=" * 80)
     print("DECISION GUIDE: EAFP vs LBYL")
     print("=" * 80)
-    print(
-        """
+    print("""
     FUNDAMENTAL RULE:
     → Exceptions are ~200x slower than normal code flow
     → Use exceptions for EXCEPTIONAL conditions, not control flow
@@ -471,5 +470,4 @@ if __name__ == "__main__":
 
     Remember: Profile your specific use case. The 1% vs 10% thresholds
     are guidelines - measure to know for sure.
-    """
-    )
+    """)

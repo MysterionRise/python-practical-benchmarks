@@ -270,8 +270,7 @@ if __name__ == "__main__":
     print("\n" + "=" * 80)
     print("BEST PRACTICES")
     print("=" * 80)
-    print(
-        """
+    print("""
     ✓ ALWAYS pre-compile regex patterns used more than 2-3 times
     ✓ Use string methods (startswith, endswith, in) for simple patterns
     ✓ Keep regex patterns as simple as possible
@@ -297,5 +296,4 @@ if __name__ == "__main__":
     → Use uncompiled for one-time operations
     → Pre-compile for 3+ uses (2x speedup)
     → Pre-compile at module level for frequent use
-    """
-    )
+    """)

@@ -108,9 +108,9 @@ def perf_test1_no_context():
     """Baseline: No context manager"""
     total = 0
     for i in range(ITERATIONS):
-        resource = "allocated"
+        _resource = "allocated"
         total += i
-        resource = None
+        _resource = None  # noqa: F841
     return total
 
 
@@ -145,11 +145,11 @@ def perf_test5_manual_try_finally():
     """Manual cleanup: try/finally"""
     total = 0
     for i in range(ITERATIONS):
-        resource = "allocated"
+        _resource = "allocated"
         try:
             total += i
         finally:
-            resource = None
+            _resource = None  # noqa: F841
     return total
 
 
@@ -193,19 +193,19 @@ def perf_test9_manual_nested():
     """Manual nested try/finally"""
     total = 0
     for i in range(NESTED_ITERATIONS):
-        res1 = "allocated"
+        _res1 = "allocated"
         try:
-            res2 = "allocated"
+            _res2 = "allocated"
             try:
-                res3 = "allocated"
+                _res3 = "allocated"
                 try:
                     total += i
                 finally:
-                    res3 = None
+                    _res3 = None  # noqa: F841
             finally:
-                res2 = None
+                _res2 = None  # noqa: F841
         finally:
-            res1 = None
+            _res1 = None  # noqa: F841
     return total
 
 
@@ -344,8 +344,7 @@ if __name__ == "__main__":
     print("\n" + "=" * 80)
     print("DECISION GUIDE")
     print("=" * 80)
-    print(
-        """
+    print("""
     WHEN TO USE CONTEXT MANAGERS:
     ✓ Resource management (files, locks, connections)
     ✓ Setup/teardown patterns
@@ -470,5 +469,4 @@ if __name__ == "__main__":
 
     Remember: The overhead is worth it! Resource leaks, deadlocks,
     and other cleanup failures cost far more than the 2-4x overhead.
-    """
-    )
+    """)
