@@ -21,15 +21,59 @@ Thank you for your interest in contributing to this project! This guide will hel
 
 2. **Install Dependencies**
    ```bash
+   # Option A: Install all dependencies (recommended)
+   pip install -e ".[all]"
+
+   # Option B: Install from requirements files
    pip install -r requirements.txt
-   pip install pre-commit
-   pre-commit install
+   pip install -r requirements-optional.txt  # Optional benchmark deps
    ```
 
-3. **Choose a Benchmark Topic**
+3. **Set Up Pre-commit Hooks**
+   ```bash
+   pre-commit install
+   pre-commit install --hook-type commit-msg  # For conventional commits
+   ```
+
+4. **Verify Setup**
+   ```bash
+   # Run linting
+   ruff check .
+   ruff format --check .
+   mypy .
+
+   # Run tests
+   pytest tests/ -v
+
+   # Run benchmarks
+   python run_all_tests.py --all --quick
+   ```
+
+5. **Choose a Benchmark Topic**
    - Focus on practical, real-world performance questions
    - Look for common patterns developers face
    - Avoid trivial or overly academic examples
+
+## Development Commands
+
+```bash
+# Linting and formatting
+ruff check .                    # Lint code
+ruff check --fix .              # Lint and auto-fix
+ruff format .                   # Format code
+mypy .                          # Type checking
+
+# Testing
+pytest tests/ -v                # Run tests
+pytest tests/ --cov=. --cov-report=term-missing  # With coverage
+
+# Benchmarks
+python run_all_tests.py --list  # List all benchmarks
+python run_all_tests.py --all --quick  # Quick smoke test
+
+# Pre-commit
+pre-commit run --all-files      # Run all hooks
+```
 
 ## Benchmark Structure
 
@@ -293,9 +337,9 @@ python run_all_tests.py --category basic --quick
 ### 4. Run Linting
 
 ```bash
-black --line-length 120 your_new_perf_test.py
-isort --profile black --line-length 120 your_new_perf_test.py
-flake8 your_new_perf_test.py --max-line-length=120 --ignore=W605,E203,W503,E501
+ruff check your_new_perf_test.py
+ruff format your_new_perf_test.py
+mypy your_new_perf_test.py
 ```
 
 Or use pre-commit:
@@ -361,8 +405,8 @@ git commit -m "feat: add [benchmark name] performance test
 ### Style Guidelines
 
 - **Line length**: 120 characters max
-- **Formatting**: Use Black with `--line-length 120`
-- **Imports**: Sort with isort, `--profile black`
+- **Linting**: Ruff (replaces Black, isort, flake8, pylint, bandit)
+- **Type checking**: mypy (gradual typing mode)
 - **Naming**:
   - Functions: `snake_case`
   - Constants: `UPPER_CASE`

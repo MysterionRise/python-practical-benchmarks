@@ -180,19 +180,19 @@ if __name__ == "__main__":
     start = time.perf_counter()
     asyncio.run(perf_test2_async_io())
     t2 = time.perf_counter() - start
-    print(f"Async/await (asyncio):           {t2:.6f}s  (speedup: {t1/t2:.1f}x)")
+    print(f"Async/await (asyncio):           {t2:.6f}s  (speedup: {t1 / t2:.1f}x)")
 
     # Test 3: Threading pool I/O
     start = time.perf_counter()
     perf_test3_threading_pool_io()
     t3 = time.perf_counter() - start
-    print(f"Threading (ThreadPoolExecutor):  {t3:.6f}s  (speedup: {t1/t3:.1f}x)")
+    print(f"Threading (ThreadPoolExecutor):  {t3:.6f}s  (speedup: {t1 / t3:.1f}x)")
 
     # Test 4: Manual threading I/O
     start = time.perf_counter()
     perf_test4_threading_manual_io()
     t4 = time.perf_counter() - start
-    print(f"Threading (manual threads):      {t4:.6f}s  (speedup: {t1/t4:.1f}x)")
+    print(f"Threading (manual threads):      {t4:.6f}s  (speedup: {t1 / t4:.1f}x)")
 
     print(f"\n{'Winner for I/O-bound:':<30} {'Async/await or Threading' if t2 < t3 else 'Threading'}")
 
@@ -214,19 +214,19 @@ if __name__ == "__main__":
     start = time.perf_counter()
     asyncio.run(perf_test6_async_cpu())
     t6 = time.perf_counter() - start
-    print(f"Async/await (asyncio):           {t6:.6f}s  (speedup: {t5/t6:.1f}x) ⚠ GIL overhead!")
+    print(f"Async/await (asyncio):           {t6:.6f}s  (speedup: {t5 / t6:.1f}x) ⚠ GIL overhead!")
 
     # Test 7: Threading CPU
     start = time.perf_counter()
     perf_test7_threading_cpu()
     t7 = time.perf_counter() - start
-    print(f"Threading (ThreadPoolExecutor):  {t7:.6f}s  (speedup: {t5/t7:.1f}x) ⚠ GIL limited!")
+    print(f"Threading (ThreadPoolExecutor):  {t7:.6f}s  (speedup: {t5 / t7:.1f}x) ⚠ GIL limited!")
 
     # Test 8: Multiprocessing CPU
     start = time.perf_counter()
     perf_test8_multiprocessing_cpu()
     t8 = time.perf_counter() - start
-    print(f"Multiprocessing (ProcessPool):   {t8:.6f}s  (speedup: {t5/t8:.1f}x) ✓ GIL bypassed!")
+    print(f"Multiprocessing (ProcessPool):   {t8:.6f}s  (speedup: {t5 / t8:.1f}x) ✓ GIL bypassed!")
 
     print(f"\n{'Winner for CPU-bound:':<30} Multiprocessing")
 

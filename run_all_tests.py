@@ -86,9 +86,9 @@ QUICK_ITERATIONS = {
 
 def run_benchmark(module_name, quick=False):
     """Run a single benchmark module."""
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print(f"Running: {module_name}")
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
 
     try:
         # Import the module
@@ -179,7 +179,7 @@ def main():
     print(f"Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
     print(f"Running {len(to_run)} benchmarks")
     print(f"Quick mode: {args.quick}")
-    print(f"{'='*80}\n")
+    print(f"{'=' * 80}\n")
 
     # Run benchmarks
     results = {}
@@ -205,7 +205,7 @@ def main():
             if not success:
                 print(f"  ✗ {module_name}")
 
-    print(f"{'='*80}\n")
+    print(f"{'=' * 80}\n")
 
     return 0 if failed == 0 else 1
 

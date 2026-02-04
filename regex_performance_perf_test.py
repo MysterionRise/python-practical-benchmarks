@@ -208,22 +208,30 @@ if __name__ == "__main__":
     print("=" * 80)
 
     t1 = timeit.timeit(stmt="perf_test1_match_uncompiled()", number=PERF_ITERATIONS, globals=globals())
-    print(f"re.match() uncompiled:           {t1:.6f}s  (per iter: {t1/PERF_ITERATIONS:.6f}s)")
+    print(f"re.match() uncompiled:           {t1:.6f}s  (per iter: {t1 / PERF_ITERATIONS:.6f}s)")
 
     t2 = timeit.timeit(stmt="perf_test2_match_compiled()", number=PERF_ITERATIONS, globals=globals())
-    print(f"re.match() pre-compiled:         {t2:.6f}s  (per iter: {t2/PERF_ITERATIONS:.6f}s) ✓ {t1/t2:.1f}x faster")
+    print(
+        f"re.match() pre-compiled:         {t2:.6f}s  (per iter: {t2 / PERF_ITERATIONS:.6f}s) ✓ {t1 / t2:.1f}x faster"
+    )
 
     t3 = timeit.timeit(stmt="perf_test3_search_uncompiled()", number=PERF_ITERATIONS, globals=globals())
-    print(f"re.search() uncompiled:          {t3:.6f}s  (per iter: {t3/PERF_ITERATIONS:.6f}s)")
+    print(f"re.search() uncompiled:          {t3:.6f}s  (per iter: {t3 / PERF_ITERATIONS:.6f}s)")
 
     t4 = timeit.timeit(stmt="perf_test4_search_compiled()", number=PERF_ITERATIONS, globals=globals())
-    print(f"re.search() pre-compiled:        {t4:.6f}s  (per iter: {t4/PERF_ITERATIONS:.6f}s) ✓ {t3/t4:.1f}x faster")
+    print(
+        f"re.search() pre-compiled:        {t4:.6f}s  (per iter: {t4 / PERF_ITERATIONS:.6f}s) ✓ {t3 / t4:.1f}x faster"
+    )
 
     t5 = timeit.timeit(stmt="perf_test5_startswith()", number=PERF_ITERATIONS, globals=globals())
-    print(f"str.startswith() + 'in':         {t5:.6f}s  (per iter: {t5/PERF_ITERATIONS:.6f}s) ✓ {t1/t5:.1f}x faster")
+    print(
+        f"str.startswith() + 'in':         {t5:.6f}s  (per iter: {t5 / PERF_ITERATIONS:.6f}s) ✓ {t1 / t5:.1f}x faster"
+    )
 
     t6 = timeit.timeit(stmt="perf_test6_string_in()", number=PERF_ITERATIONS, globals=globals())
-    print(f"'in' operator:                   {t6:.6f}s  (per iter: {t6/PERF_ITERATIONS:.6f}s) ✓ {t1/t6:.1f}x faster")
+    print(
+        f"'in' operator:                   {t6:.6f}s  (per iter: {t6 / PERF_ITERATIONS:.6f}s) ✓ {t1 / t6:.1f}x faster"
+    )
 
     # ========================================================================
     # EMAIL VALIDATION
@@ -233,13 +241,17 @@ if __name__ == "__main__":
     print("=" * 80)
 
     t7 = timeit.timeit(stmt="perf_test7_email_complex()", number=PERF_ITERATIONS, globals=globals())
-    print(f"RFC-compliant regex (complex):   {t7:.6f}s  (per iter: {t7/PERF_ITERATIONS:.6f}s)")
+    print(f"RFC-compliant regex (complex):   {t7:.6f}s  (per iter: {t7 / PERF_ITERATIONS:.6f}s)")
 
     t8 = timeit.timeit(stmt="perf_test8_email_simple()", number=PERF_ITERATIONS, globals=globals())
-    print(f"Simple practical regex:          {t8:.6f}s  (per iter: {t8/PERF_ITERATIONS:.6f}s) ✓ {t7/t8:.1f}x faster")
+    print(
+        f"Simple practical regex:          {t8:.6f}s  (per iter: {t8 / PERF_ITERATIONS:.6f}s) ✓ {t7 / t8:.1f}x faster"
+    )
 
     t9 = timeit.timeit(stmt="perf_test9_email_string_methods()", number=PERF_ITERATIONS, globals=globals())
-    print(f"String methods validation:       {t9:.6f}s  (per iter: {t9/PERF_ITERATIONS:.6f}s) ✓ {t7/t9:.1f}x faster")
+    print(
+        f"String methods validation:       {t9:.6f}s  (per iter: {t9 / PERF_ITERATIONS:.6f}s) ✓ {t7 / t9:.1f}x faster"
+    )
 
     # ========================================================================
     # COMPLEX OPERATIONS
@@ -249,19 +261,19 @@ if __name__ == "__main__":
     print("=" * 80)
 
     t10 = timeit.timeit(stmt="perf_test10_findall_uncompiled()", number=PERF_ITERATIONS, globals=globals())
-    print(f"re.findall() uncompiled:         {t10:.6f}s  (per iter: {t10/PERF_ITERATIONS:.6f}s)")
+    print(f"re.findall() uncompiled:         {t10:.6f}s  (per iter: {t10 / PERF_ITERATIONS:.6f}s)")
 
     t11 = timeit.timeit(stmt="perf_test11_findall_compiled()", number=PERF_ITERATIONS, globals=globals())
     print(
-        f"re.findall() pre-compiled:       {t11:.6f}s  (per iter: {t11/PERF_ITERATIONS:.6f}s) ✓ {t10/t11:.1f}x faster"
+        f"re.findall() pre-compiled:       {t11:.6f}s  (per iter: {t11 / PERF_ITERATIONS:.6f}s) ✓ {t10 / t11:.1f}x faster"
     )
 
     t12 = timeit.timeit(stmt="perf_test12_sub_uncompiled()", number=PERF_ITERATIONS, globals=globals())
-    print(f"re.sub() uncompiled:             {t12:.6f}s  (per iter: {t12/PERF_ITERATIONS:.6f}s)")
+    print(f"re.sub() uncompiled:             {t12:.6f}s  (per iter: {t12 / PERF_ITERATIONS:.6f}s)")
 
     t13 = timeit.timeit(stmt="perf_test13_sub_compiled()", number=PERF_ITERATIONS, globals=globals())
     print(
-        f"re.sub() pre-compiled:           {t13:.6f}s  (per iter: {t13/PERF_ITERATIONS:.6f}s) ✓ {t12/t13:.1f}x faster"
+        f"re.sub() pre-compiled:           {t13:.6f}s  (per iter: {t13 / PERF_ITERATIONS:.6f}s) ✓ {t12 / t13:.1f}x faster"
     )
 
     # ========================================================================

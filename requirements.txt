@@ -1,20 +1,15 @@
-pandas
-numpy
-pre-commit
-pylint
-black
-isort
+# Core dependencies for benchmarks
+pandas>=2.0.0,<3.0.0
+numpy>=1.24.0,<3.0.0
 
-# Optional: Fast JSON libraries for json_perf_test.py and serialization_formats_perf_test.py
-# Uncomment to test alternative JSON implementations
-# ujson
-# orjson
+# Development tools
+pre-commit>=3.5.0
+ruff>=0.8.0
+mypy>=1.8.0
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pip-audit>=2.6.0
 
-# Optional: attrs library for object_creation_patterns_perf_test.py
-# Uncomment to test attrs vs dataclass performance
-# attrs
-
-# Optional: Serialization libraries for serialization_formats_perf_test.py
-# Uncomment to test alternative serialization formats
-# msgpack
-# cbor2
+# Type stubs for mypy
+pandas-stubs
+types-setuptools

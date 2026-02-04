@@ -301,26 +301,26 @@ if __name__ == "__main__":
     print(f"Regular class:                   {t1:.6f}s  (baseline)")
 
     t2 = timeit.timeit(stmt="perf_test2_create_slotted()", number=10, globals=globals()) / 10
-    print(f"Regular class with __slots__:    {t2:.6f}s  ({t1/t2:.2f}x) ✓")
+    print(f"Regular class with __slots__:    {t2:.6f}s  ({t1 / t2:.2f}x) ✓")
 
     t3 = timeit.timeit(stmt="perf_test3_create_namedtuple()", number=10, globals=globals()) / 10
-    print(f"namedtuple:                      {t3:.6f}s  ({t1/t3:.2f}x) ✓ fastest immutable")
+    print(f"namedtuple:                      {t3:.6f}s  ({t1 / t3:.2f}x) ✓ fastest immutable")
 
     t4 = timeit.timeit(stmt="perf_test4_create_dataclass()", number=10, globals=globals()) / 10
-    print(f"dataclass:                       {t4:.6f}s  ({t1/t4:.2f}x)")
+    print(f"dataclass:                       {t4:.6f}s  ({t1 / t4:.2f}x)")
 
     t5 = timeit.timeit(stmt="perf_test5_create_slotted_dataclass()", number=10, globals=globals()) / 10
-    print(f"dataclass with __slots__:        {t5:.6f}s  ({t1/t5:.2f}x) ✓")
+    print(f"dataclass with __slots__:        {t5:.6f}s  ({t1 / t5:.2f}x) ✓")
 
     if HAS_ATTRS:
         t6 = timeit.timeit(stmt="perf_test6_create_attrs()", number=10, globals=globals()) / 10
-        print(f"attrs:                           {t6:.6f}s  ({t1/t6:.2f}x)")
+        print(f"attrs:                           {t6:.6f}s  ({t1 / t6:.2f}x)")
 
         t7 = timeit.timeit(stmt="perf_test7_create_attrs_slotted()", number=10, globals=globals()) / 10
-        print(f"attrs with slots=True:           {t7:.6f}s  ({t1/t7:.2f}x) ✓")
+        print(f"attrs with slots=True:           {t7:.6f}s  ({t1 / t7:.2f}x) ✓")
 
     t8 = timeit.timeit(stmt="perf_test8_create_dict()", number=10, globals=globals()) / 10
-    print(f"dict:                            {t8:.6f}s  ({t1/t8:.2f}x)")
+    print(f"dict:                            {t8:.6f}s  ({t1 / t8:.2f}x)")
 
     # ========================================================================
     # ATTRIBUTE ACCESS
@@ -330,35 +330,35 @@ if __name__ == "__main__":
     print("=" * 80)
 
     t9 = timeit.timeit(stmt="perf_test9_access_regular()", number=10, globals=globals()) / 10
-    print(f"Regular class:                   {t9:.6f}s  ({t9*1e9/ACCESS_ITERATIONS:.2f}ns per access)")
+    print(f"Regular class:                   {t9:.6f}s  ({t9 * 1e9 / ACCESS_ITERATIONS:.2f}ns per access)")
 
     t10 = timeit.timeit(stmt="perf_test10_access_slotted()", number=10, globals=globals()) / 10
     print(
-        f"Regular class with __slots__:    {t10:.6f}s  ({t10*1e9/ACCESS_ITERATIONS:.2f}ns per access) ✓ {t9/t10:.2f}x"
+        f"Regular class with __slots__:    {t10:.6f}s  ({t10 * 1e9 / ACCESS_ITERATIONS:.2f}ns per access) ✓ {t9 / t10:.2f}x"
     )
 
     t11 = timeit.timeit(stmt="perf_test11_access_namedtuple()", number=10, globals=globals()) / 10
-    print(f"namedtuple:                      {t11:.6f}s  ({t11*1e9/ACCESS_ITERATIONS:.2f}ns per access)")
+    print(f"namedtuple:                      {t11:.6f}s  ({t11 * 1e9 / ACCESS_ITERATIONS:.2f}ns per access)")
 
     t12 = timeit.timeit(stmt="perf_test12_access_dataclass()", number=10, globals=globals()) / 10
-    print(f"dataclass:                       {t12:.6f}s  ({t12*1e9/ACCESS_ITERATIONS:.2f}ns per access)")
+    print(f"dataclass:                       {t12:.6f}s  ({t12 * 1e9 / ACCESS_ITERATIONS:.2f}ns per access)")
 
     t13 = timeit.timeit(stmt="perf_test13_access_slotted_dataclass()", number=10, globals=globals()) / 10
     print(
-        f"dataclass with __slots__:        {t13:.6f}s  ({t13*1e9/ACCESS_ITERATIONS:.2f}ns per access) ✓ {t9/t13:.2f}x"
+        f"dataclass with __slots__:        {t13:.6f}s  ({t13 * 1e9 / ACCESS_ITERATIONS:.2f}ns per access) ✓ {t9 / t13:.2f}x"
     )
 
     if HAS_ATTRS:
         t14 = timeit.timeit(stmt="perf_test14_access_attrs()", number=10, globals=globals()) / 10
-        print(f"attrs:                           {t14:.6f}s  ({t14*1e9/ACCESS_ITERATIONS:.2f}ns per access)")
+        print(f"attrs:                           {t14:.6f}s  ({t14 * 1e9 / ACCESS_ITERATIONS:.2f}ns per access)")
 
         t15 = timeit.timeit(stmt="perf_test15_access_attrs_slotted()", number=10, globals=globals()) / 10
         print(
-            f"attrs with slots=True:           {t15:.6f}s  ({t15*1e9/ACCESS_ITERATIONS:.2f}ns per access) ✓ {t9/t15:.2f}x"
+            f"attrs with slots=True:           {t15:.6f}s  ({t15 * 1e9 / ACCESS_ITERATIONS:.2f}ns per access) ✓ {t9 / t15:.2f}x"
         )
 
     t16 = timeit.timeit(stmt="perf_test16_access_dict()", number=10, globals=globals()) / 10
-    print(f"dict:                            {t16:.6f}s  ({t16*1e9/ACCESS_ITERATIONS:.2f}ns per access)")
+    print(f"dict:                            {t16:.6f}s  ({t16 * 1e9 / ACCESS_ITERATIONS:.2f}ns per access)")
 
     # ========================================================================
     # MEMORY USAGE ESTIMATION

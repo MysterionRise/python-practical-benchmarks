@@ -115,27 +115,27 @@ if __name__ == "__main__":
 
     print("JSON Serialization/Deserialization Performance Test")
     print(f"Number of iterations = {PERF_ITERATIONS}, data structure size = {DATA_SIZE} objects")
-    print(f"Sample data size: {len(JSON_STRING):,} bytes ({len(JSON_STRING)/1024:.2f} KB)\n")
+    print(f"Sample data size: {len(JSON_STRING):,} bytes ({len(JSON_STRING) / 1024:.2f} KB)\n")
 
     print("=" * 70)
     print("SERIALIZATION (dumps)")
     print("=" * 70)
 
     t1 = timeit.timeit(stmt="perf_test1()", number=PERF_ITERATIONS, globals=globals())
-    print(f"json.dumps():                    {t1:.6f}s  (per iteration: {t1/PERF_ITERATIONS:.6f}s)")
+    print(f"json.dumps():                    {t1:.6f}s  (per iteration: {t1 / PERF_ITERATIONS:.6f}s)")
 
     t2 = timeit.timeit(stmt="perf_test2()", number=PERF_ITERATIONS, globals=globals())
-    print(f"json.dumps(indent=2):            {t2:.6f}s  (per iteration: {t2/PERF_ITERATIONS:.6f}s)")
+    print(f"json.dumps(indent=2):            {t2:.6f}s  (per iteration: {t2 / PERF_ITERATIONS:.6f}s)")
 
     if HAS_UJSON:
         t3 = timeit.timeit(stmt="perf_test3()", number=PERF_ITERATIONS, globals=globals())
-        print(f"ujson.dumps():                   {t3:.6f}s  (per iteration: {t3/PERF_ITERATIONS:.6f}s)")
+        print(f"ujson.dumps():                   {t3:.6f}s  (per iteration: {t3 / PERF_ITERATIONS:.6f}s)")
     else:
         print("ujson.dumps():                   [NOT INSTALLED - run: pip install ujson]")
 
     if HAS_ORJSON:
         t4 = timeit.timeit(stmt="perf_test4()", number=PERF_ITERATIONS, globals=globals())
-        print(f"orjson.dumps():                  {t4:.6f}s  (per iteration: {t4/PERF_ITERATIONS:.6f}s)")
+        print(f"orjson.dumps():                  {t4:.6f}s  (per iteration: {t4 / PERF_ITERATIONS:.6f}s)")
     else:
         print("orjson.dumps():                  [NOT INSTALLED - run: pip install orjson]")
 
@@ -144,16 +144,16 @@ if __name__ == "__main__":
     print("=" * 70)
 
     t5 = timeit.timeit(stmt="perf_test5()", number=PERF_ITERATIONS, globals=globals())
-    print(f"json.loads():                    {t5:.6f}s  (per iteration: {t5/PERF_ITERATIONS:.6f}s)")
+    print(f"json.loads():                    {t5:.6f}s  (per iteration: {t5 / PERF_ITERATIONS:.6f}s)")
 
     if HAS_UJSON:
         t6 = timeit.timeit(stmt="perf_test6()", number=PERF_ITERATIONS, globals=globals())
-        print(f"ujson.loads():                   {t6:.6f}s  (per iteration: {t6/PERF_ITERATIONS:.6f}s)")
+        print(f"ujson.loads():                   {t6:.6f}s  (per iteration: {t6 / PERF_ITERATIONS:.6f}s)")
     else:
         print("ujson.loads():                   [NOT INSTALLED - run: pip install ujson]")
 
     if HAS_ORJSON:
         t7 = timeit.timeit(stmt="perf_test7()", number=PERF_ITERATIONS, globals=globals())
-        print(f"orjson.loads():                  {t7:.6f}s  (per iteration: {t7/PERF_ITERATIONS:.6f}s)")
+        print(f"orjson.loads():                  {t7:.6f}s  (per iteration: {t7 / PERF_ITERATIONS:.6f}s)")
     else:
         print("orjson.loads():                  [NOT INSTALLED - run: pip install orjson]")

@@ -162,45 +162,45 @@ if __name__ == "__main__":
     print("=" * 70)
 
     t1 = timeit.timeit(stmt="perf_test1()", number=PERF_ITERATIONS, globals=globals())
-    print(f"x in list:                       {t1:.6f}s  (per iteration: {t1/PERF_ITERATIONS:.6f}s)")
+    print(f"x in list:                       {t1:.6f}s  (per iteration: {t1 / PERF_ITERATIONS:.6f}s)")
 
     t2 = timeit.timeit(stmt="perf_test2()", number=PERF_ITERATIONS, globals=globals())
-    print(f"x in set:                        {t2:.6f}s  (per iteration: {t2/PERF_ITERATIONS:.6f}s)")
+    print(f"x in set:                        {t2:.6f}s  (per iteration: {t2 / PERF_ITERATIONS:.6f}s)")
 
     t3 = timeit.timeit(stmt="perf_test3()", number=PERF_ITERATIONS, globals=globals())
-    print(f"x in dict.keys():                {t3:.6f}s  (per iteration: {t3/PERF_ITERATIONS:.6f}s)")
+    print(f"x in dict.keys():                {t3:.6f}s  (per iteration: {t3 / PERF_ITERATIONS:.6f}s)")
 
     t4 = timeit.timeit(stmt="perf_test4()", number=PERF_ITERATIONS, globals=globals())
-    print(f"x in frozenset:                  {t4:.6f}s  (per iteration: {t4/PERF_ITERATIONS:.6f}s)")
+    print(f"x in frozenset:                  {t4:.6f}s  (per iteration: {t4 / PERF_ITERATIONS:.6f}s)")
 
     print("\n" + "=" * 70)
     print("DEDUPLICATION")
     print("=" * 70)
 
     t5 = timeit.timeit(stmt="perf_test5()", number=PERF_ITERATIONS, globals=globals())
-    print(f"list(set()):                     {t5:.6f}s  (per iteration: {t5/PERF_ITERATIONS:.6f}s)")
+    print(f"list(set()):                     {t5:.6f}s  (per iteration: {t5 / PERF_ITERATIONS:.6f}s)")
 
     t6 = timeit.timeit(stmt="perf_test6()", number=PERF_ITERATIONS, globals=globals())
-    print(f"dict.fromkeys():                 {t6:.6f}s  (per iteration: {t6/PERF_ITERATIONS:.6f}s)")
+    print(f"dict.fromkeys():                 {t6:.6f}s  (per iteration: {t6 / PERF_ITERATIONS:.6f}s)")
 
     t7 = timeit.timeit(stmt="perf_test7()", number=PERF_ITERATIONS, globals=globals())
-    print(f"Manual loop with set:            {t7:.6f}s  (per iteration: {t7/PERF_ITERATIONS:.6f}s)")
+    print(f"Manual loop with set:            {t7:.6f}s  (per iteration: {t7 / PERF_ITERATIONS:.6f}s)")
 
     t8 = timeit.timeit(stmt="perf_test8()", number=PERF_ITERATIONS, globals=globals())
-    print(f"Manual loop with dict:           {t8:.6f}s  (per iteration: {t8/PERF_ITERATIONS:.6f}s)")
+    print(f"Manual loop with dict:           {t8:.6f}s  (per iteration: {t8 / PERF_ITERATIONS:.6f}s)")
 
     print("\n" + "=" * 70)
     print("SET OPERATIONS (intersection, union)")
     print("=" * 70)
 
     t9 = timeit.timeit(stmt="perf_test9()", number=PERF_ITERATIONS, globals=globals())
-    print(f"Set intersection (&):            {t9:.6f}s  (per iteration: {t9/PERF_ITERATIONS:.6f}s)")
+    print(f"Set intersection (&):            {t9:.6f}s  (per iteration: {t9 / PERF_ITERATIONS:.6f}s)")
 
     t10 = timeit.timeit(stmt="perf_test10()", number=PERF_ITERATIONS, globals=globals())
-    print(f"List comp with membership:       {t10:.6f}s  (per iteration: {t10/PERF_ITERATIONS:.6f}s)")
+    print(f"List comp with membership:       {t10:.6f}s  (per iteration: {t10 / PERF_ITERATIONS:.6f}s)")
 
     t11 = timeit.timeit(stmt="perf_test11()", number=PERF_ITERATIONS, globals=globals())
-    print(f"Set union (|):                   {t11:.6f}s  (per iteration: {t11/PERF_ITERATIONS:.6f}s)")
+    print(f"Set union (|):                   {t11:.6f}s  (per iteration: {t11 / PERF_ITERATIONS:.6f}s)")
 
     t12 = timeit.timeit(stmt="perf_test12()", number=PERF_ITERATIONS, globals=globals())
-    print(f"List extend + deduplicate:       {t12:.6f}s  (per iteration: {t12/PERF_ITERATIONS:.6f}s)")
+    print(f"List extend + deduplicate:       {t12:.6f}s  (per iteration: {t12 / PERF_ITERATIONS:.6f}s)")

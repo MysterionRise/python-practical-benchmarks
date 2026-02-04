@@ -1,0 +1,68 @@
+name: Benchmark Request
+description: Suggest a new benchmark to add to the repository
+title: "[Benchmark]: "
+labels: ["enhancement", "benchmark-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new benchmark! Please describe the performance question you'd like answered.
+
+  - type: input
+    id: question
+    attributes:
+      label: Performance Question
+      description: What performance question should this benchmark answer?
+      placeholder: "What is the fastest way to...?"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Suggested Category
+      description: Which category does this benchmark fit into?
+      options:
+        - Basic (fundamental operations)
+        - Advanced (complex patterns, trade-offs)
+        - Expert (Python internals, subtle performance)
+    validations:
+      required: true
+
+  - type: textarea
+    id: approaches
+    attributes:
+      label: Approaches to Compare
+      description: List the different approaches you'd like to compare
+      placeholder: |
+        1. Approach A: description
+        2. Approach B: description
+        3. Approach C: description
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Real-World Use Case
+      description: Where would developers encounter this performance decision?
+      placeholder: "This is relevant when building APIs, data pipelines, etc."
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Any other information about this benchmark request
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      description: Would you like to contribute this benchmark?
+      options:
+        - label: I would like to implement this benchmark myself
+        - label: I can help test/review if someone else implements it

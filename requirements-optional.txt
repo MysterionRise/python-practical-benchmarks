@@ -1,0 +1,13 @@
+# Optional dependencies for enhanced benchmark coverage
+# Install with: pip install -r requirements-optional.txt
+
+# Fast JSON libraries for json_perf_test.py and serialization_formats_perf_test.py
+orjson>=3.9.0,<4.0.0
+ujson>=5.8.0,<6.0.0
+
+# attrs library for object_creation_patterns_perf_test.py
+attrs>=23.1.0,<25.0.0
+
+# Serialization libraries for serialization_formats_perf_test.py
+msgpack>=1.0.0,<2.0.0
+cbor2>=5.4.0,<6.0.0

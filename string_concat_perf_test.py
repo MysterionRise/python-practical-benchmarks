@@ -80,22 +80,22 @@ if __name__ == "__main__":
     print(f"Number of iterations = {PERF_ITERATIONS}, number of strings = {NUM_STRINGS}\n")
 
     t1 = timeit.timeit(stmt="perf_test1()", number=PERF_ITERATIONS, globals=globals())
-    print(f"+ operator in loop:              {t1:.6f}s  (per iteration: {t1/PERF_ITERATIONS:.6f}s)")
+    print(f"+ operator in loop:              {t1:.6f}s  (per iteration: {t1 / PERF_ITERATIONS:.6f}s)")
 
     t2 = timeit.timeit(stmt="perf_test2()", number=PERF_ITERATIONS, globals=globals())
-    print(f"str.join() with list:            {t2:.6f}s  (per iteration: {t2/PERF_ITERATIONS:.6f}s)")
+    print(f"str.join() with list:            {t2:.6f}s  (per iteration: {t2 / PERF_ITERATIONS:.6f}s)")
 
     t3 = timeit.timeit(stmt="perf_test3()", number=PERF_ITERATIONS, globals=globals())
-    print(f"f-strings in loop:               {t3:.6f}s  (per iteration: {t3/PERF_ITERATIONS:.6f}s)")
+    print(f"f-strings in loop:               {t3:.6f}s  (per iteration: {t3 / PERF_ITERATIONS:.6f}s)")
 
     t4 = timeit.timeit(stmt="perf_test4()", number=PERF_ITERATIONS, globals=globals())
-    print(f"str.format() in loop:            {t4:.6f}s  (per iteration: {t4/PERF_ITERATIONS:.6f}s)")
+    print(f"str.format() in loop:            {t4:.6f}s  (per iteration: {t4 / PERF_ITERATIONS:.6f}s)")
 
     t5 = timeit.timeit(stmt="perf_test5()", number=PERF_ITERATIONS, globals=globals())
-    print(f"io.StringIO:                     {t5:.6f}s  (per iteration: {t5/PERF_ITERATIONS:.6f}s)")
+    print(f"io.StringIO:                     {t5:.6f}s  (per iteration: {t5 / PERF_ITERATIONS:.6f}s)")
 
     t6 = timeit.timeit(stmt="perf_test6()", number=PERF_ITERATIONS, globals=globals())
-    print(f"List comprehension + join:       {t6:.6f}s  (per iteration: {t6/PERF_ITERATIONS:.6f}s)")
+    print(f"List comprehension + join:       {t6:.6f}s  (per iteration: {t6 / PERF_ITERATIONS:.6f}s)")
 
     t7 = timeit.timeit(stmt="perf_test7()", number=PERF_ITERATIONS, globals=globals())
-    print(f"''.join(generator):              {t7:.6f}s  (per iteration: {t7/PERF_ITERATIONS:.6f}s)")
+    print(f"''.join(generator):              {t7:.6f}s  (per iteration: {t7 / PERF_ITERATIONS:.6f}s)")

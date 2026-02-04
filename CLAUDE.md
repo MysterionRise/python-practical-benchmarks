@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-A Python performance benchmarking repository with 20 benchmarks organized into three tiers: basic (10), advanced (5), and expert (5). Each benchmark answers a specific performance question with real measurements and actionable decision guides.
+A Python performance benchmarking repository with 20+ benchmarks organized into three tiers: basic (10), advanced (5), and expert (7). Each benchmark answers a specific performance question with real measurements and actionable decision guides.
 
 ## Commands
 
@@ -29,17 +29,32 @@ python dict_access_perf_test.py
 ### Code Quality
 
 ```bash
-# Format code
-black --line-length 120 *.py
+# Lint code (replaces flake8, pylint, bandit)
+ruff check .
+ruff check --fix .  # Auto-fix issues
 
-# Sort imports
-isort --profile black --line-length 120 *.py
+# Format code (replaces black, isort)
+ruff format .
+ruff format --check .  # Check only
 
-# Lint
-flake8 *.py --max-line-length=120 --ignore=W605,E203,W503,E501
+# Type checking
+mypy .
 
 # Run all pre-commit hooks
 pre-commit run --all-files
+```
+
+### Testing
+
+```bash
+# Run tests
+pytest tests/ -v
+
+# Run tests with coverage
+pytest tests/ --cov=. --cov-report=term-missing --cov-fail-under=80
+
+# Security audit
+pip-audit --strict
 ```
 
 ## Architecture
@@ -57,6 +72,14 @@ Each `*_perf_test.py` file follows a consistent pattern:
 
 `run_all_tests.py` dynamically imports benchmarks and reduces iteration counts via `QUICK_ITERATIONS` dict. It finds and runs functions starting with `perf_test` as smoke tests.
 
+### Test Infrastructure
+
+The `tests/` directory contains pytest tests:
+- `conftest.py`: Shared fixtures and benchmark constants
+- `test_benchmark_runner.py`: Tests for run_all_tests.py CLI
+- `test_benchmark_smoke.py`: Import tests for all benchmark modules
+- `test_benchmark_functions.py`: Verify perf_test functions execute correctly
+
 ### Optional Dependencies
 
 Some benchmarks gracefully handle missing optional packages (orjson, ujson, msgpack, cbor2, attrs) using try/except imports.
@@ -64,11 +87,17 @@ Some benchmarks gracefully handle missing optional packages (orjson, ujson, msgp
 ## Code Style
 
 - **Line length**: 120 characters
-- **Formatter**: Black with `--line-length 120`
-- **Import sorting**: isort with `--profile black`
+- **Linter/Formatter**: Ruff (replaces Black, isort, flake8, pylint, bandit)
+- **Type checking**: mypy (gradual typing mode)
 - **Constants**: UPPER_CASE for configurable test parameters
 - **Commits**: Conventional commits (feat:, fix:, chore:)
 
 ## Python Version Support
 
 Python 3.9 through 3.14 (tested in CI).
+
+## CI/CD Workflows
+
+- `lint.yml`: Ruff linting/formatting, mypy type checking, pre-commit hooks
+- `tests.yml`: Multi-Python version testing, coverage reporting to Codecov
+- `security.yml`: pip-audit, TruffleHog, CodeQL analysis

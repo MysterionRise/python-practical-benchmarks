@@ -216,7 +216,8 @@ if __name__ == "__main__":
     print("=" * 80)
 
     if is_free_threaded():
-        print("""
+        print(
+            """
     You are running FREE-THREADED Python (no GIL)!
 
     EXPECTED BEHAVIOR:
@@ -224,7 +225,8 @@ if __name__ == "__main__":
     - I/O-bound threading works as expected (same as standard Python)
 
     This is the future of Python for CPU-bound parallel workloads!
-        """.format(NUM_WORKERS))
+        """.format(NUM_WORKERS)
+        )
     else:
         print("""
     You are running STANDARD Python (with GIL).

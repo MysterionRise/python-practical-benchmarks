@@ -290,46 +290,46 @@ if __name__ == "__main__":
     print("=" * 80)
 
     t1 = timeit.timeit(stmt="perf_test1_read_normal()", number=1, globals=globals())
-    print(f"Direct attribute (normal):       {t1:.6f}s  ({t1*1e9/ACCESS_ITERATIONS:.1f}ns per access) [baseline]")
+    print(f"Direct attribute (normal):       {t1:.6f}s  ({t1 * 1e9 / ACCESS_ITERATIONS:.1f}ns per access) [baseline]")
 
     t2 = timeit.timeit(stmt="perf_test2_read_slotted()", number=1, globals=globals())
     print(
-        f"__slots__ attribute:             {t2:.6f}s  ({t2*1e9/ACCESS_ITERATIONS:.1f}ns per access) ✓ {t1/t2:.2f}x faster"
+        f"__slots__ attribute:             {t2:.6f}s  ({t2 * 1e9 / ACCESS_ITERATIONS:.1f}ns per access) ✓ {t1 / t2:.2f}x faster"
     )
 
     t3 = timeit.timeit(stmt="perf_test3_read_dict()", number=1, globals=globals())
     print(
-        f"Dict lookup obj.__dict__['x']:   {t3:.6f}s  ({t3*1e9/ACCESS_ITERATIONS:.1f}ns per access) {t3/t1:.2f}x slower"
+        f"Dict lookup obj.__dict__['x']:   {t3:.6f}s  ({t3 * 1e9 / ACCESS_ITERATIONS:.1f}ns per access) {t3 / t1:.2f}x slower"
     )
 
     t4 = timeit.timeit(stmt="perf_test4_read_getattr()", number=1, globals=globals())
     print(
-        f"getattr(obj, 'x'):               {t4:.6f}s  ({t4*1e9/ACCESS_ITERATIONS:.1f}ns per access) {t4/t1:.2f}x slower"
+        f"getattr(obj, 'x'):               {t4:.6f}s  ({t4 * 1e9 / ACCESS_ITERATIONS:.1f}ns per access) {t4 / t1:.2f}x slower"
     )
 
     t5 = timeit.timeit(stmt="perf_test5_read_property()", number=1, globals=globals())
     print(
-        f"Property (simple):               {t5:.6f}s  ({t5*1e9/ACCESS_ITERATIONS:.1f}ns per access) {t5/t1:.2f}x slower"
+        f"Property (simple):               {t5:.6f}s  ({t5 * 1e9 / ACCESS_ITERATIONS:.1f}ns per access) {t5 / t1:.2f}x slower"
     )
 
     t6 = timeit.timeit(stmt="perf_test6_read_cached_property()", number=1, globals=globals())
     print(
-        f"Property (cached_property):      {t6:.6f}s  ({t6*1e9/ACCESS_ITERATIONS:.1f}ns per access) ✓ {t1/t6:.2f}x (cached)"
+        f"Property (cached_property):      {t6:.6f}s  ({t6 * 1e9 / ACCESS_ITERATIONS:.1f}ns per access) ✓ {t1 / t6:.2f}x (cached)"
     )
 
     t7 = timeit.timeit(stmt="perf_test7_read_getattribute()", number=1, globals=globals())
     print(
-        f"__getattribute__ override:       {t7:.6f}s  ({t7*1e9/ACCESS_ITERATIONS:.1f}ns per access) ⚠ {t7/t1:.2f}x slower!"
+        f"__getattribute__ override:       {t7:.6f}s  ({t7 * 1e9 / ACCESS_ITERATIONS:.1f}ns per access) ⚠ {t7 / t1:.2f}x slower!"
     )
 
     t8 = timeit.timeit(stmt="perf_test8_read_getattr_fallback()", number=1, globals=globals())
     print(
-        f"__getattr__ fallback:            {t8:.6f}s  ({t8*1e9/ACCESS_ITERATIONS:.1f}ns per access) ⚠ {t8/t1:.2f}x slower!"
+        f"__getattr__ fallback:            {t8:.6f}s  ({t8 * 1e9 / ACCESS_ITERATIONS:.1f}ns per access) ⚠ {t8 / t1:.2f}x slower!"
     )
 
     t9 = timeit.timeit(stmt="perf_test9_read_descriptor()", number=1, globals=globals())
     print(
-        f"Descriptor protocol:             {t9:.6f}s  ({t9*1e9/ACCESS_ITERATIONS:.1f}ns per access) {t9/t1:.2f}x slower"
+        f"Descriptor protocol:             {t9:.6f}s  ({t9 * 1e9 / ACCESS_ITERATIONS:.1f}ns per access) {t9 / t1:.2f}x slower"
     )
 
     # ========================================================================
@@ -340,36 +340,36 @@ if __name__ == "__main__":
     print("=" * 80)
 
     t10 = timeit.timeit(stmt="perf_test10_write_normal()", number=1, globals=globals())
-    print(f"Direct attribute (normal):       {t10:.6f}s  ({t10*1e9/ACCESS_ITERATIONS:.1f}ns per write) [baseline]")
+    print(f"Direct attribute (normal):       {t10:.6f}s  ({t10 * 1e9 / ACCESS_ITERATIONS:.1f}ns per write) [baseline]")
 
     t11 = timeit.timeit(stmt="perf_test11_write_slotted()", number=1, globals=globals())
     print(
-        f"__slots__ attribute:             {t11:.6f}s  ({t11*1e9/ACCESS_ITERATIONS:.1f}ns per write) ✓ {t10/t11:.2f}x faster"
+        f"__slots__ attribute:             {t11:.6f}s  ({t11 * 1e9 / ACCESS_ITERATIONS:.1f}ns per write) ✓ {t10 / t11:.2f}x faster"
     )
 
     t12 = timeit.timeit(stmt="perf_test12_write_dict()", number=1, globals=globals())
     print(
-        f"Dict assignment obj.__dict__['x']:{t12:.6f}s  ({t12*1e9/ACCESS_ITERATIONS:.1f}ns per write) {t12/t10:.2f}x slower"
+        f"Dict assignment obj.__dict__['x']:{t12:.6f}s  ({t12 * 1e9 / ACCESS_ITERATIONS:.1f}ns per write) {t12 / t10:.2f}x slower"
     )
 
     t13 = timeit.timeit(stmt="perf_test13_write_setattr()", number=1, globals=globals())
     print(
-        f"setattr(obj, 'x', value):        {t13:.6f}s  ({t13*1e9/ACCESS_ITERATIONS:.1f}ns per write) {t13/t10:.2f}x slower"
+        f"setattr(obj, 'x', value):        {t13:.6f}s  ({t13 * 1e9 / ACCESS_ITERATIONS:.1f}ns per write) {t13 / t10:.2f}x slower"
     )
 
     t14 = timeit.timeit(stmt="perf_test14_write_property()", number=1, globals=globals())
     print(
-        f"Property with setter:            {t14:.6f}s  ({t14*1e9/ACCESS_ITERATIONS:.1f}ns per write) {t14/t10:.2f}x slower"
+        f"Property with setter:            {t14:.6f}s  ({t14 * 1e9 / ACCESS_ITERATIONS:.1f}ns per write) {t14 / t10:.2f}x slower"
     )
 
     t15 = timeit.timeit(stmt="perf_test15_write_setattr_override()", number=1, globals=globals())
     print(
-        f"__setattr__ override:            {t15:.6f}s  ({t15*1e9/ACCESS_ITERATIONS:.1f}ns per write) ⚠ {t15/t10:.2f}x slower!"
+        f"__setattr__ override:            {t15:.6f}s  ({t15 * 1e9 / ACCESS_ITERATIONS:.1f}ns per write) ⚠ {t15 / t10:.2f}x slower!"
     )
 
     t16 = timeit.timeit(stmt="perf_test16_write_descriptor()", number=1, globals=globals())
     print(
-        f"Descriptor protocol:             {t16:.6f}s  ({t16*1e9/ACCESS_ITERATIONS:.1f}ns per write) {t16/t10:.2f}x slower"
+        f"Descriptor protocol:             {t16:.6f}s  ({t16 * 1e9 / ACCESS_ITERATIONS:.1f}ns per write) {t16 / t10:.2f}x slower"
     )
 
     # ========================================================================

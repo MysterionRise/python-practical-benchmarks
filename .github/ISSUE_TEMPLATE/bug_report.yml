@@ -1,0 +1,122 @@
+name: Bug Report
+description: Report an issue with a benchmark or the test runner
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the form below.
+
+  - type: dropdown
+    id: benchmark
+    attributes:
+      label: Affected Benchmark
+      description: Which benchmark file is affected?
+      options:
+        - run_all_tests.py (test runner)
+        - iterate_2d_array_peft_test.py
+        - iterate_df_pandas_perf_test.py
+        - dict_access_perf_test.py
+        - string_concat_perf_test.py
+        - list_operations_perf_test.py
+        - file_io_perf_test.py
+        - json_perf_test.py
+        - set_operations_perf_test.py
+        - function_call_perf_test.py
+        - data_structure_lookup_perf_test.py
+        - concurrency_patterns_perf_test.py
+        - regex_performance_perf_test.py
+        - object_creation_patterns_perf_test.py
+        - deep_copy_strategies_perf_test.py
+        - generator_vs_iterator_perf_test.py
+        - attribute_access_perf_test.py
+        - exception_handling_perf_test.py
+        - serialization_formats_perf_test.py
+        - context_manager_perf_test.py
+        - import_strategies_perf_test.py
+        - free_threaded_perf_test.py
+        - jit_numeric_perf_test.py
+        - Other (please specify)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: python-version
+    attributes:
+      label: Python Version
+      description: What Python version are you using?
+      options:
+        - "3.9"
+        - "3.10"
+        - "3.11"
+        - "3.12"
+        - "3.13"
+        - "3.14"
+        - "Other (please specify)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      description: What OS are you running on?
+      options:
+        - Linux (Ubuntu)
+        - Linux (Other)
+        - macOS (Intel)
+        - macOS (Apple Silicon)
+        - Windows
+        - Other (please specify)
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of the bug
+      placeholder: "When I run the benchmark, it..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Install dependencies with `pip install -r requirements.txt`
+        2. Run `python benchmark_name.py`
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: error
+    attributes:
+      label: Error Output
+      description: Full error message or traceback
+      render: shell
+      placeholder: |
+        Traceback (most recent call last):
+          File "...", line ...
+    validations:
+      required: false
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other context about the problem
+    validations:
+      required: false

@@ -245,16 +245,20 @@ if __name__ == "__main__":
     print("=" * 80)
 
     t1 = timeit.timeit(stmt="perf_test1_regular_import()", number=1, globals=globals())
-    print(f"import module:                   {t1:.6f}s  ({t1*1e9/ITERATIONS:.2f}ns per import) ✓ cached")
+    print(f"import module:                   {t1:.6f}s  ({t1 * 1e9 / ITERATIONS:.2f}ns per import) ✓ cached")
 
     t2 = timeit.timeit(stmt="perf_test2_from_import()", number=1, globals=globals())
-    print(f"from module import name:         {t2:.6f}s  ({t2*1e9/ITERATIONS:.2f}ns per import) ✓ cached")
+    print(f"from module import name:         {t2:.6f}s  ({t2 * 1e9 / ITERATIONS:.2f}ns per import) ✓ cached")
 
     t3 = timeit.timeit(stmt="perf_test3_importlib()", number=1, globals=globals())
-    print(f"importlib.import_module():       {t3:.6f}s  ({t3*1e6/ITERATIONS:.2f}μs per import) ⚠ {t3/t1:.0f}x slower!")
+    print(
+        f"importlib.import_module():       {t3:.6f}s  ({t3 * 1e6 / ITERATIONS:.2f}μs per import) ⚠ {t3 / t1:.0f}x slower!"
+    )
 
     t4 = timeit.timeit(stmt="perf_test4_builtin_import()", number=1, globals=globals())
-    print(f"__import__() builtin:            {t4:.6f}s  ({t4*1e6/ITERATIONS:.2f}μs per import) ⚠ {t4/t1:.0f}x slower!")
+    print(
+        f"__import__() builtin:            {t4:.6f}s  ({t4 * 1e6 / ITERATIONS:.2f}μs per import) ⚠ {t4 / t1:.0f}x slower!"
+    )
 
     # ========================================================================
     # LAZY VS EAGER
@@ -283,16 +287,18 @@ if __name__ == "__main__":
     print("=" * 80)
 
     t7 = timeit.timeit(stmt="perf_test7_access_direct()", number=1, globals=globals())
-    print(f"import datetime; datetime.datetime:  {t7:.6f}s  ({t7*1e9/ACCESS_ITERATIONS:.0f}ns per access) [baseline]")
+    print(
+        f"import datetime; datetime.datetime:  {t7:.6f}s  ({t7 * 1e9 / ACCESS_ITERATIONS:.0f}ns per access) [baseline]"
+    )
 
     t8 = timeit.timeit(stmt="perf_test8_access_from()", number=1, globals=globals())
     print(
-        f"from datetime import datetime:       {t8:.6f}s  ({t8*1e9/ACCESS_ITERATIONS:.0f}ns per access) ✓ {t7/t8:.2f}x faster"
+        f"from datetime import datetime:       {t8:.6f}s  ({t8 * 1e9 / ACCESS_ITERATIONS:.0f}ns per access) ✓ {t7 / t8:.2f}x faster"
     )
 
     t9 = timeit.timeit(stmt="perf_test9_access_alias()", number=1, globals=globals())
     print(
-        f"import datetime as dt; dt.datetime:  {t9:.6f}s  ({t9*1e9/ACCESS_ITERATIONS:.0f}ns per access) ✓ {t7/t9:.2f}x faster"
+        f"import datetime as dt; dt.datetime:  {t9:.6f}s  ({t9 * 1e9 / ACCESS_ITERATIONS:.0f}ns per access) ✓ {t7 / t9:.2f}x faster"
     )
 
     # ========================================================================

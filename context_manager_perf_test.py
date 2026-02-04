@@ -278,20 +278,26 @@ if __name__ == "__main__":
     print("=" * 80)
 
     t1 = timeit.timeit(stmt="perf_test1_no_context()", number=1, globals=globals())
-    print(f"No context manager:              {t1:.6f}s  ({t1*1e9/ITERATIONS:.0f}ns per iter) [baseline]")
+    print(f"No context manager:              {t1:.6f}s  ({t1 * 1e9 / ITERATIONS:.0f}ns per iter) [baseline]")
 
     t2 = timeit.timeit(stmt="perf_test2_class_based()", number=1, globals=globals())
-    print(f"Class-based __enter__/__exit__:  {t2:.6f}s  ({t2*1e9/ITERATIONS:.0f}ns per iter) {t2/t1:.1f}x overhead")
+    print(
+        f"Class-based __enter__/__exit__:  {t2:.6f}s  ({t2 * 1e9 / ITERATIONS:.0f}ns per iter) {t2 / t1:.1f}x overhead"
+    )
 
     t3 = timeit.timeit(stmt="perf_test3_decorator_based()", number=1, globals=globals())
-    print(f"@contextmanager decorator:       {t3:.6f}s  ({t3*1e9/ITERATIONS:.0f}ns per iter) {t3/t1:.1f}x overhead")
+    print(
+        f"@contextmanager decorator:       {t3:.6f}s  ({t3 * 1e9 / ITERATIONS:.0f}ns per iter) {t3 / t1:.1f}x overhead"
+    )
 
     t4 = timeit.timeit(stmt="perf_test4_nullcontext()", number=1, globals=globals())
-    print(f"contextlib.nullcontext():        {t4:.6f}s  ({t4*1e9/ITERATIONS:.0f}ns per iter) {t4/t1:.1f}x overhead")
+    print(
+        f"contextlib.nullcontext():        {t4:.6f}s  ({t4 * 1e9 / ITERATIONS:.0f}ns per iter) {t4 / t1:.1f}x overhead"
+    )
 
     t5 = timeit.timeit(stmt="perf_test5_manual_try_finally()", number=1, globals=globals())
     print(
-        f"Manual try/finally:              {t5:.6f}s  ({t5*1e9/ITERATIONS:.0f}ns per iter) {t5/t1:.1f}x overhead ✓ lowest"
+        f"Manual try/finally:              {t5:.6f}s  ({t5 * 1e9 / ITERATIONS:.0f}ns per iter) {t5 / t1:.1f}x overhead ✓ lowest"
     )
 
     # ========================================================================
@@ -302,21 +308,21 @@ if __name__ == "__main__":
     print("=" * 80)
 
     t6 = timeit.timeit(stmt="perf_test6_no_nesting()", number=1, globals=globals())
-    print(f"No nesting:                      {t6:.6f}s  ({t6*1e6/NESTED_ITERATIONS:.2f}μs per iter) [baseline]")
+    print(f"No nesting:                      {t6:.6f}s  ({t6 * 1e6 / NESTED_ITERATIONS:.2f}μs per iter) [baseline]")
 
     t7 = timeit.timeit(stmt="perf_test7_nested_with()", number=1, globals=globals())
     print(
-        f"Nested with statements:          {t7:.6f}s  ({t7*1e6/NESTED_ITERATIONS:.2f}μs per iter) {t7/t6:.1f}x overhead"
+        f"Nested with statements:          {t7:.6f}s  ({t7 * 1e6 / NESTED_ITERATIONS:.2f}μs per iter) {t7 / t6:.1f}x overhead"
     )
 
     t8 = timeit.timeit(stmt="perf_test8_exitstack()", number=1, globals=globals())
     print(
-        f"contextlib.ExitStack:            {t8:.6f}s  ({t8*1e6/NESTED_ITERATIONS:.2f}μs per iter) {t8/t6:.1f}x overhead"
+        f"contextlib.ExitStack:            {t8:.6f}s  ({t8 * 1e6 / NESTED_ITERATIONS:.2f}μs per iter) {t8 / t6:.1f}x overhead"
     )
 
     t9 = timeit.timeit(stmt="perf_test9_manual_nested()", number=1, globals=globals())
     print(
-        f"Manual nested try/finally:       {t9:.6f}s  ({t9*1e6/NESTED_ITERATIONS:.2f}μs per iter) {t9/t6:.1f}x overhead ✓ best"
+        f"Manual nested try/finally:       {t9:.6f}s  ({t9 * 1e6 / NESTED_ITERATIONS:.2f}μs per iter) {t9 / t6:.1f}x overhead ✓ best"
     )
 
     # ========================================================================
@@ -330,7 +336,7 @@ if __name__ == "__main__":
     print(f"Class-based (propagate):         {t10:.6f}s  (exceptions re-raised)")
 
     t11 = timeit.timeit(stmt="perf_test11_class_suppress()", number=1, globals=globals())
-    print(f"Class-based (suppress):          {t11:.6f}s  (exceptions suppressed) ✓ {t10/t11:.1f}x faster")
+    print(f"Class-based (suppress):          {t11:.6f}s  (exceptions suppressed) ✓ {t10 / t11:.1f}x faster")
 
     t12 = timeit.timeit(stmt="perf_test12_decorator_propagate()", number=1, globals=globals())
     print(f"@contextmanager (propagate):     {t12:.6f}s  (exceptions re-raised)")

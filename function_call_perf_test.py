@@ -183,28 +183,28 @@ if __name__ == "__main__":
     print(f"Number of iterations = {PERF_ITERATIONS}, calls per iteration = {CALL_COUNT}\n")
 
     t1 = timeit.timeit(stmt="perf_test1()", number=PERF_ITERATIONS, globals=globals())
-    print(f"Direct function call:            {t1:.6f}s  (per call: {t1/(PERF_ITERATIONS*CALL_COUNT):.9f}s)")
+    print(f"Direct function call:            {t1:.6f}s  (per call: {t1 / (PERF_ITERATIONS * CALL_COUNT):.9f}s)")
 
     t2 = timeit.timeit(stmt="perf_test2()", number=PERF_ITERATIONS, globals=globals())
-    print(f"Lambda function:                 {t2:.6f}s  (per call: {t2/(PERF_ITERATIONS*CALL_COUNT):.9f}s)")
+    print(f"Lambda function:                 {t2:.6f}s  (per call: {t2 / (PERF_ITERATIONS * CALL_COUNT):.9f}s)")
 
     t3 = timeit.timeit(stmt="perf_test3()", number=PERF_ITERATIONS, globals=globals())
-    print(f"Instance method call:            {t3:.6f}s  (per call: {t3/(PERF_ITERATIONS*CALL_COUNT):.9f}s)")
+    print(f"Instance method call:            {t3:.6f}s  (per call: {t3 / (PERF_ITERATIONS * CALL_COUNT):.9f}s)")
 
     t4 = timeit.timeit(stmt="perf_test4()", number=PERF_ITERATIONS, globals=globals())
-    print(f"Static method call:              {t4:.6f}s  (per call: {t4/(PERF_ITERATIONS*CALL_COUNT):.9f}s)")
+    print(f"Static method call:              {t4:.6f}s  (per call: {t4 / (PERF_ITERATIONS * CALL_COUNT):.9f}s)")
 
     t5 = timeit.timeit(stmt="perf_test5()", number=PERF_ITERATIONS, globals=globals())
-    print(f"Class method call:               {t5:.6f}s  (per call: {t5/(PERF_ITERATIONS*CALL_COUNT):.9f}s)")
+    print(f"Class method call:               {t5:.6f}s  (per call: {t5 / (PERF_ITERATIONS * CALL_COUNT):.9f}s)")
 
     t6 = timeit.timeit(stmt="perf_test6()", number=PERF_ITERATIONS, globals=globals())
-    print(f"Function with *args, **kwargs:   {t6:.6f}s  (per call: {t6/(PERF_ITERATIONS*CALL_COUNT):.9f}s)")
+    print(f"Function with *args, **kwargs:   {t6:.6f}s  (per call: {t6 / (PERF_ITERATIONS * CALL_COUNT):.9f}s)")
 
     t7 = timeit.timeit(stmt="perf_test7()", number=PERF_ITERATIONS, globals=globals())
-    print(f"Decorator overhead:              {t7:.6f}s  (per call: {t7/(PERF_ITERATIONS*CALL_COUNT):.9f}s)")
+    print(f"Decorator overhead:              {t7:.6f}s  (per call: {t7 / (PERF_ITERATIONS * CALL_COUNT):.9f}s)")
 
     t8 = timeit.timeit(stmt="perf_test8()", number=PERF_ITERATIONS, globals=globals())
-    print(f"@lru_cache (cached hits):        {t8:.6f}s  (per call: {t8/(PERF_ITERATIONS*CALL_COUNT):.9f}s)")
+    print(f"@lru_cache (cached hits):        {t8:.6f}s  (per call: {t8 / (PERF_ITERATIONS * CALL_COUNT):.9f}s)")
 
     t9 = timeit.timeit(stmt="perf_test9()", number=PERF_ITERATIONS, globals=globals())
-    print(f"@lru_cache (cache misses):       {t9:.6f}s  (per call: {t9/(PERF_ITERATIONS*CALL_COUNT):.9f}s)")
+    print(f"@lru_cache (cache misses):       {t9:.6f}s  (per call: {t9 / (PERF_ITERATIONS * CALL_COUNT):.9f}s)")

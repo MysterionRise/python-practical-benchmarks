@@ -1,0 +1,17 @@
+# Code Owners for python-practical-benchmarks
+# These owners will be automatically requested for review on PRs
+
+# Default owner for everything
+*                               @MysterionRise
+
+# CI/CD and workflows require careful review
+/.github/workflows/             @MysterionRise
+
+# Security-sensitive files
+SECURITY.md                     @MysterionRise
+.secrets.baseline               @MysterionRise
+
+# Project configuration
+pyproject.toml                  @MysterionRise
+requirements*.txt               @MysterionRise
+.pre-commit-config.yaml         @MysterionRise

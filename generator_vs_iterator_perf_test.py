@@ -257,16 +257,16 @@ if __name__ == "__main__":
     print(f"List (materialize all):          {t1:.6f}s  (baseline)")
 
     t2 = timeit.timeit(stmt="perf_test2_generator_function()", number=10, globals=globals()) / 10
-    print(f"Generator function:              {t2:.6f}s  ({t1/t2:.2f}x) ✓ ~400x less memory")
+    print(f"Generator function:              {t2:.6f}s  ({t1 / t2:.2f}x) ✓ ~400x less memory")
 
     t3 = timeit.timeit(stmt="perf_test3_generator_expression()", number=10, globals=globals()) / 10
-    print(f"Generator expression:            {t3:.6f}s  ({t1/t3:.2f}x) ✓ ~400x less memory")
+    print(f"Generator expression:            {t3:.6f}s  ({t1 / t3:.2f}x) ✓ ~400x less memory")
 
     t4 = timeit.timeit(stmt="perf_test4_iterator_class()", number=10, globals=globals()) / 10
-    print(f"Iterator class:                  {t4:.6f}s  ({t1/t4:.2f}x) ~400x less memory")
+    print(f"Iterator class:                  {t4:.6f}s  ({t1 / t4:.2f}x) ~400x less memory")
 
     t5 = timeit.timeit(stmt="perf_test5_range_builtin()", number=10, globals=globals()) / 10
-    print(f"range() builtin:                 {t5:.6f}s  ({t1/t5:.2f}x) ✓ fastest + lazy")
+    print(f"range() builtin:                 {t5:.6f}s  ({t1 / t5:.2f}x) ✓ fastest + lazy")
 
     # ========================================================================
     # PIPELINE OPERATIONS
@@ -279,10 +279,10 @@ if __name__ == "__main__":
     print(f"List pipeline (multiple passes): {t6:.6f}s  (baseline)")
 
     t7 = timeit.timeit(stmt="perf_test7_generator_pipeline()", number=100, globals=globals()) / 100
-    print(f"Generator pipeline:              {t7:.6f}s  ({t6/t7:.2f}x) ✓ single pass + lazy")
+    print(f"Generator pipeline:              {t7:.6f}s  ({t6 / t7:.2f}x) ✓ single pass + lazy")
 
     t8 = timeit.timeit(stmt="perf_test8_itertools_pipeline()", number=100, globals=globals()) / 100
-    print(f"itertools pipeline:              {t8:.6f}s  ({t6/t8:.2f}x) ✓ fastest")
+    print(f"itertools pipeline:              {t8:.6f}s  ({t6 / t8:.2f}x) ✓ fastest")
 
     # ========================================================================
     # FILTERING
@@ -295,10 +295,10 @@ if __name__ == "__main__":
     print(f"List comprehension:              {t9:.6f}s  (materializes result)")
 
     t10 = timeit.timeit(stmt="perf_test10_filter_builtin()", number=10, globals=globals()) / 10
-    print(f"filter() builtin:                {t10:.6f}s  ({t9/t10:.2f}x) ✓ lazy evaluation")
+    print(f"filter() builtin:                {t10:.6f}s  ({t9 / t10:.2f}x) ✓ lazy evaluation")
 
     t11 = timeit.timeit(stmt="perf_test11_generator_filter()", number=10, globals=globals()) / 10
-    print(f"Generator expression:            {t11:.6f}s  ({t9/t11:.2f}x) ✓ lazy evaluation")
+    print(f"Generator expression:            {t11:.6f}s  ({t9 / t11:.2f}x) ✓ lazy evaluation")
 
     # ========================================================================
     # CHAINING
@@ -311,7 +311,7 @@ if __name__ == "__main__":
     print(f"List concatenation:              {t12:.6f}s  (creates new list)")
 
     t13 = timeit.timeit(stmt="perf_test13_itertools_chain()", number=100, globals=globals()) / 100
-    print(f"itertools.chain():               {t13:.6f}s  ({t12/t13:.2f}x) ✓ lazy, no copies")
+    print(f"itertools.chain():               {t13:.6f}s  ({t12 / t13:.2f}x) ✓ lazy, no copies")
 
     # ========================================================================
     # MEMORY ESTIMATION

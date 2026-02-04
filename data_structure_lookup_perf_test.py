@@ -132,30 +132,30 @@ def run_benchmark_suite(size, skip_slow=False):
         print(f"List sequential search:          [SKIPPED - too slow for {size:,} items]")
     else:
         t1 = timeit.timeit(stmt="perf_test1()", number=PERF_ITERATIONS, globals=locals())
-        print(f"List sequential search:          {t1:.6f}s  (per iteration: {t1/PERF_ITERATIONS:.6f}s)")
+        print(f"List sequential search:          {t1:.6f}s  (per iteration: {t1 / PERF_ITERATIONS:.6f}s)")
 
     # Test 2: Binary search
     t2 = timeit.timeit(stmt="perf_test2()", number=PERF_ITERATIONS, globals=locals())
-    print(f"List binary search (bisect):     {t2:.6f}s  (per iteration: {t2/PERF_ITERATIONS:.6f}s)")
+    print(f"List binary search (bisect):     {t2:.6f}s  (per iteration: {t2 / PERF_ITERATIONS:.6f}s)")
 
     # Test 3: Dict lookup
     t3 = timeit.timeit(stmt="perf_test3()", number=PERF_ITERATIONS, globals=locals())
-    print(f"Dict lookup:                     {t3:.6f}s  (per iteration: {t3/PERF_ITERATIONS:.6f}s)")
+    print(f"Dict lookup:                     {t3:.6f}s  (per iteration: {t3 / PERF_ITERATIONS:.6f}s)")
 
     # Test 4: Set membership
     t4 = timeit.timeit(stmt="perf_test4()", number=PERF_ITERATIONS, globals=locals())
-    print(f"Set membership:                  {t4:.6f}s  (per iteration: {t4/PERF_ITERATIONS:.6f}s)")
+    print(f"Set membership:                  {t4:.6f}s  (per iteration: {t4 / PERF_ITERATIONS:.6f}s)")
 
     # Test 5: Array lookup (skip for large datasets)
     if skip_slow:
         print(f"Array lookup:                    [SKIPPED - too slow for {size:,} items]")
     else:
         t5 = timeit.timeit(stmt="perf_test5()", number=PERF_ITERATIONS, globals=locals())
-        print(f"Array lookup:                    {t5:.6f}s  (per iteration: {t5/PERF_ITERATIONS:.6f}s)")
+        print(f"Array lookup:                    {t5:.6f}s  (per iteration: {t5 / PERF_ITERATIONS:.6f}s)")
 
     # Test 6: Numpy array lookup
     t6 = timeit.timeit(stmt="perf_test6()", number=PERF_ITERATIONS, globals=locals())
-    print(f"Numpy array lookup:              {t6:.6f}s  (per iteration: {t6/PERF_ITERATIONS:.6f}s)")
+    print(f"Numpy array lookup:              {t6:.6f}s  (per iteration: {t6 / PERF_ITERATIONS:.6f}s)")
 
 
 if __name__ == "__main__":

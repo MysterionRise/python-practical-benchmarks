@@ -281,19 +281,19 @@ if __name__ == "__main__":
     print(f"list.copy():                     {t2:.6f}s  ✓ recommended")
 
     t3 = timeit.timeit(stmt="perf_test3_list_slice()", number=1, globals=globals())
-    print(f"list[:]:                         {t3:.6f}s  ({t2/t3:.2f}x)")
+    print(f"list[:]:                         {t3:.6f}s  ({t2 / t3:.2f}x)")
 
     t4 = timeit.timeit(stmt="perf_test4_list_constructor()", number=1, globals=globals())
-    print(f"list(original):                  {t4:.6f}s  ({t2/t4:.2f}x)")
+    print(f"list(original):                  {t4:.6f}s  ({t2 / t4:.2f}x)")
 
     t5 = timeit.timeit(stmt="perf_test5_copy_copy()", number=1, globals=globals())
-    print(f"copy.copy():                     {t5:.6f}s  ({t2/t5:.2f}x)")
+    print(f"copy.copy():                     {t5:.6f}s  ({t2 / t5:.2f}x)")
 
     t6 = timeit.timeit(stmt="perf_test6_list_comprehension()", number=1, globals=globals())
-    print(f"[x for x in list]:               {t6:.6f}s  ({t2/t6:.2f}x)")
+    print(f"[x for x in list]:               {t6:.6f}s  ({t2 / t6:.2f}x)")
 
     t7 = timeit.timeit(stmt="perf_test7_deepcopy_list()", number=1, globals=globals())
-    print(f"copy.deepcopy():                 {t7:.6f}s  ({t7/t2:.1f}x slower) ⚠ overkill")
+    print(f"copy.deepcopy():                 {t7:.6f}s  ({t7 / t2:.1f}x slower) ⚠ overkill")
 
     # ========================================================================
     # NESTED STRUCTURE COPYING
@@ -306,13 +306,13 @@ if __name__ == "__main__":
     print(f"list.copy() shallow:             {t8:.6f}s  ⚠ WRONG! Shares nested refs")
 
     t9 = timeit.timeit(stmt="perf_test9_nested_manual()", number=1, globals=globals())
-    print(f"Manual recursion:                {t9:.6f}s  ({t9/t8:.1f}x slower)")
+    print(f"Manual recursion:                {t9:.6f}s  ({t9 / t8:.1f}x slower)")
 
     t10 = timeit.timeit(stmt="perf_test10_nested_deepcopy()", number=1, globals=globals())
-    print(f"copy.deepcopy():                 {t10:.6f}s  ({t10/t8:.1f}x slower) ✓ safe")
+    print(f"copy.deepcopy():                 {t10:.6f}s  ({t10 / t8:.1f}x slower) ✓ safe")
 
     t11 = timeit.timeit(stmt="perf_test11_nested_json()", number=1, globals=globals())
-    print(f"json.loads(json.dumps()):        {t11:.6f}s  ({t11/t8:.1f}x slower) ✓ if serializable")
+    print(f"json.loads(json.dumps()):        {t11:.6f}s  ({t11 / t8:.1f}x slower) ✓ if serializable")
 
     # ========================================================================
     # DICTIONARY COPYING
@@ -325,13 +325,13 @@ if __name__ == "__main__":
     print(f"dict.copy():                     {t12:.6f}s  ✓ recommended")
 
     t13 = timeit.timeit(stmt="perf_test13_dict_constructor()", number=1, globals=globals())
-    print(f"dict(original):                  {t13:.6f}s  ({t12/t13:.2f}x)")
+    print(f"dict(original):                  {t13:.6f}s  ({t12 / t13:.2f}x)")
 
     t14 = timeit.timeit(stmt="perf_test14_dict_unpack()", number=1, globals=globals())
-    print(f"{{**original}}:                   {t14:.6f}s  ({t12/t14:.2f}x)")
+    print(f"{{**original}}:                   {t14:.6f}s  ({t12 / t14:.2f}x)")
 
     t15 = timeit.timeit(stmt="perf_test15_dict_deepcopy()", number=1, globals=globals())
-    print(f"copy.deepcopy():                 {t15:.6f}s  ({t15/t12:.1f}x slower)")
+    print(f"copy.deepcopy():                 {t15:.6f}s  ({t15 / t12:.1f}x slower)")
 
     # ========================================================================
     # CUSTOM OBJECT COPYING
@@ -344,13 +344,13 @@ if __name__ == "__main__":
     print(f"Manual copy constructor:         {t16:.6f}s  ✓ fastest")
 
     t17 = timeit.timeit(stmt="perf_test17_object_copy()", number=1, globals=globals())
-    print(f"copy.copy():                     {t17:.6f}s  ({t17/t16:.1f}x slower)")
+    print(f"copy.copy():                     {t17:.6f}s  ({t17 / t16:.1f}x slower)")
 
     t18 = timeit.timeit(stmt="perf_test18_object_deepcopy()", number=1, globals=globals())
-    print(f"copy.deepcopy():                 {t18:.6f}s  ({t18/t16:.1f}x slower)")
+    print(f"copy.deepcopy():                 {t18:.6f}s  ({t18 / t16:.1f}x slower)")
 
     t19 = timeit.timeit(stmt="perf_test19_object_pickle()", number=1, globals=globals())
-    print(f"pickle.loads(pickle.dumps()):    {t19:.6f}s  ({t19/t16:.1f}x slower)")
+    print(f"pickle.loads(pickle.dumps()):    {t19:.6f}s  ({t19 / t16:.1f}x slower)")
 
     # ========================================================================
     # DECISION GUIDE

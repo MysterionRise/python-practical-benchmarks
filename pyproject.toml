@@ -1,0 +1,229 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "python-practical-benchmarks"
+version = "1.0.0"
+description = "Practical Python performance benchmarks with actionable decision guides"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "MysterionRise", email = "noreply@github.com"}
+]
+keywords = ["benchmarks", "performance", "python", "optimization"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Testing",
+    "Topic :: System :: Benchmark",
+]
+requires-python = ">=3.9"
+dependencies = [
+    "pandas>=2.0.0,<3.0.0",
+    "numpy>=1.24.0,<3.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit>=3.5.0",
+    "ruff>=0.8.0",
+    "mypy>=1.8.0",
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pip-audit>=2.6.0",
+]
+optional = [
+    "orjson>=3.9.0,<4.0.0",
+    "ujson>=5.8.0,<6.0.0",
+    "msgpack>=1.0.0,<2.0.0",
+    "cbor2>=5.4.0,<6.0.0",
+    "attrs>=23.1.0,<25.0.0",
+]
+all = [
+    "python-practical-benchmarks[dev,optional]",
+]
+
+[project.urls]
+Homepage = "https://github.com/MysterionRise/python-practical-benchmarks"
+Repository = "https://github.com/MysterionRise/python-practical-benchmarks"
+Issues = "https://github.com/MysterionRise/python-practical-benchmarks/issues"
+
+# ============================================================================
+# Ruff Configuration (replaces Black, isort, flake8, pylint, bandit)
+# ============================================================================
+[tool.ruff]
+line-length = 120
+target-version = "py39"
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    ".pytest_cache",
+    ".mypy_cache",
+    "build",
+    "dist",
+    "*.egg-info",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # Pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+    "S",      # flake8-bandit (security)
+    "PT",     # flake8-pytest-style
+    "SIM",    # flake8-simplify
+    "PL",     # Pylint
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "W605",   # invalid escape sequence (common in regex docstrings)
+    "S101",   # assert used (fine in tests)
+    "S311",   # pseudo-random generators (fine for benchmarks)
+    "PLR0913", # too many arguments
+    "PLR2004", # magic value comparison (fine in benchmarks)
+    "PLR0915", # too many statements (fine in benchmark files)
+    "PLW0603", # global statement (used in some benchmarks)
+    "B008",   # function call in default argument (fine in some cases)
+    "PT009",  # use pytest.raises instead of unittest (we use both)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"*_perf_test.py" = [
+    "S",      # Security warnings less relevant for benchmark files
+    "PLR",    # Pylint refactor suggestions
+    "C901",   # Too complex
+]
+"tests/*" = [
+    "S101",   # assert is fine in tests
+    "S603",   # subprocess is fine in tests
+    "PLC0415", # import inside function is fine in tests
+    "PLW1510", # subprocess.run without check is fine in tests
+    "F841",   # unused variable is fine in tests
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["run_all_tests"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+# ============================================================================
+# mypy Configuration
+# ============================================================================
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = false
+warn_unused_configs = true
+ignore_missing_imports = true
+exclude = [
+    "^build/",
+    "^dist/",
+    "^\\.venv/",
+    "^venv/",
+]
+
+# Gradual typing mode - start permissive, tighten over time
+check_untyped_defs = false
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+
+# Per-file overrides for benchmark files - exclude from strict checks
+[[tool.mypy.overrides]]
+module = [
+    "iterate_2d_array_peft_test",
+    "iterate_df_pandas_perf_test",
+    "dict_access_perf_test",
+    "string_concat_perf_test",
+    "list_operations_perf_test",
+    "file_io_perf_test",
+    "json_perf_test",
+    "set_operations_perf_test",
+    "function_call_perf_test",
+    "data_structure_lookup_perf_test",
+    "concurrency_patterns_perf_test",
+    "regex_performance_perf_test",
+    "object_creation_patterns_perf_test",
+    "deep_copy_strategies_perf_test",
+    "generator_vs_iterator_perf_test",
+    "attribute_access_perf_test",
+    "exception_handling_perf_test",
+    "serialization_formats_perf_test",
+    "context_manager_perf_test",
+    "import_strategies_perf_test",
+    "free_threaded_perf_test",
+    "jit_numeric_perf_test",
+]
+ignore_errors = true
+
+# ============================================================================
+# pytest Configuration
+# ============================================================================
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = [
+    "-ra",
+    "-q",
+    "--strict-markers",
+]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "optional: marks tests requiring optional dependencies",
+]
+
+# ============================================================================
+# Coverage Configuration
+# ============================================================================
+[tool.coverage.run]
+branch = true
+source = ["."]
+omit = [
+    "*_perf_test.py",  # Exclude benchmark files from coverage
+    "tests/*",
+    ".venv/*",
+    "setup.py",
+]
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+# ============================================================================
+# Commitizen Configuration
+# ============================================================================
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "1.0.0"
+tag_format = "v$version"

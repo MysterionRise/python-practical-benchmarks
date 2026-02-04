@@ -2,7 +2,11 @@
 
 [![Benchmark Tests](https://github.com/MysterionRise/python-practical-benchmarks/workflows/Benchmark%20Tests/badge.svg)](https://github.com/MysterionRise/python-practical-benchmarks/actions/workflows/tests.yml)
 [![Linting](https://github.com/MysterionRise/python-practical-benchmarks/workflows/Linting/badge.svg)](https://github.com/MysterionRise/python-practical-benchmarks/actions/workflows/lint.yml)
+[![Security Scanning](https://github.com/MysterionRise/python-practical-benchmarks/workflows/Security%20Scanning/badge.svg)](https://github.com/MysterionRise/python-practical-benchmarks/actions/workflows/security.yml)
+[![codecov](https://codecov.io/gh/MysterionRise/python-practical-benchmarks/branch/main/graph/badge.svg)](https://codecov.io/gh/MysterionRise/python-practical-benchmarks)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Checked with mypy](https://img.shields.io/badge/mypy-checked-blue)](https://mypy-lang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Comparing practical options for routine tasks in Python. This repository provides empirical performance data to help developers make informed decisions about which approach to use for common programming tasks.
@@ -718,11 +722,14 @@ Integer arithmetic          1.00s       0.85s       ~15%
 git clone https://github.com/MysterionRise/python-practical-benchmarks.git
 cd python-practical-benchmarks
 
-# Install dependencies
+# Install dependencies (includes dev tools)
 pip install -r requirements.txt
 
-# Optional: Install fast JSON libraries for json_perf_test.py
-pip install ujson orjson
+# Or install as editable package with all dependencies
+pip install -e ".[all]"
+
+# Optional: Install only optional benchmark libraries
+pip install -r requirements-optional.txt
 ```
 
 ## Running Benchmarks

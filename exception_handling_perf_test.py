@@ -271,22 +271,26 @@ if __name__ == "__main__":
     print("=" * 80)
 
     t1 = timeit.timeit(stmt="perf_test1_dict_lbyl_high_success()", number=1, globals=globals())
-    print(f"LBYL: if key in dict:            {t1:.6f}s  ({t1*1e6/ITERATIONS:.3f}μs per access) [baseline]")
+    print(f"LBYL: if key in dict:            {t1:.6f}s  ({t1 * 1e6 / ITERATIONS:.3f}μs per access) [baseline]")
 
     t2 = timeit.timeit(stmt="perf_test2_dict_eafp_no_errors()", number=1, globals=globals())
-    print(f"EAFP: try/except (90% success):  {t2:.6f}s  ({t2*1e6/ITERATIONS:.3f}μs per access) {t2/t1:.2f}x slower ⚠")
+    print(
+        f"EAFP: try/except (90% success):  {t2:.6f}s  ({t2 * 1e6 / ITERATIONS:.3f}μs per access) {t2 / t1:.2f}x slower ⚠"
+    )
 
     t3 = timeit.timeit(stmt="perf_test3_dict_eafp_only_success()", number=1, globals=globals())
     print(
-        f"EAFP: try/except (100% success): {t3:.6f}s  ({t3*1e6/ITERATIONS:.3f}μs per access) {t3/t1:.2f}x ✓ best case"
+        f"EAFP: try/except (100% success): {t3:.6f}s  ({t3 * 1e6 / ITERATIONS:.3f}μs per access) {t3 / t1:.2f}x ✓ best case"
     )
 
     t4 = timeit.timeit(stmt="perf_test4_dict_direct()", number=1, globals=globals())
-    print(f"Direct access (no check):        {t4:.6f}s  ({t4*1e6/ITERATIONS:.3f}μs per access) {t1/t4:.2f}x faster ✓")
+    print(
+        f"Direct access (no check):        {t4:.6f}s  ({t4 * 1e6 / ITERATIONS:.3f}μs per access) {t1 / t4:.2f}x faster ✓"
+    )
 
     t5 = timeit.timeit(stmt="perf_test5_dict_get()", number=1, globals=globals())
     print(
-        f"Using .get() with default:       {t5:.6f}s  ({t5*1e6/ITERATIONS:.3f}μs per access) {t5/t1:.2f}x ✓ recommended"
+        f"Using .get() with default:       {t5:.6f}s  ({t5 * 1e6 / ITERATIONS:.3f}μs per access) {t5 / t1:.2f}x ✓ recommended"
     )
 
     # ========================================================================
@@ -297,14 +301,16 @@ if __name__ == "__main__":
     print("=" * 80)
 
     t6 = timeit.timeit(stmt="perf_test6_attr_lbyl()", number=1, globals=globals())
-    print(f"LBYL: hasattr():                 {t6:.6f}s  ({t6*1e6/ITERATIONS:.3f}μs per access) [baseline]")
+    print(f"LBYL: hasattr():                 {t6:.6f}s  ({t6 * 1e6 / ITERATIONS:.3f}μs per access) [baseline]")
 
     t7 = timeit.timeit(stmt="perf_test7_attr_eafp()", number=1, globals=globals())
-    print(f"EAFP: try/except (90% success):  {t7:.6f}s  ({t7*1e6/ITERATIONS:.3f}μs per access) {t7/t6:.2f}x slower ⚠")
+    print(
+        f"EAFP: try/except (90% success):  {t7:.6f}s  ({t7 * 1e6 / ITERATIONS:.3f}μs per access) {t7 / t6:.2f}x slower ⚠"
+    )
 
     t8 = timeit.timeit(stmt="perf_test8_attr_getattr_default()", number=1, globals=globals())
     print(
-        f"getattr() with default:          {t8:.6f}s  ({t8*1e6/ITERATIONS:.3f}μs per access) {t6/t8:.2f}x faster ✓ best!"
+        f"getattr() with default:          {t8:.6f}s  ({t8 * 1e6 / ITERATIONS:.3f}μs per access) {t6 / t8:.2f}x faster ✓ best!"
     )
 
     # ========================================================================
@@ -315,13 +321,15 @@ if __name__ == "__main__":
     print("=" * 80)
 
     t9 = timeit.timeit(stmt="perf_test9_type_lbyl()", number=1, globals=globals())
-    print(f"LBYL: isinstance():              {t9:.6f}s  ({t9*1e6/ITERATIONS:.3f}μs per check) ✓ fastest")
+    print(f"LBYL: isinstance():              {t9:.6f}s  ({t9 * 1e6 / ITERATIONS:.3f}μs per check) ✓ fastest")
 
     t10 = timeit.timeit(stmt="perf_test10_type_eafp()", number=1, globals=globals())
-    print(f"EAFP: try operation:             {t10:.6f}s  ({t10*1e6/ITERATIONS:.3f}μs per check) {t10/t9:.2f}x slower")
+    print(
+        f"EAFP: try operation:             {t10:.6f}s  ({t10 * 1e6 / ITERATIONS:.3f}μs per check) {t10 / t9:.2f}x slower"
+    )
 
     t11 = timeit.timeit(stmt="perf_test11_type_duck()", number=1, globals=globals())
-    print(f"Duck typing (no check):          {t11:.6f}s  ({t11*1e6/ITERATIONS:.3f}μs per op) (risky!)")
+    print(f"Duck typing (no check):          {t11:.6f}s  ({t11 * 1e6 / ITERATIONS:.3f}μs per op) (risky!)")
 
     # ========================================================================
     # EXCEPTION RAISING COST
@@ -331,26 +339,28 @@ if __name__ == "__main__":
     print("=" * 80)
 
     t12 = timeit.timeit(stmt="perf_test12_no_exception()", number=1, globals=globals())
-    print(f"No exception:                    {t12:.6f}s  ({t12*1e6/EXCEPTION_ITERATIONS:.2f}μs per iter) [baseline]")
+    print(
+        f"No exception:                    {t12:.6f}s  ({t12 * 1e6 / EXCEPTION_ITERATIONS:.2f}μs per iter) [baseline]"
+    )
 
     t13 = timeit.timeit(stmt="perf_test13_raise_generic()", number=1, globals=globals())
     print(
-        f"Raise + catch Exception:         {t13:.6f}s  ({t13*1e6/EXCEPTION_ITERATIONS:.2f}μs per raise) ⚠ {t13/t12:.0f}x slower!"
+        f"Raise + catch Exception:         {t13:.6f}s  ({t13 * 1e6 / EXCEPTION_ITERATIONS:.2f}μs per raise) ⚠ {t13 / t12:.0f}x slower!"
     )
 
     t14 = timeit.timeit(stmt="perf_test14_raise_specific()", number=1, globals=globals())
     print(
-        f"Raise + catch ValueError:        {t14:.6f}s  ({t14*1e6/EXCEPTION_ITERATIONS:.2f}μs per raise) ⚠ {t14/t12:.0f}x slower!"
+        f"Raise + catch ValueError:        {t14:.6f}s  ({t14 * 1e6 / EXCEPTION_ITERATIONS:.2f}μs per raise) ⚠ {t14 / t12:.0f}x slower!"
     )
 
     t15 = timeit.timeit(stmt="perf_test15_raise_keyerror()", number=1, globals=globals())
     print(
-        f"Raise + catch KeyError:          {t15:.6f}s  ({t15*1e6/EXCEPTION_ITERATIONS:.2f}μs per raise) ⚠ {t15/t12:.0f}x slower!"
+        f"Raise + catch KeyError:          {t15:.6f}s  ({t15 * 1e6 / EXCEPTION_ITERATIONS:.2f}μs per raise) ⚠ {t15 / t12:.0f}x slower!"
     )
 
     t16 = timeit.timeit(stmt="perf_test16_return_error_code()", number=1, globals=globals())
     print(
-        f"Return error code:               {t16:.6f}s  ({t16*1e6/EXCEPTION_ITERATIONS:.2f}μs per call) ✓ {t16/t12:.1f}x slower"
+        f"Return error code:               {t16:.6f}s  ({t16 * 1e6 / EXCEPTION_ITERATIONS:.2f}μs per call) ✓ {t16 / t12:.1f}x slower"
     )
 
     # ========================================================================
