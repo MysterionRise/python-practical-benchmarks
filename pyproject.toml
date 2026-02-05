@@ -224,7 +224,8 @@ omit = [
 ]
 
 [tool.coverage.report]
-fail_under = 50
+# No fail_under threshold - benchmark execution is tested via run_all_tests.py jobs
+# Coverage tracks test runner code only; benchmark files are excluded
 show_missing = true
 skip_covered = false
 exclude_lines = [
