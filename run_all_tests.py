@@ -16,6 +16,7 @@ Usage:
 import argparse
 import importlib
 import sys
+import traceback
 
 # Benchmark categorization
 BENCHMARKS = {
@@ -130,8 +131,6 @@ def run_benchmark(module_name, quick=False):
         return True  # Don't fail on missing optional deps
     except Exception as e:
         print(f"✗ {module_name} - FAILED with error: {e}")
-        import traceback
-
         traceback.print_exc()
         return False
 

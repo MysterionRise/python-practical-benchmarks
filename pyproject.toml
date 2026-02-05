@@ -106,7 +106,24 @@ ignore = [
 "*_perf_test.py" = [
     "S",      # Security warnings less relevant for benchmark files
     "PLR",    # Pylint refactor suggestions
+    "PLC0415", # Import inside function (intentional for import benchmarks)
     "C901",   # Too complex
+    "SIM105", # contextlib.suppress - benchmarks intentionally test try-except
+    "SIM110", # Use all() - benchmarks intentionally test explicit loops
+    "SIM117", # Nested with - benchmarks intentionally test nesting
+    "SIM118", # Use key in dict - benchmarks test .keys() explicitly
+    "UP015",  # Unnecessary mode argument - benchmarks test explicit modes
+    "UP028",  # yield from - benchmarks test explicit yield
+    "UP032",  # f-string - benchmarks may test .format()
+    "UP035",  # typing.Dict deprecated - support older Python
+    "UP006",  # Use dict instead of Dict - support older Python
+    "C416",   # Unnecessary list comprehension - benchmarks test explicit patterns
+    "C417",   # Unnecessary map - benchmarks test map explicitly
+    "C420",   # dict comprehension - benchmarks test explicit patterns
+    "E721",   # type comparison - benchmarks may test explicitly
+    "B007",   # unused loop variable - benchmarks may not use loop var
+    "B009",   # getattr with constant - benchmarks test getattr explicitly
+    "B010",   # setattr with constant - benchmarks test setattr explicitly
 ]
 "tests/*" = [
     "S101",   # assert is fine in tests
