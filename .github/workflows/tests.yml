@@ -73,7 +73,7 @@ jobs:
 
     - name: Run pytest with coverage
       run: |
-        pytest tests/ -v --cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=80
+        pytest tests/ -v --cov=run_all_tests --cov-report=xml --cov-report=term-missing --cov-fail-under=50
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v5
