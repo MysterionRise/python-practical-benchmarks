@@ -40,12 +40,12 @@ Approach                         Total time         Per iteration
 """
 
 import random
-import timeit
 from collections import defaultdict
 
 PERF_ITERATIONS = 1000
 DICTIONARY_SIZE = 1000
 TYPE = "rand_keys"
+_DATA_CACHE = {}
 
 
 def random_value(data_type, seed=None):
@@ -71,7 +71,7 @@ def random_value(data_type, seed=None):
         raise ValueError("Unsupported data type")
 
 
-def dict_iteration(method, n=DICTIONARY_SIZE):
+def dict_iteration(method, n=None):
     """
     Iterate over a range of integer keys of size n
 
@@ -82,6 +82,8 @@ def dict_iteration(method, n=DICTIONARY_SIZE):
     Yields:
     - key: key of the next item in the dictionary
     """
+    if n is None:
+        n = DICTIONARY_SIZE
 
     if method == "seq_keys":
         for key in range(n):
@@ -95,58 +97,77 @@ def dict_iteration(method, n=DICTIONARY_SIZE):
         raise ValueError("Unsupported method")
 
 
-# create a dictionary with random keys and values
-d = {i: random_value(str, seed=i) for i in range(DICTIONARY_SIZE)}
+def reset_benchmark_data():
+    """Clear cached dictionaries after runner quick-mode overrides."""
+    _DATA_CACHE.clear()
 
 
-# method 1: using dict[key]
-def method1():
-    llist = []
+def get_test_data():
+    """Return dictionaries built with the current configuration constants."""
+    cache_key = DICTIONARY_SIZE
+    if cache_key not in _DATA_CACHE:
+        data = {i: random_value(str, seed=i) for i in range(DICTIONARY_SIZE)}
+        default_data = defaultdict(lambda: "")
+        default_data.update(data)
+        _DATA_CACHE[cache_key] = (data, default_data)
+    return _DATA_CACHE[cache_key]
+
+
+def perf_test1_dict_key():
+    """Access values with dict[key]."""
+    data, _ = get_test_data()
+    total = 0
     for key in dict_iteration(TYPE):
-        x = d[key]
-        v = len(x) + random.randint(0, 10)
-        llist.append(v)
+        value = data[key]
+        total += len(value) + random.randint(0, 10)
+    return total
 
 
-# method 2: using dict.get(key)
-def method2():
-    llist = []
+def perf_test2_dict_get():
+    """Access values with dict.get(key)."""
+    data, _ = get_test_data()
+    total = 0
     for key in dict_iteration(TYPE):
-        x = d.get(key)
-        v = len(x) + random.randint(0, 10)
-        llist.append(v)
+        value = data.get(key)
+        total += len(value) + random.randint(0, 10)
+    return total
 
 
-# method 3: using dict.setdefault(key, default)
-def method3():
-    llist = []
+def perf_test3_dict_setdefault():
+    """Access values with dict.setdefault(key, default)."""
+    data, _ = get_test_data()
+    total = 0
     for key in dict_iteration(TYPE):
-        x = d.setdefault(key, "")
-        v = len(x) + random.randint(0, 10)
-        llist.append(v)
+        value = data.setdefault(key, "")
+        total += len(value) + random.randint(0, 10)
+    return total
 
 
-# method 4: using defaultdict
-dd = defaultdict(lambda: "")
-dd.update(d)
-
-
-def method4():
-    llist = []
+def perf_test4_defaultdict():
+    """Access values with defaultdict."""
+    _, default_data = get_test_data()
+    total = 0
     for key in dict_iteration(TYPE):
-        x = dd[key]
-        v = len(x) + random.randint(0, 10)
-        llist.append(v)
+        value = default_data[key]
+        total += len(value) + random.randint(0, 10)
+    return total
 
 
-# measure the time taken by each method
-t1 = timeit.timeit(method1, number=PERF_ITERATIONS)
-t2 = timeit.timeit(method2, number=PERF_ITERATIONS)
-t3 = timeit.timeit(method3, number=PERF_ITERATIONS)
-t4 = timeit.timeit(method4, number=PERF_ITERATIONS)
+method1 = perf_test1_dict_key
+method2 = perf_test2_dict_get
+method3 = perf_test3_dict_setdefault
+method4 = perf_test4_defaultdict
 
-# print the results
-print(f"Using dict[key]: {t1:.6f} seconds and per iteration {t1 / PERF_ITERATIONS:.6f}")
-print(f"Using dict.get(key): {t2:.6f} seconds and per iteration {t2 / PERF_ITERATIONS:.6f}")
-print(f"Using dict.setdefault(key, default): {t3:.6f} seconds and per iteration {t3 / PERF_ITERATIONS:.6f}")
-print(f"Using defaultdict: {t4:.6f} seconds and per iteration {t4 / PERF_ITERATIONS:.6f}")
+
+if __name__ == "__main__":
+    import timeit
+
+    t1 = timeit.timeit(perf_test1_dict_key, number=PERF_ITERATIONS)
+    t2 = timeit.timeit(perf_test2_dict_get, number=PERF_ITERATIONS)
+    t3 = timeit.timeit(perf_test3_dict_setdefault, number=PERF_ITERATIONS)
+    t4 = timeit.timeit(perf_test4_defaultdict, number=PERF_ITERATIONS)
+
+    print(f"Using dict[key]: {t1:.6f} seconds and per iteration {t1 / PERF_ITERATIONS:.6f}")
+    print(f"Using dict.get(key): {t2:.6f} seconds and per iteration {t2 / PERF_ITERATIONS:.6f}")
+    print(f"Using dict.setdefault(key, default): {t3:.6f} seconds and per iteration {t3 / PERF_ITERATIONS:.6f}")
+    print(f"Using defaultdict: {t4:.6f} seconds and per iteration {t4 / PERF_ITERATIONS:.6f}")

@@ -15,7 +15,7 @@ body:
       description: Which benchmark file is affected?
       options:
         - run_all_tests.py (test runner)
-        - iterate_2d_array_peft_test.py
+        - iterate_2d_array_perf_test.py
         - iterate_df_pandas_perf_test.py
         - dict_access_perf_test.py
         - string_concat_perf_test.py

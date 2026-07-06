@@ -26,7 +26,7 @@
 ### General
 
 - [ ] I have read the [CONTRIBUTING.md](../CONTRIBUTING.md) guide
-- [ ] My code follows the project's style guidelines (120 char line length, Black formatting)
+- [ ] My code follows the project's style guidelines (120 char line length, Ruff formatting)
 - [ ] I have run `pre-commit run --all-files` and all checks pass
 - [ ] I have added/updated tests if applicable
 
@@ -38,8 +38,8 @@
 - [ ] Functions return values to prevent optimizer elimination
 - [ ] Configuration constants are UPPERCASE and overridable
 - [ ] Comprehensive DECISION GUIDE section included
-- [ ] Added to appropriate category in `run_all_tests.py` BENCHMARKS dict
-- [ ] Added quick mode settings to `QUICK_ITERATIONS` dict
+- [ ] Added to appropriate category in `benchmark_manifest.py`
+- [ ] Added quick mode settings to `benchmark_manifest.py`
 - [ ] Updated README.md with benchmark summary
 - [ ] Updated Table of Contents in README.md
 

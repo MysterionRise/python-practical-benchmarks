@@ -122,7 +122,6 @@ new_shape = (360704, 43)
 import pandas as pd
 
 DATAFRAME = pd.read_csv("data/nslkdd_test.txt")
-print(DATAFRAME.shape)
 
 PERF_ITERATIONS = 100
 

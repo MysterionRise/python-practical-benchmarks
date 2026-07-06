@@ -42,29 +42,44 @@ except ImportError:
 PERF_ITERATIONS = 1000
 DATA_SIZE = 1000
 
-# Create sample data structure
-SAMPLE_DATA = {
-    "users": [
-        {
-            "id": i,
-            "name": f"User {i}",
-            "email": f"user{i}@example.com",
-            "age": 20 + (i % 50),
-            "active": i % 2 == 0,
-            "balance": 100.50 + i,
-            "tags": ["tag1", "tag2", "tag3"],
-            "metadata": {"created": "2024-01-01", "updated": "2024-12-01", "version": i % 10},
-        }
-        for i in range(DATA_SIZE)
-    ]
-}
 
-# Pre-serialize for deserialization tests
-JSON_STRING = json.dumps(SAMPLE_DATA)
-if HAS_UJSON:
-    UJSON_STRING = ujson.dumps(SAMPLE_DATA)
-if HAS_ORJSON:
-    ORJSON_BYTES = orjson.dumps(SAMPLE_DATA)
+def build_sample_data():
+    """Build sample data with the current DATA_SIZE value."""
+    return {
+        "users": [
+            {
+                "id": i,
+                "name": f"User {i}",
+                "email": f"user{i}@example.com",
+                "age": 20 + (i % 50),
+                "active": i % 2 == 0,
+                "balance": 100.50 + i,
+                "tags": ["tag1", "tag2", "tag3"],
+                "metadata": {"created": "2024-01-01", "updated": "2024-12-01", "version": i % 10},
+            }
+            for i in range(DATA_SIZE)
+        ]
+    }
+
+
+SAMPLE_DATA = {}
+JSON_STRING = ""
+UJSON_STRING = ""
+ORJSON_BYTES = b""
+
+
+def reset_benchmark_data():
+    """Rebuild serialized data after runner quick-mode overrides."""
+    global SAMPLE_DATA, JSON_STRING, UJSON_STRING, ORJSON_BYTES
+    SAMPLE_DATA = build_sample_data()
+    JSON_STRING = json.dumps(SAMPLE_DATA)
+    if HAS_UJSON:
+        UJSON_STRING = ujson.dumps(SAMPLE_DATA)
+    if HAS_ORJSON:
+        ORJSON_BYTES = orjson.dumps(SAMPLE_DATA)
+
+
+reset_benchmark_data()
 
 
 def perf_test1():

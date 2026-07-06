@@ -1,212 +1,501 @@
 #!/usr/bin/env python3
-"""
-Test runner for all Python performance benchmarks.
+"""Run Python performance benchmarks with structured, repeatable reporting."""
 
-This script runs all benchmarks with reduced iterations to verify they work correctly.
-Used primarily in CI/CD pipelines to ensure benchmarks don't error out.
-
-Usage:
-    python run_all_tests.py --all --quick           # Run all benchmarks with minimal iterations
-    python run_all_tests.py --category basic        # Run only basic benchmarks
-    python run_all_tests.py --category advanced     # Run only advanced benchmarks
-    python run_all_tests.py --category expert       # Run only expert benchmarks
-    python run_all_tests.py --list                  # List all benchmarks
-"""
+from __future__ import annotations
 
 import argparse
+import asyncio
 import importlib
+import importlib.util
+import inspect
+import json
+import os
+import platform
+import statistics
+import subprocess
 import sys
+import time
 import traceback
+from datetime import datetime, timezone
+from pathlib import Path
+from shutil import which
+from types import ModuleType
+from typing import Any, Callable, Optional, Union
 
-# Benchmark categorization
-BENCHMARKS = {
-    "basic": [
-        "iterate_2d_array_peft_test",
-        "iterate_df_pandas_perf_test",
-        "dict_access_perf_test",
-        "string_concat_perf_test",
-        "list_operations_perf_test",
-        "file_io_perf_test",
-        "json_perf_test",
-        "set_operations_perf_test",
-        "function_call_perf_test",
-        "data_structure_lookup_perf_test",
-    ],
-    "advanced": [
-        "concurrency_patterns_perf_test",
-        "regex_performance_perf_test",
-        "object_creation_patterns_perf_test",
-        "deep_copy_strategies_perf_test",
-        "generator_vs_iterator_perf_test",
-    ],
-    "expert": [
-        "attribute_access_perf_test",
-        "exception_handling_perf_test",
-        "serialization_formats_perf_test",
-        "context_manager_perf_test",
-        "import_strategies_perf_test",
-        "free_threaded_perf_test",
-        "jit_numeric_perf_test",
-    ],
-}
+from benchmark_manifest import (
+    BENCHMARK_SPECS,
+    CATEGORIES,
+    BenchmarkSpec,
+    OptionalDependency,
+    benchmarks_by_category,
+    get_benchmark_spec,
+    quick_iterations,
+)
 
-# Iteration reduction for quick testing
-QUICK_ITERATIONS = {
-    "iterate_2d_array_peft_test": {"PERF_ITERATIONS": 10, "ARRAY_SIZE": 100},
-    "iterate_df_pandas_perf_test": {"PERF_ITERATIONS": 10},
-    "dict_access_perf_test": {"PERF_ITERATIONS": 100, "DICTIONARY_SIZE": 100},
-    "string_concat_perf_test": {"PERF_ITERATIONS": 10, "NUM_STRINGS": 100},
-    "list_operations_perf_test": {"PERF_ITERATIONS": 10, "NUM_ITEMS": 100},
-    "file_io_perf_test": {"PERF_ITERATIONS": 10, "NUM_LINES": 100},
-    "json_perf_test": {"PERF_ITERATIONS": 10, "DATA_SIZE": 10},
-    "set_operations_perf_test": {"PERF_ITERATIONS": 100, "DATA_SIZE": 100},
-    "function_call_perf_test": {"PERF_ITERATIONS": 1000, "CALL_COUNT": 100},
-    "data_structure_lookup_perf_test": {"PERF_ITERATIONS": 100, "LOOKUP_COUNT": 100},
-    "concurrency_patterns_perf_test": {"NUM_TASKS": 10, "IO_SLEEP_DURATION": 0.001},
-    "regex_performance_perf_test": {"PERF_ITERATIONS": 10, "NUM_STRINGS": 100},
-    "object_creation_patterns_perf_test": {"PERF_ITERATIONS": 1000, "ACCESS_ITERATIONS": 10000},
-    "deep_copy_strategies_perf_test": {
-        "PERF_ITERATIONS_SIMPLE": 100,
-        "PERF_ITERATIONS_NESTED": 10,
-        "PERF_ITERATIONS_OBJECTS": 100,
-    },
-    "generator_vs_iterator_perf_test": {"DATASET_SIZE": 10000, "PIPELINE_SIZE": 1000},
-    "attribute_access_perf_test": {"ACCESS_ITERATIONS": 10000},
-    "exception_handling_perf_test": {
-        "ITERATIONS": 1000,
-        "NESTED_ITERATIONS": 100,
-        "EXCEPTION_ITERATIONS": 100,
-    },
-    "serialization_formats_perf_test": {"ITERATIONS": 10},
-    "context_manager_perf_test": {"ITERATIONS": 1000, "NESTED_ITERATIONS": 100, "FILE_ITERATIONS": 100},
-    "import_strategies_perf_test": {"ITERATIONS": 1000, "ACCESS_ITERATIONS": 10000},
-    "free_threaded_perf_test": {"NUM_WORKERS": 2, "WORK_ITERATIONS": 10000},
-    "jit_numeric_perf_test": {"PERF_ITERATIONS": 2, "NUMERIC_ITERATIONS": 10000, "MANDELBROT_SIZE": 50},
-}
+BENCHMARKS = benchmarks_by_category()
+QUICK_ITERATIONS = quick_iterations()
+MEASUREMENT_RUNS = 3
+WARMUP_RUNS = 1
 
 
-def run_benchmark(module_name, quick=False):
-    """Run a single benchmark module."""
-    print(f"\n{'=' * 80}")
-    print(f"Running: {module_name}")
-    print(f"{'=' * 80}")
+def dependency_available(import_name: str) -> bool:
+    """Return whether an import name can be resolved."""
+    return importlib.util.find_spec(import_name) is not None
+
+
+def missing_dependencies(import_names: tuple[str, ...]) -> list[str]:
+    """Return missing dependencies from a tuple of import names."""
+    return [import_name for import_name in import_names if not dependency_available(import_name)]
+
+
+def missing_optional_dependencies(dependencies: tuple[OptionalDependency, ...]) -> list[OptionalDependency]:
+    """Return optional dependencies that are not importable."""
+    return [dependency for dependency in dependencies if not dependency_available(dependency.import_name)]
+
+
+def apply_quick_overrides(module: ModuleType, spec: BenchmarkSpec, quick: bool) -> dict[str, Any]:
+    """Apply quick-mode constants to a benchmark module."""
+    applied: dict[str, Any] = {}
+    if not quick:
+        return applied
+
+    for attr, value in spec.quick_overrides.items():
+        if hasattr(module, attr):
+            setattr(module, attr, value)
+            applied[attr] = value
+
+    reset_func = getattr(module, "reset_benchmark_data", None)
+    if callable(reset_func):
+        reset_func()
+
+    return applied
+
+
+def collect_benchmark_cases(module: ModuleType) -> list[Callable[[], Any]]:
+    """Collect top-level perf_test functions in source order."""
+    cases = []
+    seen_ids = set()
+    for name, value in inspect.getmembers(module, inspect.isfunction):
+        if name.startswith("perf_test") and value.__module__ == module.__name__ and id(value) not in seen_ids:
+            cases.append(value)
+            seen_ids.add(id(value))
+    return sorted(cases, key=lambda func: func.__code__.co_firstlineno)
+
+
+def case_text(func: Callable[[], Any]) -> str:
+    """Return searchable text for optional dependency case matching."""
+    return f"{func.__name__} {inspect.getdoc(func) or ''}".lower()
+
+
+def optional_skip_dependency(
+    func: Callable[[], Any],
+    missing_optional: list[OptionalDependency],
+) -> Optional[OptionalDependency]:
+    """Return the missing optional dependency that controls this case, if any."""
+    searchable = case_text(func)
+    for dependency in missing_optional:
+        if any(marker.lower() in searchable for marker in dependency.markers):
+            return dependency
+    return None
+
+
+def execute_case(func: Callable[[], Any]) -> Any:
+    """Execute sync or async benchmark case once."""
+    if inspect.iscoroutinefunction(func):
+        return asyncio.run(func())
+    return func()
+
+
+def preview_result(result: Any) -> str | None:
+    """Return a compact preview without dumping large benchmark data."""
+    if result is None:
+        return None
+    if isinstance(result, str):
+        return f"str(len={len(result)}, preview={result[:120]!r})"
+    if isinstance(result, bytes):
+        return f"bytes(len={len(result)}, preview={result[:40]!r})"
+    if isinstance(result, (list, tuple, set, dict)):
+        return f"{type(result).__name__}(len={len(result)})"
+
+    preview = repr(result)
+    if len(preview) > 160:
+        preview = f"{preview[:157]}..."
+    return preview
+
+
+def measure_case(func: Callable[[], Any], runs: int = MEASUREMENT_RUNS) -> dict[str, Any]:
+    """Warm up and measure one benchmark case."""
+    result = None
+    for _ in range(WARMUP_RUNS):
+        result = execute_case(func)
+
+    timings = []
+    for _ in range(runs):
+        start = time.perf_counter()
+        result = execute_case(func)
+        timings.append(time.perf_counter() - start)
+
+    return {
+        "name": func.__name__,
+        "status": "passed",
+        "seconds_min": min(timings),
+        "seconds_median": statistics.median(timings),
+        "seconds_mean": statistics.mean(timings),
+        "seconds_stdev": statistics.stdev(timings) if len(timings) > 1 else 0.0,
+        "runs": runs,
+        "result_preview": preview_result(result),
+    }
+
+
+def skipped_case(func: Callable[[], Any], dependency: OptionalDependency) -> dict[str, Any]:
+    """Build a structured skipped-case result."""
+    return {
+        "name": func.__name__,
+        "status": "skipped",
+        "seconds_min": None,
+        "seconds_median": None,
+        "seconds_mean": None,
+        "seconds_stdev": None,
+        "runs": 0,
+        "result_preview": None,
+        "reason": f"optional dependency not installed: {dependency.import_name}",
+    }
+
+
+def environment_skipped_case(func: Callable[[], Any], reason: str) -> dict[str, Any]:
+    """Build a structured skipped-case result for environment limitations."""
+    return {
+        "name": func.__name__,
+        "status": "skipped",
+        "seconds_min": None,
+        "seconds_median": None,
+        "seconds_mean": None,
+        "seconds_stdev": None,
+        "runs": 0,
+        "result_preview": None,
+        "reason": reason,
+    }
+
+
+def failed_case(func: Callable[[], Any], exc: BaseException) -> dict[str, Any]:
+    """Build a structured failed-case result."""
+    return {
+        "name": func.__name__,
+        "status": "failed",
+        "seconds_min": None,
+        "seconds_median": None,
+        "seconds_mean": None,
+        "seconds_stdev": None,
+        "runs": 0,
+        "result_preview": None,
+        "error": f"{type(exc).__name__}: {exc}",
+    }
+
+
+def run_benchmark(
+    benchmark: Union[BenchmarkSpec, str],
+    quick: bool = False,
+    runs: int = MEASUREMENT_RUNS,
+    emit_text: bool = True,
+) -> dict[str, Any]:
+    """Run one benchmark module and return structured results."""
+    spec = get_benchmark_spec(benchmark) if isinstance(benchmark, str) else benchmark
+    result: dict[str, Any] = {
+        "module": spec.module,
+        "title": spec.title,
+        "category": spec.category,
+        "status": "passed",
+        "cases": [],
+        "skips": [],
+        "errors": [],
+        "quick_overrides": {},
+    }
+
+    if emit_text:
+        print(f"\n{'=' * 80}")
+        print(f"Running: {spec.module} ({spec.title})")
+        print(f"{'=' * 80}")
+
+    missing_required = missing_dependencies(spec.required_dependencies)
+    if missing_required:
+        result["status"] = "failed"
+        for dependency in missing_required:
+            error = {
+                "type": "missing_required_dependency",
+                "dependency": dependency,
+                "message": f"Required dependency not installed: {dependency}",
+            }
+            result["errors"].append(error)
+            if emit_text:
+                print(f"  FAILED missing required dependency: {dependency}")
+        return result
 
     try:
-        # Import the module
-        module = importlib.import_module(module_name)
+        module = importlib.import_module(spec.module)
+        applied_overrides = apply_quick_overrides(module, spec, quick)
+        result["quick_overrides"] = applied_overrides
+        for attr, value in applied_overrides.items():
+            if emit_text:
+                print(f"  Set {attr} = {value} (quick mode)")
 
-        # If quick mode, reduce iterations
-        if quick and module_name in QUICK_ITERATIONS:
-            for attr, value in QUICK_ITERATIONS[module_name].items():
-                if hasattr(module, attr):
-                    setattr(module, attr, value)
-                    print(f"  Set {attr} = {value} (quick mode)")
+        cases = collect_benchmark_cases(module)
+        if not cases:
+            result["status"] = "failed"
+            error = {"type": "no_cases", "message": "No top-level perf_test* functions found"}
+            result["errors"].append(error)
+            if emit_text:
+                print("  FAILED no top-level perf_test* functions found")
+            return result
 
-        # Run the main block (simulates python module.py)
-        if hasattr(module, "__main__"):
-            module.__main__()
-        else:
-            # Most modules use if __name__ == "__main__"
-            # We'll execute a minimal test instead
-            print("  Testing basic functions...")
+        missing_optional = missing_optional_dependencies(spec.optional_dependencies)
+        for func in cases:
+            skipped_dependency = optional_skip_dependency(func, missing_optional)
+            if skipped_dependency:
+                case_result = skipped_case(func, skipped_dependency)
+                result["cases"].append(case_result)
+                result["skips"].append(
+                    {
+                        "case": func.__name__,
+                        "dependency": skipped_dependency.import_name,
+                        "reason": case_result["reason"],
+                    }
+                )
+                if emit_text:
+                    print(f"  SKIP {func.__name__}: {case_result['reason']}")
+                continue
 
-            # Find and run a test function
-            test_functions = [
-                name for name in dir(module) if name.startswith("perf_test") and callable(getattr(module, name))
-            ]
+            try:
+                case_result = measure_case(func, runs=runs)
+                result["cases"].append(case_result)
+                if emit_text:
+                    print(
+                        f"  OK   {func.__name__}: "
+                        f"median={case_result['seconds_median']:.6f}s "
+                        f"min={case_result['seconds_min']:.6f}s "
+                        f"runs={case_result['runs']}"
+                    )
+            except PermissionError as exc:
+                searchable = case_text(func)
+                if "multiprocessing" in searchable or "processpool" in searchable:
+                    reason = f"environment denied process creation: {exc}"
+                    case_result = environment_skipped_case(func, reason)
+                    result["cases"].append(case_result)
+                    result["skips"].append({"case": func.__name__, "dependency": None, "reason": reason})
+                    if emit_text:
+                        print(f"  SKIP {func.__name__}: {reason}")
+                    continue
+                case_result = failed_case(func, exc)
+                result["cases"].append(case_result)
+                result["errors"].append(
+                    {
+                        "type": "case_failure",
+                        "case": func.__name__,
+                        "message": case_result["error"],
+                        "traceback": traceback.format_exc(),
+                    }
+                )
+                if emit_text:
+                    print(f"  FAIL {func.__name__}: {case_result['error']}")
+            except Exception as exc:  # noqa: BLE001 - runner must report all benchmark failures.
+                case_result = failed_case(func, exc)
+                result["cases"].append(case_result)
+                result["errors"].append(
+                    {
+                        "type": "case_failure",
+                        "case": func.__name__,
+                        "message": case_result["error"],
+                        "traceback": traceback.format_exc(),
+                    }
+                )
+                if emit_text:
+                    print(f"  FAIL {func.__name__}: {case_result['error']}")
 
-            if test_functions:
-                # Run first test function as smoke test
-                test_func = getattr(module, test_functions[0])
-                result = test_func()
-                print(f"  ✓ {test_functions[0]}() completed: {result}")
-            else:
-                print("  No test functions found, assuming module is OK")
+    except Exception as exc:  # noqa: BLE001 - runner must report import and setup failures.
+        result["errors"].append(
+            {
+                "type": "benchmark_failure",
+                "message": f"{type(exc).__name__}: {exc}",
+                "traceback": traceback.format_exc(),
+            }
+        )
 
-        print(f"✓ {module_name} completed successfully")
-        return True
+    if result["errors"]:
+        result["status"] = "failed"
+    elif result["cases"] and all(case["status"] == "skipped" for case in result["cases"]):
+        result["status"] = "skipped"
+    else:
+        result["status"] = "passed"
 
-    except ImportError as e:
-        print(f"⚠ {module_name} - Import error (missing optional dependency?): {e}")
-        return True  # Don't fail on missing optional deps
-    except Exception as e:
-        print(f"✗ {module_name} - FAILED with error: {e}")
-        traceback.print_exc()
-        return False
+    if emit_text:
+        print(f"  Result: {result['status'].upper()}")
+
+    return result
 
 
-def list_benchmarks():
+def selected_benchmarks(run_all: bool, category: Optional[str]) -> list[BenchmarkSpec]:
+    """Return benchmark specs selected by CLI arguments."""
+    if run_all:
+        return list(BENCHMARK_SPECS)
+    if category:
+        return [spec for spec in BENCHMARK_SPECS if spec.category == category]
+    return []
+
+
+def git_sha() -> Optional[str]:
+    """Return the current git SHA if available."""
+    git_path = which("git")
+    if not git_path:
+        return None
+    try:
+        completed = subprocess.run(
+            [git_path, "rev-parse", "--short", "HEAD"],
+            capture_output=True,
+            check=False,
+            text=True,
+        )
+    except OSError:
+        return None
+    if completed.returncode != 0:
+        return None
+    return completed.stdout.strip()
+
+
+def environment_metadata(quick: bool) -> dict[str, Any]:
+    """Return environment metadata for structured benchmark output."""
+    return {
+        "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+        "python_version": platform.python_version(),
+        "python_implementation": platform.python_implementation(),
+        "platform": platform.platform(),
+        "machine": platform.machine(),
+        "processor": platform.processor(),
+        "cpu_count": os.cpu_count(),
+        "git_sha": git_sha(),
+        "quick": quick,
+    }
+
+
+def build_summary(benchmark_results: list[dict[str, Any]]) -> dict[str, int]:
+    """Build benchmark-level and case-level summary counts."""
+    case_results = [case for benchmark in benchmark_results for case in benchmark["cases"]]
+    return {
+        "total": len(benchmark_results),
+        "passed": sum(1 for benchmark in benchmark_results if benchmark["status"] == "passed"),
+        "failed": sum(1 for benchmark in benchmark_results if benchmark["status"] == "failed"),
+        "skipped": sum(1 for benchmark in benchmark_results if benchmark["status"] == "skipped"),
+        "cases_total": len(case_results),
+        "cases_passed": sum(1 for case in case_results if case["status"] == "passed"),
+        "cases_failed": sum(1 for case in case_results if case["status"] == "failed"),
+        "cases_skipped": sum(1 for case in case_results if case["status"] == "skipped"),
+    }
+
+
+def build_payload(specs: list[BenchmarkSpec], quick: bool, emit_text: bool) -> dict[str, Any]:
+    """Run selected benchmarks and build the complete result payload."""
+    benchmark_results = [run_benchmark(spec, quick=quick, emit_text=emit_text) for spec in specs]
+    return {
+        "environment": environment_metadata(quick=quick),
+        "summary": build_summary(benchmark_results),
+        "benchmarks": benchmark_results,
+    }
+
+
+def print_text_summary(payload: dict[str, Any]) -> None:
+    """Print text summary for human-oriented runs."""
+    summary = payload["summary"]
+    print("\n" + "=" * 80)
+    print("SUMMARY")
+    print("=" * 80)
+    print(f"Total:        {summary['total']}")
+    print(f"Passed:       {summary['passed']}")
+    print(f"Failed:       {summary['failed']}")
+    print(f"Skipped:      {summary['skipped']}")
+    print(f"Cases total:  {summary['cases_total']}")
+    print(f"Cases passed: {summary['cases_passed']}")
+    print(f"Cases failed: {summary['cases_failed']}")
+    print(f"Cases skipped:{summary['cases_skipped']}")
+
+    failed = [benchmark for benchmark in payload["benchmarks"] if benchmark["status"] == "failed"]
+    if failed:
+        print("\nFailed benchmarks:")
+        for benchmark in failed:
+            print(f"  - {benchmark['module']}")
+            for error in benchmark["errors"]:
+                print(f"    {error['message']}")
+
+    print("=" * 80 + "\n")
+
+
+def write_json_output(output_path: str, payload: dict[str, Any]) -> None:
+    """Write structured JSON results to a path."""
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
+
+
+def list_benchmarks() -> None:
     """List all available benchmarks."""
     print("\nAvailable Benchmarks:\n")
-    for category, benchmarks in BENCHMARKS.items():
-        print(f"{category.upper()} ({len(benchmarks)} benchmarks):")
-        for i, benchmark in enumerate(benchmarks, 1):
-            print(f"  {i}. {benchmark}")
+    for category in CATEGORIES:
+        specs = [spec for spec in BENCHMARK_SPECS if spec.category == category]
+        print(f"{category.upper()} ({len(specs)} benchmarks):")
+        for index, spec in enumerate(specs, 1):
+            print(f"  {index}. {spec.module} - {spec.title}")
         print()
 
 
-def main():
+def build_parser() -> argparse.ArgumentParser:
+    """Build CLI parser."""
     parser = argparse.ArgumentParser(description="Run Python performance benchmarks")
     parser.add_argument("--all", action="store_true", help="Run all benchmarks")
-    parser.add_argument(
-        "--category", choices=["basic", "advanced", "expert"], help="Run benchmarks in specific category"
-    )
+    parser.add_argument("--category", choices=list(CATEGORIES), help="Run benchmarks in a specific category")
     parser.add_argument("--quick", action="store_true", help="Run with reduced iterations (for CI/testing)")
     parser.add_argument("--list", action="store_true", help="List all available benchmarks")
+    parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
+    parser.add_argument("--output", help="Write structured JSON results to this path")
+    return parser
 
-    args = parser.parse_args()
+
+def parse_args() -> argparse.Namespace:
+    """Parse CLI arguments."""
+    parser = build_parser()
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
 
     if args.list:
         list_benchmarks()
         return 0
 
     if not args.all and not args.category:
-        parser.print_help()
+        build_parser().print_help()
         return 1
 
-    # Determine which benchmarks to run
-    to_run = []
-    if args.all:
-        for category_benchmarks in BENCHMARKS.values():
-            to_run.extend(category_benchmarks)
-    elif args.category:
-        to_run = BENCHMARKS[args.category]
+    specs = selected_benchmarks(args.all, args.category)
+    emit_text = args.format == "text"
 
-    print("\n" + "=" * 80)
-    print("BENCHMARK TEST RUNNER")
-    print("=" * 80)
-    print(f"Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
-    print(f"Running {len(to_run)} benchmarks")
-    print(f"Quick mode: {args.quick}")
-    print(f"{'=' * 80}\n")
+    if emit_text:
+        print("\n" + "=" * 80)
+        print("BENCHMARK TEST RUNNER")
+        print("=" * 80)
+        print(f"Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
+        print(f"Running {len(specs)} benchmarks")
+        print(f"Quick mode: {args.quick}")
+        print(f"{'=' * 80}\n")
 
-    # Run benchmarks
-    results = {}
-    for module_name in to_run:
-        success = run_benchmark(module_name, quick=args.quick)
-        results[module_name] = success
+    payload = build_payload(specs, quick=args.quick, emit_text=emit_text)
 
-    # Summary
-    print("\n" + "=" * 80)
-    print("SUMMARY")
-    print("=" * 80)
+    if args.output:
+        write_json_output(args.output, payload)
 
-    passed = sum(1 for success in results.values() if success)
-    failed = len(results) - passed
+    if args.format == "json" and not args.output:
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    elif emit_text:
+        print_text_summary(payload)
 
-    print(f"Total:  {len(results)}")
-    print(f"Passed: {passed} ✓")
-    print(f"Failed: {failed} ✗")
-
-    if failed > 0:
-        print("\nFailed benchmarks:")
-        for module_name, success in results.items():
-            if not success:
-                print(f"  ✗ {module_name}")
-
-    print(f"{'=' * 80}\n")
-
-    return 0 if failed == 0 else 1
+    return 0 if payload["summary"]["failed"] == 0 else 1
 
 
 if __name__ == "__main__":

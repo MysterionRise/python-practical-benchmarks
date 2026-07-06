@@ -30,6 +30,7 @@ TEST_FILE = None
 def setup_test_file():
     """Create a temporary test file with sample data"""
     global TEST_FILE
+    cleanup_test_file()
     fd, TEST_FILE = tempfile.mkstemp(suffix=".txt", text=True)
     with os.fdopen(fd, "w") as f:
         for i in range(NUM_LINES):
@@ -48,23 +49,35 @@ def cleanup_test_file():
         TEST_FILE = None
 
 
-# Initialize test file when module is imported
-setup_test_file()
+def ensure_test_file():
+    """Create the benchmark input file lazily."""
+    if not TEST_FILE or not os.path.exists(TEST_FILE):
+        setup_test_file()
+    return TEST_FILE
+
+
+def reset_benchmark_data():
+    """Clear the generated file after runner quick-mode overrides."""
+    cleanup_test_file()
+
+
 # Register cleanup to run at exit
 atexit.register(cleanup_test_file)
 
 
 def perf_test1():
     """Read file using read() entire file"""
-    with open(TEST_FILE, "r") as f:
+    test_file = ensure_test_file()
+    with open(test_file, "r") as f:
         content = f.read()
     return len(content)
 
 
 def perf_test2():
     """Read file using readline() in loop"""
+    test_file = ensure_test_file()
     lines = []
-    with open(TEST_FILE, "r") as f:
+    with open(test_file, "r") as f:
         while True:
             line = f.readline()
             if not line:
@@ -75,15 +88,17 @@ def perf_test2():
 
 def perf_test3():
     """Read file using readlines() all at once"""
-    with open(TEST_FILE, "r") as f:
+    test_file = ensure_test_file()
+    with open(test_file, "r") as f:
         lines = f.readlines()
     return len(lines)
 
 
 def perf_test4():
     """Read file using iteration with 'with open'"""
+    test_file = ensure_test_file()
     lines = []
-    with open(TEST_FILE, "r") as f:
+    with open(test_file, "r") as f:
         for line in f:
             lines.append(line)
     return len(lines)
@@ -91,14 +106,16 @@ def perf_test4():
 
 def perf_test5():
     """Read file using pathlib.Path.read_text()"""
-    content = pathlib.Path(TEST_FILE).read_text()
+    test_file = ensure_test_file()
+    content = pathlib.Path(test_file).read_text()
     return len(content)
 
 
 def perf_test6():
     """Read file using buffered reading (8KB buffer)"""
+    test_file = ensure_test_file()
     content = []
-    with open(TEST_FILE, "r", buffering=8192) as f:
+    with open(test_file, "r", buffering=8192) as f:
         while True:
             chunk = f.read(8192)
             if not chunk:
@@ -109,8 +126,9 @@ def perf_test6():
 
 def perf_test7():
     """Read file using buffered reading (64KB buffer)"""
+    test_file = ensure_test_file()
     content = []
-    with open(TEST_FILE, "r", buffering=65536) as f:
+    with open(test_file, "r", buffering=65536) as f:
         while True:
             chunk = f.read(65536)
             if not chunk:

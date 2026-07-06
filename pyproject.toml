@@ -132,6 +132,12 @@ ignore = [
     "PLW1510", # subprocess.run without check is fine in tests
     "F841",   # unused variable is fine in tests
 ]
+"run_all_tests.py" = [
+    "PLR0912", # runner orchestration has several reporting branches
+    "S603",    # git metadata command is fixed and shell=False
+    "UP007",   # keep Python 3.9-compatible Union annotations
+    "UP045",   # keep Python 3.9-compatible Optional annotations
+]
 
 [tool.ruff.lint.isort]
 known-first-party = ["run_all_tests"]
@@ -150,6 +156,7 @@ python_version = "3.9"
 warn_return_any = false
 warn_unused_configs = true
 ignore_missing_imports = true
+no_site_packages = true
 exclude = [
     "^build/",
     "^dist/",
@@ -165,7 +172,7 @@ disallow_incomplete_defs = false
 # Per-file overrides for benchmark files - exclude from strict checks
 [[tool.mypy.overrides]]
 module = [
-    "iterate_2d_array_peft_test",
+    "iterate_2d_array_perf_test",
     "iterate_df_pandas_perf_test",
     "dict_access_perf_test",
     "string_concat_perf_test",

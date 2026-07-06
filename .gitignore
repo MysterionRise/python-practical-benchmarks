@@ -128,4 +128,20 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-.idea
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Ruff
+.ruff_cache/
+
+# Benchmark outputs
+reports/output/
+benchmark_results/
+*.benchmark.json
+
+# Package build
+*.egg-info/

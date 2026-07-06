@@ -1,41 +1,58 @@
-"""Smoke tests to verify all benchmark modules can be imported."""
+"""Smoke tests to verify benchmark modules and manifest structure."""
 
+import ast
 import importlib
-import sys
 from pathlib import Path
 
 import pytest
 
-# Ensure project root is in path
-PROJECT_ROOT = Path(__file__).parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+from benchmark_manifest import BENCHMARK_SPECS, all_benchmark_modules
+from run_all_tests import collect_benchmark_cases, missing_dependencies
 
-# Import benchmark list directly - conftest.py is auto-loaded by pytest
-ALL_BENCHMARKS = [
-    "iterate_2d_array_peft_test",
-    "iterate_df_pandas_perf_test",
-    "dict_access_perf_test",
-    "string_concat_perf_test",
-    "list_operations_perf_test",
-    "file_io_perf_test",
-    "json_perf_test",
-    "set_operations_perf_test",
-    "function_call_perf_test",
-    "data_structure_lookup_perf_test",
-    "concurrency_patterns_perf_test",
-    "regex_performance_perf_test",
-    "object_creation_patterns_perf_test",
-    "deep_copy_strategies_perf_test",
-    "generator_vs_iterator_perf_test",
-    "attribute_access_perf_test",
-    "exception_handling_perf_test",
-    "serialization_formats_perf_test",
-    "context_manager_perf_test",
-    "import_strategies_perf_test",
-    "free_threaded_perf_test",
-    "jit_numeric_perf_test",
-]
+PROJECT_ROOT = Path(__file__).parent.parent
+
+
+ALL_BENCHMARKS = all_benchmark_modules()
+
+
+def import_or_skip_missing_required(module_name):
+    """Import a benchmark module or skip when required deps are absent locally."""
+    spec = next(spec for spec in BENCHMARK_SPECS if spec.module == module_name)
+    missing_required = missing_dependencies(spec.required_dependencies)
+    if missing_required:
+        pytest.skip(f"Required dependencies missing locally: {', '.join(missing_required)}")
+    return importlib.import_module(module_name)
+
+
+def call_name(func_node):
+    """Return a dotted call name for simple call expressions."""
+    if isinstance(func_node, ast.Name):
+        return func_node.id
+    if isinstance(func_node, ast.Attribute):
+        parts = []
+        current = func_node
+        while isinstance(current, ast.Attribute):
+            parts.append(current.attr)
+            current = current.value
+        if isinstance(current, ast.Name):
+            parts.append(current.id)
+        return ".".join(reversed(parts))
+    return ""
+
+
+def is_main_guard(node):
+    """Return True for if __name__ == '__main__' guards."""
+    if not isinstance(node, ast.If):
+        return False
+    test = node.test
+    return (
+        isinstance(test, ast.Compare)
+        and isinstance(test.left, ast.Name)
+        and test.left.id == "__name__"
+        and any(
+            isinstance(comparator, ast.Constant) and comparator.value == "__main__" for comparator in test.comparators
+        )
+    )
 
 
 class TestBenchmarkImports:
@@ -44,69 +61,53 @@ class TestBenchmarkImports:
     @pytest.mark.parametrize("module_name", ALL_BENCHMARKS)
     def test_benchmark_import(self, module_name):
         """Test that each benchmark module can be imported without errors."""
-        try:
-            module = importlib.import_module(module_name)
-            assert module is not None
-        except ImportError as e:
-            # Some modules may fail due to optional dependencies
-            # This is acceptable as long as the error is about missing packages
-            error_msg = str(e).lower()
-            optional_deps = ["orjson", "ujson", "msgpack", "cbor2", "attrs"]
-            if any(dep in error_msg for dep in optional_deps):
-                pytest.skip(f"Optional dependency missing: {e}")
-            else:
-                raise
+        module = import_or_skip_missing_required(module_name)
+        assert module is not None
 
     @pytest.mark.parametrize("module_name", ALL_BENCHMARKS)
     def test_benchmark_has_docstring(self, module_name):
-        """Test that each benchmark module has a docstring."""
-        try:
-            module = importlib.import_module(module_name)
-            assert module.__doc__ is not None, f"{module_name} missing docstring"
-            assert len(module.__doc__) > 50, f"{module_name} docstring too short"
-        except ImportError:
-            pytest.skip("Module could not be imported")
+        """Test that each benchmark module has a useful module docstring."""
+        module = import_or_skip_missing_required(module_name)
+        assert module.__doc__ is not None, f"{module_name} missing docstring"
+        assert len(module.__doc__) > 50, f"{module_name} docstring too short"
 
 
 class TestBenchmarkStructure:
     """Test that benchmark modules follow the expected structure."""
 
+    def test_manifest_covers_every_benchmark_file(self):
+        """Test that every benchmark file is declared in the manifest."""
+        benchmark_files = sorted(path.stem for path in PROJECT_ROOT.glob("*_perf_test.py"))
+        assert sorted(ALL_BENCHMARKS) == benchmark_files
+
     @pytest.mark.parametrize("module_name", ALL_BENCHMARKS)
-    def test_benchmark_has_test_functions(self, module_name):
-        """Test that each benchmark has callable test functions."""
-        try:
-            module = importlib.import_module(module_name)
-            # Check for perf_test* functions OR test* functions OR main executable
-            perf_funcs = [
-                name
-                for name in dir(module)
-                if (name.startswith("perf_test") or name.startswith("test_"))
-                and callable(getattr(module, name))
-                and not name.startswith("__")
-            ]
-            # Allow modules that just have a main block to run
-            has_main = hasattr(module, "__name__")
-            if not perf_funcs and not has_main:
-                pytest.skip(f"{module_name} has no test functions (may use main block)")
-        except ImportError:
-            pytest.skip("Module could not be imported")
+    def test_benchmark_has_top_level_perf_cases(self, module_name):
+        """Test that each benchmark exposes top-level perf_test functions."""
+        module = import_or_skip_missing_required(module_name)
+        assert collect_benchmark_cases(module), f"{module_name} has no top-level perf_test functions"
 
     @pytest.mark.parametrize("module_name", ALL_BENCHMARKS)
     def test_benchmark_has_configuration_constants(self, module_name):
-        """Test that benchmarks have configuration constants (uppercase attrs)."""
-        try:
-            module = importlib.import_module(module_name)
+        """Test that benchmarks have numeric configuration constants."""
+        module = import_or_skip_missing_required(module_name)
+        constants = [
+            name
+            for name in dir(module)
+            if name.isupper() and not name.startswith("_") and isinstance(getattr(module, name), (int, float))
+        ]
+        assert constants, f"{module_name} has no numeric configuration constants"
 
-            # Look for uppercase constants that are integers
-            constants = [
-                name
-                for name in dir(module)
-                if name.isupper() and not name.startswith("_") and isinstance(getattr(module, name), (int, float))
-            ]
+    @pytest.mark.parametrize("module_name", ALL_BENCHMARKS)
+    def test_no_import_time_timing_or_printing(self, module_name):
+        """Test that benchmark modules do not time or print at import time."""
+        path = PROJECT_ROOT / f"{module_name}.py"
+        tree = ast.parse(path.read_text())
+        forbidden_calls = []
+        for node in tree.body:
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) or is_main_guard(node):
+                continue
+            for child in ast.walk(node):
+                if isinstance(child, ast.Call) and call_name(child.func) in {"print", "timeit.timeit"}:
+                    forbidden_calls.append((child.lineno, call_name(child.func)))
 
-            # Most benchmarks should have at least one configuration constant
-            # Some benchmarks might not, so we just warn
-            if not constants:
-                pytest.skip(f"{module_name} has no configuration constants (optional)")
-        except ImportError:
-            pytest.skip("Module could not be imported")
+        assert not forbidden_calls, f"{module_name} has import-time calls: {forbidden_calls}"

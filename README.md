@@ -9,7 +9,18 @@
 [![Checked with mypy](https://img.shields.io/badge/mypy-checked-blue)](https://mypy-lang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Comparing practical options for routine tasks in Python. This repository provides empirical performance data to help developers make informed decisions about which approach to use for common programming tasks.
+**22 empirical benchmarks** answering real Python performance questions. Each benchmark includes timing data, caveats, and a decision guide for production use.
+
+## Why This Project?
+
+Most Python performance debates lack empirical data. This repository provides **real measurements** across 22 production scenarios—from basic dict access to free-threaded Python 3.13—with actionable decision guides.
+
+**What makes this different:**
+- **Data-driven**: Every recommendation backed by reproducible benchmarks
+- **Production-focused**: Real-world scenarios, not micro-optimizations
+- **Quality practices**: Type-checked, linted, security-scanned, and CI-tested on Python 3.9-3.14
+
+Run the benchmarks on YOUR system—results vary by CPU, OS, and Python version.
 
 ## Quick Start
 
@@ -22,6 +33,10 @@ python run_all_tests.py --list
 
 # Run all benchmarks (fast mode for CI/testing)
 python run_all_tests.py --all --quick
+
+# Produce structured benchmark results
+python run_all_tests.py --all --quick --format json
+python run_all_tests.py --category basic --quick --format json --output reports/output/basic.json
 
 # Run by category
 python run_all_tests.py --category basic --quick
@@ -74,7 +89,7 @@ python run_all_tests.py --category expert --quick
 
 ## 1. 2D Array Iteration
 
-**File:** `iterate_2d_array_peft_test.py`
+**File:** `iterate_2d_array_perf_test.py`
 
 What is the optimal way to iterate 2d arrays (lists) in Python?
 
@@ -738,7 +753,7 @@ Each benchmark can be run independently:
 
 ```bash
 # Basic benchmarks
-python iterate_2d_array_peft_test.py
+python iterate_2d_array_perf_test.py
 python iterate_df_pandas_perf_test.py
 python dict_access_perf_test.py
 python string_concat_perf_test.py
