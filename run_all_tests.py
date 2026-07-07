@@ -123,10 +123,14 @@ def preview_result(result: Any) -> str | None:
     return preview
 
 
-def measure_case(func: Callable[[], Any], runs: int = MEASUREMENT_RUNS) -> dict[str, Any]:
+def measure_case(
+    func: Callable[[], Any],
+    runs: int = MEASUREMENT_RUNS,
+    warmups: int = WARMUP_RUNS,
+) -> dict[str, Any]:
     """Warm up and measure one benchmark case."""
     result = None
-    for _ in range(WARMUP_RUNS):
+    for _ in range(warmups):
         result = execute_case(func)
 
     timings = []
@@ -143,6 +147,7 @@ def measure_case(func: Callable[[], Any], runs: int = MEASUREMENT_RUNS) -> dict[
         "seconds_mean": statistics.mean(timings),
         "seconds_stdev": statistics.stdev(timings) if len(timings) > 1 else 0.0,
         "runs": runs,
+        "warmups": warmups,
         "result_preview": preview_result(result),
     }
 
@@ -157,6 +162,7 @@ def skipped_case(func: Callable[[], Any], dependency: OptionalDependency) -> dic
         "seconds_mean": None,
         "seconds_stdev": None,
         "runs": 0,
+        "warmups": 0,
         "result_preview": None,
         "reason": f"optional dependency not installed: {dependency.import_name}",
     }
@@ -172,6 +178,7 @@ def environment_skipped_case(func: Callable[[], Any], reason: str) -> dict[str, 
         "seconds_mean": None,
         "seconds_stdev": None,
         "runs": 0,
+        "warmups": 0,
         "result_preview": None,
         "reason": reason,
     }
@@ -187,6 +194,7 @@ def failed_case(func: Callable[[], Any], exc: BaseException) -> dict[str, Any]:
         "seconds_mean": None,
         "seconds_stdev": None,
         "runs": 0,
+        "warmups": 0,
         "result_preview": None,
         "error": f"{type(exc).__name__}: {exc}",
     }
@@ -196,6 +204,7 @@ def run_benchmark(
     benchmark: Union[BenchmarkSpec, str],
     quick: bool = False,
     runs: int = MEASUREMENT_RUNS,
+    warmups: int = WARMUP_RUNS,
     emit_text: bool = True,
 ) -> dict[str, Any]:
     """Run one benchmark module and return structured results."""
@@ -265,7 +274,7 @@ def run_benchmark(
                 continue
 
             try:
-                case_result = measure_case(func, runs=runs)
+                case_result = measure_case(func, runs=runs, warmups=warmups)
                 result["cases"].append(case_result)
                 if emit_text:
                     print(
@@ -360,7 +369,7 @@ def git_sha() -> Optional[str]:
     return completed.stdout.strip()
 
 
-def environment_metadata(quick: bool) -> dict[str, Any]:
+def environment_metadata(quick: bool, runs: int, warmups: int) -> dict[str, Any]:
     """Return environment metadata for structured benchmark output."""
     return {
         "timestamp_utc": datetime.now(timezone.utc).isoformat(),
@@ -372,6 +381,8 @@ def environment_metadata(quick: bool) -> dict[str, Any]:
         "cpu_count": os.cpu_count(),
         "git_sha": git_sha(),
         "quick": quick,
+        "runs": runs,
+        "warmups": warmups,
     }
 
 
@@ -390,11 +401,19 @@ def build_summary(benchmark_results: list[dict[str, Any]]) -> dict[str, int]:
     }
 
 
-def build_payload(specs: list[BenchmarkSpec], quick: bool, emit_text: bool) -> dict[str, Any]:
+def build_payload(
+    specs: list[BenchmarkSpec],
+    quick: bool,
+    emit_text: bool,
+    runs: int = MEASUREMENT_RUNS,
+    warmups: int = WARMUP_RUNS,
+) -> dict[str, Any]:
     """Run selected benchmarks and build the complete result payload."""
-    benchmark_results = [run_benchmark(spec, quick=quick, emit_text=emit_text) for spec in specs]
+    benchmark_results = [
+        run_benchmark(spec, quick=quick, runs=runs, warmups=warmups, emit_text=emit_text) for spec in specs
+    ]
     return {
-        "environment": environment_metadata(quick=quick),
+        "environment": environment_metadata(quick=quick, runs=runs, warmups=warmups),
         "summary": build_summary(benchmark_results),
         "benchmarks": benchmark_results,
     }
@@ -444,6 +463,22 @@ def list_benchmarks() -> None:
         print()
 
 
+def positive_int(value: str) -> int:
+    """Parse a positive integer CLI value."""
+    parsed = int(value)
+    if parsed < 1:
+        raise argparse.ArgumentTypeError("must be >= 1")
+    return parsed
+
+
+def non_negative_int(value: str) -> int:
+    """Parse a non-negative integer CLI value."""
+    parsed = int(value)
+    if parsed < 0:
+        raise argparse.ArgumentTypeError("must be >= 0")
+    return parsed
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Build CLI parser."""
     parser = argparse.ArgumentParser(description="Run Python performance benchmarks")
@@ -453,6 +488,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--list", action="store_true", help="List all available benchmarks")
     parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
     parser.add_argument("--output", help="Write structured JSON results to this path")
+    parser.add_argument("--runs", type=positive_int, default=MEASUREMENT_RUNS, help="Measured runs per case")
+    parser.add_argument("--warmups", type=non_negative_int, default=WARMUP_RUNS, help="Warmup executions per case")
     return parser
 
 
@@ -483,9 +520,11 @@ def main() -> int:
         print(f"Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
         print(f"Running {len(specs)} benchmarks")
         print(f"Quick mode: {args.quick}")
+        print(f"Measured runs per case: {args.runs}")
+        print(f"Warmups per case: {args.warmups}")
         print(f"{'=' * 80}\n")
 
-    payload = build_payload(specs, quick=args.quick, emit_text=emit_text)
+    payload = build_payload(specs, quick=args.quick, emit_text=emit_text, runs=args.runs, warmups=args.warmups)
 
     if args.output:
         write_json_output(args.output, payload)

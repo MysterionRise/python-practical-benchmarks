@@ -51,6 +51,23 @@ jobs:
       run: |
         python run_all_tests.py --all --quick
 
+    - name: Generate structured benchmark artifact
+      if: matrix.python-version == '3.11'
+      run: |
+        mkdir -p reports/output
+        python run_all_tests.py --all --quick --format json --output reports/output/ci-quick.json
+        python scripts/render_report.py reports/output/ci-quick.json --output reports/output/ci-quick.md
+
+    - name: Upload benchmark artifact
+      if: matrix.python-version == '3.11'
+      uses: actions/upload-artifact@v4
+      with:
+        name: benchmark-evidence-python-3.11
+        path: |
+          reports/output/ci-quick.json
+          reports/output/ci-quick.md
+        retention-days: 30
+
   test-with-coverage:
     name: Test with coverage
     runs-on: ubuntu-latest

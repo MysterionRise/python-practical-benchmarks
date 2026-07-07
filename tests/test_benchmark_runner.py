@@ -32,6 +32,8 @@ class TestBenchmarkRunnerCLI:
         assert "--list" in result.stdout
         assert "--format" in result.stdout
         assert "--output" in result.stdout
+        assert "--runs" in result.stdout
+        assert "--warmups" in result.stdout
 
     def test_list_option(self):
         """Test --list option displays all benchmarks."""
@@ -172,6 +174,33 @@ class TestBenchmarkRunnerModule:
         assert decoded["environment"]["python_version"]
         assert decoded["environment"]["quick"] is True
         assert decoded["benchmarks"][0]["cases"]
+
+    def test_runs_and_warmups_parser_options(self):
+        """Test --runs and --warmups parser options."""
+        import run_all_tests
+
+        args = run_all_tests.build_parser().parse_args(["--all", "--quick", "--runs", "5", "--warmups", "2"])
+
+        assert args.runs == 5
+        assert args.warmups == 2
+
+    def test_json_payload_contains_run_configuration(self):
+        """Test structured payload records run and warmup configuration."""
+        import run_all_tests
+        from benchmark_manifest import get_benchmark_spec
+
+        payload = run_all_tests.build_payload(
+            [get_benchmark_spec("dict_access_perf_test")],
+            quick=True,
+            emit_text=False,
+            runs=2,
+            warmups=0,
+        )
+
+        assert payload["environment"]["runs"] == 2
+        assert payload["environment"]["warmups"] == 0
+        assert payload["benchmarks"][0]["cases"][0]["runs"] == 2
+        assert payload["benchmarks"][0]["cases"][0]["warmups"] == 0
 
 
 class TestBenchmarkExecution:

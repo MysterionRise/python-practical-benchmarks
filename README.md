@@ -25,24 +25,42 @@ Run the benchmarks on YOUR system—results vary by CPU, OS, and Python version.
 ## Quick Start
 
 ```bash
+# First-time reviewer setup
+make setup
+
+# Run all quality gates and the quick benchmark suite
+make verify
+
 # Run a single benchmark
-python dict_access_perf_test.py
+.venv/bin/python dict_access_perf_test.py
 
 # See all available benchmarks
-python run_all_tests.py --list
+.venv/bin/python run_all_tests.py --list
 
 # Run all benchmarks (fast mode for CI/testing)
-python run_all_tests.py --all --quick
+.venv/bin/python run_all_tests.py --all --quick
 
 # Produce structured benchmark results
-python run_all_tests.py --all --quick --format json
-python run_all_tests.py --category basic --quick --format json --output reports/output/basic.json
+.venv/bin/python run_all_tests.py --all --quick --format json
+.venv/bin/python run_all_tests.py --category basic --quick --format json --output reports/output/basic.json
+
+# Produce local portfolio evidence
+make bench-report
 
 # Run by category
-python run_all_tests.py --category basic --quick
-python run_all_tests.py --category advanced --quick
-python run_all_tests.py --category expert --quick
+.venv/bin/python run_all_tests.py --category basic --quick
+.venv/bin/python run_all_tests.py --category advanced --quick
+.venv/bin/python run_all_tests.py --category expert --quick
 ```
+
+If your shell's `python` command already resolves to Python 3.9+, the direct `python run_all_tests.py ...` commands remain supported.
+
+## Portfolio Evidence
+
+- [Benchmark methodology](docs/METHODOLOGY.md) explains warmups, repeated runs, quick mode, optional skips, and measurement limits.
+- [Portfolio case study](docs/PORTFOLIO_CASE_STUDY.md) explains the architecture, tradeoffs, and reviewer-facing proof points.
+- [Report generation](reports/README.md) explains how JSON and Markdown benchmark evidence is produced.
+- [Sample quick report](reports/samples/quick-summary.md) provides machine-specific evidence generated from the structured runner.
 
 ## Performance Caveats
 
