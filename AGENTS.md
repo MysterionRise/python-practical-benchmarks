@@ -1,6 +1,7 @@
 # AGENTS.md
 
-This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
+This file provides guidance to AI coding agents such as Codex when working with code in this repository.
+Keep it in sync with CLAUDE.md.
 
 ## Project Overview
 
@@ -24,6 +25,23 @@ python run_all_tests.py --list
 
 # Run individual benchmark (full iterations)
 python dict_access_perf_test.py
+
+# Structured output and repeat control
+python run_all_tests.py --all --quick --format json --output reports/output/quick-results.json
+python run_all_tests.py --category basic --runs 5 --warmups 2
+
+# Render a JSON result file as a Markdown report
+python scripts/render_report.py reports/output/quick-results.json --output reports/output/quick-summary.md
+```
+
+### Makefile Shortcuts
+
+```bash
+make setup         # create .venv and install -e ".[dev,optional]"
+make verify        # ruff check, ruff format --check, mypy, pytest, quick benchmark run
+make bench-json    # quick run -> reports/output/quick-results.json
+make bench-report  # bench-json, then render reports/output/quick-summary.md
+make clean-report  # remove generated report files
 ```
 
 ### Code Quality
@@ -50,11 +68,11 @@ pre-commit run --all-files
 # Run tests
 pytest tests/ -v
 
-# Run tests with coverage
-pytest tests/ --cov=. --cov-report=term-missing
+# Run tests with coverage (sources configured in pyproject.toml)
+pytest tests/ --cov --cov-report=term-missing
 
-# Security audit
-pip-audit --strict
+# Security audit of declared dependencies (same as CI)
+pip-audit --strict -r requirements.txt -r requirements-optional.txt
 ```
 
 ## Architecture
@@ -77,8 +95,9 @@ Each `*_perf_test.py` file follows a consistent pattern:
 The `tests/` directory contains pytest tests:
 - `conftest.py`: Shared fixtures and benchmark constants
 - `test_benchmark_runner.py`: Tests for run_all_tests.py CLI
-- `test_benchmark_smoke.py`: Import tests for all benchmark modules
+- `test_benchmark_smoke.py`: Import, structure, and manifest tests for all benchmark modules (including that every quick-mode override names a real module constant)
 - `test_benchmark_functions.py`: Verify perf_test functions execute correctly
+- `test_report_renderer.py`: Tests for `scripts/render_report.py`
 
 ### Optional Dependencies
 
@@ -101,3 +120,4 @@ Python 3.9 through 3.14 (tested in CI).
 - `lint.yml`: Ruff linting/formatting, mypy type checking, pre-commit hooks
 - `tests.yml`: Multi-Python version testing, coverage reporting to Codecov
 - `security.yml`: pip-audit, TruffleHog, CodeQL analysis
+- `benchmark-artifacts.yml`: Weekly scheduled quick run that uploads JSON and Markdown results as artifacts

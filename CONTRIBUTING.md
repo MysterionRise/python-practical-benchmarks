@@ -65,7 +65,7 @@ mypy .                          # Type checking
 
 # Testing
 pytest tests/ -v                # Run tests
-pytest tests/ --cov=. --cov-report=term-missing  # With coverage
+pytest tests/ --cov --cov-report=term-missing  # With coverage
 
 # Benchmarks
 python run_all_tests.py --list  # List all benchmarks
@@ -98,6 +98,7 @@ KEY FINDINGS:
 - Clear, actionable insight 3
 - When to use what approach
 """
+
 import timeit
 # Other imports
 
@@ -109,6 +110,7 @@ OTHER_PARAMS = 100
 # ============================================================================
 # SECTION 1: [Category Name]
 # ============================================================================
+
 
 def perf_test1_baseline():
     """Baseline approach"""
@@ -143,10 +145,10 @@ if __name__ == "__main__":
     print("=" * 80)
 
     t1 = timeit.timeit(stmt="perf_test1_baseline()", number=1, globals=globals())
-    print(f"Baseline:                        {t1:.6f}s  ({t1*1e9/ITERATIONS:.0f}ns per iter)")
+    print(f"Baseline:                        {t1:.6f}s  ({t1 * 1e9 / ITERATIONS:.0f}ns per iter)")
 
     t2 = timeit.timeit(stmt="perf_test2_alternative()", number=1, globals=globals())
-    print(f"Alternative:                     {t2:.6f}s  ({t2*1e9/ITERATIONS:.0f}ns per iter) {t2/t1:.1f}x")
+    print(f"Alternative:                     {t2:.6f}s  ({t2 * 1e9 / ITERATIONS:.0f}ns per iter) {t2 / t1:.1f}x")
 
     # Decision guide
     print("\n" + "=" * 80)
@@ -227,7 +229,7 @@ t1 = timeit.timeit(stmt="perf_test1_baseline()", number=1, globals=globals())
 Format output consistently:
 
 ```python
-print(f"Method name:                     {t1:.6f}s  ({t1*1e9/ITERATIONS:.0f}ns per iter) {t1/baseline:.1f}x")
+print(f"Method name:                     {t1:.6f}s  ({t1 * 1e9 / ITERATIONS:.0f}ns per iter) {t1 / baseline:.1f}x")
 ```
 
 ### 5. Decision Guide
@@ -283,7 +285,7 @@ import tempfile
 import os
 
 # Create temp file
-with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
     temp_path = f.name
     # Use file
 
@@ -307,26 +309,30 @@ Verify:
 - Results make sense (no negative times, reasonable comparisons)
 - Decision guide is comprehensive
 
-### 2. Add to Test Runner
+### 2. Register in the Benchmark Manifest
 
-Edit `run_all_tests.py`:
+`benchmark_manifest.py` is the single source of truth; `run_all_tests.py` derives its category lists and
+quick-mode settings from it. Add a `BenchmarkSpec` to `BENCHMARK_SPECS`:
 
-1. Add to the appropriate category in `BENCHMARKS` dict:
 ```python
-BENCHMARKS = {
-    "basic": [
-        # existing benchmarks
-        "your_new_perf_test",
-    ],
-}
+BENCHMARK_SPECS: tuple[BenchmarkSpec, ...] = (
+    # ... existing specs ...
+    BenchmarkSpec(
+        module="your_new_perf_test",
+        title="Your Benchmark Title",
+        category="basic",  # basic | advanced | expert
+        required_dependencies=(),  # e.g. ("numpy",)
+        optional_dependencies=(),  # e.g. (OptionalDependency(import_name="orjson", markers=("orjson",)),)
+        quick_overrides={"PERF_ITERATIONS": 100, "DATASET_SIZE": 100},
+    ),
+)
 ```
 
-2. Add quick mode parameters to `QUICK_ITERATIONS`:
-```python
-QUICK_ITERATIONS = {
-    "your_new_perf_test": {"PERF_ITERATIONS": 100, "DATASET_SIZE": 100},
-}
-```
+Every `quick_overrides` key must be a module-level constant (a test enforces this). If the module builds data
+from those constants at import time, also define `reset_benchmark_data()` so quick mode rebuilds it.
+
+Then add the module to the `[[tool.mypy.overrides]]` list in `pyproject.toml` and to the file dropdown in
+`.github/ISSUE_TEMPLATE/bug_report.yml`.
 
 ### 3. Test with Quick Mode
 
@@ -355,7 +361,7 @@ pre-commit run --files your_new_perf_test.py
 Add your benchmark to the appropriate section in README.md:
 
 ```markdown
-### 21. Your Benchmark Name
+## 23. Your Benchmark Name
 
 **File**: `your_new_perf_test.py`
 

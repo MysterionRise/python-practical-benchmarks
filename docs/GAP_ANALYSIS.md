@@ -30,8 +30,10 @@ This document tracks the work needed to make `python-practical-benchmarks` credi
 - Benchmark result tables in README are still representative examples; they should eventually be generated from checked-in JSON artifacts.
 - Some modules still build sizable data at import time. They are import-safe from a timing/printing perspective, but not fully lazy.
 - The project has coverage reporting, but not a meaningful coverage gate yet.
-- Statistical rigor is basic. A future iteration should add configurable repeats, warmup counts, confidence intervals, and regression comparison against previous result files.
-- Optional dependency coverage depends on the local or CI install profile. A dedicated optional-dependency job should assert all optional cases execute.
+- Statistical rigor is basic. Repeats and warmups are configurable (`--runs`, `--warmups`), but there is no loop calibration, confidence interval, or regression comparison against previous result files yet.
+- Optional dependency coverage depends on the local or CI install profile. The optional-dependency CI job runs those modules but does not yet assert that all optional cases execute.
+- `iterate_df_pandas_perf_test.perf_test6`/`perf_test7` return before computing, so the vectorisation cases time an empty function, and `perf_test7` would call the nonexistent `ndarray.to_list()` once fixed.
+- Quick-mode `DATA_SIZE` (`set_operations_perf_test`) and `NUM_STRINGS` (`regex_performance_perf_test`) are reported as applied but have no effect, because the data is built at import time without a `reset_benchmark_data()` hook.
 
 ## Verification Commands
 

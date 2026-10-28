@@ -1,8 +1,8 @@
 # python-practical-benchmarks
 
-[![Benchmark Tests](https://github.com/MysterionRise/python-practical-benchmarks/workflows/Benchmark%20Tests/badge.svg)](https://github.com/MysterionRise/python-practical-benchmarks/actions/workflows/tests.yml)
-[![Linting](https://github.com/MysterionRise/python-practical-benchmarks/workflows/Linting/badge.svg)](https://github.com/MysterionRise/python-practical-benchmarks/actions/workflows/lint.yml)
-[![Security Scanning](https://github.com/MysterionRise/python-practical-benchmarks/workflows/Security%20Scanning/badge.svg)](https://github.com/MysterionRise/python-practical-benchmarks/actions/workflows/security.yml)
+[![Benchmark Tests](https://github.com/MysterionRise/python-practical-benchmarks/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/MysterionRise/python-practical-benchmarks/actions/workflows/tests.yml)
+[![Linting](https://github.com/MysterionRise/python-practical-benchmarks/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/MysterionRise/python-practical-benchmarks/actions/workflows/lint.yml)
+[![Security Scanning](https://github.com/MysterionRise/python-practical-benchmarks/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/MysterionRise/python-practical-benchmarks/actions/workflows/security.yml)
 [![codecov](https://codecov.io/gh/MysterionRise/python-practical-benchmarks/branch/main/graph/badge.svg)](https://codecov.io/gh/MysterionRise/python-practical-benchmarks)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
@@ -71,7 +71,7 @@ If your shell's `python` command already resolves to Python 3.9+, the direct `py
 - Python version (3.11+ has significant optimizations)
 - System load and available memory
 
-**Run benchmarks on YOUR system for accurate decisions.** The numbers in this README are representative examples, not absolute truths.
+**Run benchmarks on YOUR system for accurate decisions.** The result tables in this README are illustrative examples, not measured output from the current code. For measured, machine-specific results see the [sample quick report](reports/samples/quick-summary.md) or generate your own with `make bench-report`.
 
 ## Table of Contents
 
@@ -682,7 +682,7 @@ Pattern                          Total time
 ---------------------------------------------------------------
 import module                    0.000023s ✓ nearly free (cached)
 from module import name          0.000025s ✓ nearly free (cached)
-importlib.import_module()        0.345s ⚠ 15,000x slower!
+importlib.import_module()        0.345s ⚠ slower: hoist out of hot loops
 
 LAZY vs EAGER (10,000 function calls):
 Strategy                         Startup    First use
@@ -691,7 +691,7 @@ Eager (import at top)            0.234s     0.001s (fast use)
 Lazy (import on use)             0.001s     0.234s (fast startup) ✓ CLI tools
 ```
 
-**Winner:** **Import at module top** (standard pattern) - cached imports are nearly free. Use **lazy imports** only for CLI tools with heavy dependencies (pandas, tensorflow). Use **"from X import Y"** for frequently-accessed names (12% faster attribute access). AVOID importlib/__import__ in loops!
+**Winner:** **Import at module top** (standard pattern) - re-importing a loaded module is a cheap `sys.modules` lookup. Use **lazy imports** only for CLI tools with heavy dependencies (pandas, tensorflow). **"from X import Y"** saves one attribute lookup per use, which matters only in very hot loops. Hoist `importlib.import_module()` out of hot loops.
 
 ---
 
@@ -720,7 +720,7 @@ Threading (both modes)           0.010s    4.0x ✓
 
 **Winner:** **Free-threaded Python** provides near-linear speedup for CPU-bound threading. Standard Python (with GIL) sees NO speedup from threading for CPU work. For CPU parallelism without free-threading, use **multiprocessing** instead.
 
-**Note:** Free-threaded Python requires Python 3.13+ built with `--disable-gil`. Check with `python -c "import sys; print(hasattr(sys, '_is_gil_enabled'))"`.
+**Note:** Free-threaded Python requires Python 3.13+ built with `--disable-gil`. Check with `python -c "import sys; print(sys._is_gil_enabled())"`, which prints `False` when the GIL is disabled.
 
 ---
 
@@ -744,7 +744,7 @@ Integer arithmetic          1.00s       0.85s       ~15%
 
 **Winner:** Python's **experimental JIT** provides 5-30% improvement for numeric-heavy pure Python code. For serious numeric work, **NumPy** or **Numba** still provide 10-100x better performance. The JIT is "free" performance when available.
 
-**Note:** JIT requires Python 3.13+ built with `--enable-experimental-jit`. Enable with `PYTHON_JIT=1`.
+**Note:** The JIT needs a CPython 3.13+ build configured with `--enable-experimental-jit`. Builds configured with `=yes-off`, common for 3.14 distributions, ship it disabled, so enable it with `PYTHON_JIT=1`. Builds configured with plain `=yes` enable it by default, and `PYTHON_JIT=0` turns it off. On 3.14+, check with `python -c "import sys; print(sys._jit.is_enabled())"`.
 
 ---
 
@@ -812,7 +812,7 @@ python jit_numeric_perf_test.py      # Benefits from Python 3.13+ with JIT
 
 ### Advanced Performance Patterns
 8. **Use async/await for I/O-bound**, **multiprocessing for CPU-bound** (10x faster for I/O, 4x for CPU)
-9. **Never use async or threading for CPU-intensive work** - the GIL prevents real parallelism
+9. **On standard (GIL) builds, async and threads don't parallelize pure-Python CPU work** - free-threaded builds (see #21) and GIL-releasing C code (NumPy, hashlib, zlib) do
 10. **Pre-compile regex patterns** used more than 2-3 times (2x speedup)
 11. **Use string methods** instead of regex for simple patterns (10-30x faster)
 12. **Use `__slots__` for classes with many instances** (55% memory reduction, 15% speed boost)
@@ -833,9 +833,9 @@ python jit_numeric_perf_test.py      # Benefits from Python 3.13+ with JIT
 25. **Context managers add 2-4x overhead** - but always worth it for resource safety
 26. **Class-based context managers are 40% faster** than @contextmanager decorator
 27. **Import heavy modules (pandas) takes 350ms** - use lazy imports for CLI tools
-28. **Cached imports are nearly free (<1ns)** - import at module top unless lazy loading needed
-29. **"from X import Y" is 12% faster** for attribute access than "import X; X.Y"
-30. **importlib is 15,000x slower** than regular imports - avoid in loops!
+28. **Re-importing a loaded module is cheap but not free** (a `sys.modules` lookup, roughly 100 ns) - import at module top unless lazy loading is needed
+29. **"from X import Y" saves one attribute lookup per use** - it only matters in very hot loops, and it binds at import time, so later patching of `X.Y` is not seen
+30. **`importlib.import_module()` costs several times more than an `import` statement** - use it for dynamic module names and hoist it out of hot loops
 
 ## Contributing
 
