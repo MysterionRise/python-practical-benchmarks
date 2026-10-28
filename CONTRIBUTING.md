@@ -19,7 +19,7 @@ Thank you for your interest in contributing to this project! This guide will hel
    cd python-practical-benchmarks
    ```
 
-2. **Install Dependencies**
+2. **Install Dependencies** (the dev tooling needs Python 3.10+; benchmarks themselves run on 3.9+)
    ```bash
    # Option A: Install all dependencies (recommended)
    pip install -e ".[all]"

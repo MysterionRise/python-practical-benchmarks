@@ -677,12 +677,12 @@ re (stdlib)                      0.0034s
 numpy                            0.1234s ⚠
 pandas                           0.3456s ⚠⚠ very heavy!
 
-IMPORT PATTERNS (100,000 iterations, cached):
+IMPORT PATTERNS (100,000 iterations, cached, measured on CPython 3.13):
 Pattern                          Total time
 ---------------------------------------------------------------
-import module                    0.000023s ✓ nearly free (cached)
-from module import name          0.000025s ✓ nearly free (cached)
-importlib.import_module()        0.345s ⚠ slower: hoist out of hot loops
+import module                    0.0065s ✓ cheap (sys.modules lookup)
+from module import name          0.0255s ✓ cheap, plus name binding
+importlib.import_module()        0.0381s ⚠ ~6x import statement: hoist out of hot loops
 
 LAZY vs EAGER (10,000 function calls):
 Strategy                         Startup    First use
@@ -812,7 +812,7 @@ python jit_numeric_perf_test.py      # Benefits from Python 3.13+ with JIT
 
 ### Advanced Performance Patterns
 8. **Use async/await for I/O-bound**, **multiprocessing for CPU-bound** (10x faster for I/O, 4x for CPU)
-9. **On standard (GIL) builds, async and threads don't parallelize pure-Python CPU work** - free-threaded builds (see #21) and GIL-releasing C code (NumPy, hashlib, zlib) do
+9. **On standard (GIL) builds, async and threads don't parallelize pure-Python CPU work** - free-threaded builds ([section 21](#21-free-threaded-python-313)) and GIL-releasing C code (NumPy, hashlib, zlib) do
 10. **Pre-compile regex patterns** used more than 2-3 times (2x speedup)
 11. **Use string methods** instead of regex for simple patterns (10-30x faster)
 12. **Use `__slots__` for classes with many instances** (55% memory reduction, 15% speed boost)

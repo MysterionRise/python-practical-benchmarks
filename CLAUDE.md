@@ -112,7 +112,7 @@ Some benchmarks gracefully handle missing optional packages (orjson, ujson, msgp
 
 ## Python Version Support
 
-Python 3.9 through 3.14 (tested in CI).
+Benchmarks run on Python 3.9 through 3.14 (tested in CI). The development tooling (mypy 2.x, current pre-commit and pip-audit) needs Python 3.10+.
 
 ## CI/CD Workflows
 

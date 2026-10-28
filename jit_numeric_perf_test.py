@@ -73,6 +73,8 @@ def is_jit_enabled():
 
 def get_jit_status():
     """Return a string describing JIT status."""
+    if sys.version_info < (3, 13):
+        return "No JIT (requires Python 3.13+)"
     if not hasattr(sys, "_jit"):
         return "Unknown (sys._jit introspection requires Python 3.14+)"
     if _jit_flag("is_enabled"):
