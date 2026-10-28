@@ -114,7 +114,7 @@ What is the optimal way to iterate 2d arrays (lists) in Python?
 **Use case:** Algorithmic and competitive programming (Codeforces, TopCoder, ACM ICPC, etc.)
 
 ```
-Number of iterations = 100, size of 2d array = 10000
+Number of iterations = 100, size of 2d array = 1000 x 1000
 
 Approach                         Total time    Per iteration
 ---------------------------------------------------------------
@@ -125,7 +125,7 @@ Approach                         Total time    Per iteration
 - numpy ndarray (NON-STDLIB)     28.0520s            0.2805s
 ```
 
-**Winner:** `enumerate()` - cleanest and fastest approach for 2D array iteration with index access.
+**Winner:** `range()` with indices and `enumerate()` perform about the same when both do the same work per cell, so prefer `enumerate()` for readability. Never look up indices with `.index()`, which makes the loop quadratic. Element-by-element access to a NumPy array is slower than plain lists; vectorize NumPy code instead.
 
 ---
 
@@ -139,7 +139,7 @@ What is the optimal way to iterate over dataframes in Pandas?
 
 ```
 Number of iterations = 100, shape of dataframe  = (22544, 43)
-2 columns interaction
+7 columns summed per row
 
 Approach                         Total time    Per iteration
 ---------------------------------------------------------------
@@ -156,7 +156,7 @@ Graph of performance with X-axis representing number of affecting columns (from 
 
 <img src="performance.png">
 
-**Winner:** Vectorization (Pandas or NumPy) is orders of magnitude faster. Use `.itertuples()` if row-wise iteration is absolutely necessary.
+**Winner:** Vectorization (Pandas or NumPy) is orders of magnitude faster than row iteration, and plain NumPy arrays skip some pandas overhead. Use `.itertuples()` if row-wise iteration is absolutely necessary. Earlier versions of this benchmark returned from the two vectorisation cases before computing anything, so their old timings measured an empty function.
 
 ---
 
@@ -179,7 +179,7 @@ Approach                         Total time         Per iteration
 - using defaultdict                 5.458365s            0.005458s
 ```
 
-**Winner:** `defaultdict` for cases with default values, otherwise `dict.get()` for safe access.
+**Winner:** For keys that exist, `dict[key]`, `dict.get()`, `dict.setdefault()` and `defaultdict` perform about the same, so choose by semantics: `d[key]` when the key must exist, `.get()` when it may be missing, and `defaultdict` when a missing key should be created. This benchmark only looks up existing keys.
 
 ---
 
@@ -228,10 +228,10 @@ List comprehension               0.0756s            0.0008s
 map() + list()                   0.0823s            0.0008s
 += operator                      0.1456s            0.0015s
 Pre-allocated list + indices     0.0891s            0.0009s
-itertools.chain() + list()       0.0734s            0.0007s
+chain.from_iterable() flatten   0.0734s            0.0007s
 ```
 
-**Winner:** List comprehension or `itertools.chain()` for complex operations. Avoid `+=` operator in loops.
+**Winner:** List comprehension (or a pre-sized list) for building lists. `itertools.chain.from_iterable()` is the fast way to flatten lists you already have, not a way to compute new values. Avoid `+=` with one-item lists in loops.
 
 ---
 
@@ -348,7 +348,7 @@ Decorator overhead               0.4891s            0.0000049s
 @lru_cache (uncached)            0.5432s            0.0000054s
 ```
 
-**Winner:** Direct function calls are fastest. `@lru_cache` can provide massive speedups for cacheable functions. Avoid `*args, **kwargs` in hot paths.
+**Winner:** Direct function calls are fastest, and a lambda costs the same as an equivalent `def`. `@lru_cache` pays off only when the function costs more than hashing its arguments; for a trivial function a cache hit can be slower than just calling it. Avoid `*args, **kwargs` in hot paths.
 
 ---
 
@@ -408,7 +408,7 @@ Threading (ThreadPoolExecutor)   3.512s             0.98x ⚠ GIL!
 Multiprocessing (ProcessPool)    0.892s             3.9x ✓
 ```
 
-**Winner:** Use **async/await** for I/O-bound, **multiprocessing** for CPU-bound. Never use async or threading for CPU-intensive work (GIL prevents parallelism).
+**Winner:** Use **async/await** or threads for I/O-bound work. On standard (GIL) builds, use **multiprocessing** for CPU-bound work, but process start-up dominates small jobs, and since Python 3.14 Linux defaults to the slower-starting `forkserver` start method. Threads do run CPU-bound Python in parallel on free-threaded builds ([section 21](#21-free-threaded-python-313)).
 
 ---
 
@@ -437,7 +437,7 @@ Simple practical regex           1.234s            0.0012s ✓ 5x faster
 String methods validation        0.567s            0.0006s ✓ 10x faster
 ```
 
-**Winner:** Always **pre-compile** regex patterns used >3 times (2x speedup). Use **string methods** for simple patterns (10-30x faster). Keep regex patterns simple - avoid RFC-compliant email validation.
+**Winner:** **Pre-compile** patterns used in hot loops: the `re` module caches compiled patterns, so `re.match()` does not recompile, but `re.compile()` skips the cache lookup. Use **string methods** for simple patterns. Keep regex patterns simple - avoid RFC-compliant email validation.
 
 ---
 
@@ -469,7 +469,7 @@ namedtuple                       0.423s            42.3ns
 dataclass with __slots__         0.401s            40.1ns ✓
 ```
 
-**Winner:** Use **namedtuple** for immutable data (fastest + least memory). Use **dataclass with __slots__=True** for mutable data (Python 3.10+). **__slots__** reduces memory by ~55% and improves speed by 10-15%.
+**Winner:** Use **namedtuple** for immutable data (fastest + least memory). Use **dataclass with __slots__=True** for mutable data (Python 3.10+). **__slots__** mainly saves memory; since Python 3.11 attribute access is specialized for regular classes too, so the speed gain is small.
 
 ---
 
@@ -494,7 +494,7 @@ Approach                         Total time    Per iteration
 ---------------------------------------------------------------
 list.copy() - WRONG!             0.123s            0.000123s ⚠ shallow!
 copy.deepcopy()                  1.234s            0.001234s ✓ correct
-json.loads(json.dumps())         0.456s            0.000456s ✓ 3x faster!
+json.loads(json.dumps())         0.456s            0.000456s (JSON-safe data only)
 
 CUSTOM OBJECTS:
 Approach                         Total time    Per iteration
@@ -504,7 +504,7 @@ copy.copy()                      0.234s            0.000023s
 copy.deepcopy()                  0.567s            0.000057s
 ```
 
-**Winner:** Use **shallow copy** when possible (list.copy(), dict.copy()). For nested structures, use **JSON serialization** if data is JSON-serializable (2-3x faster than deepcopy). Use **manual copy constructors** for custom objects.
+**Winner:** Use **shallow copy** when possible (list.copy(), dict.copy()). For nested JSON-safe data, a **JSON round-trip** can beat `deepcopy` on older Pythons, but the gap disappears in our 3.14 runs, and the round-trip turns tuples into lists and non-string keys into strings. Use **manual copy constructors** for custom objects.
 
 ---
 
@@ -530,10 +530,10 @@ Approach                         Time          Memory
 ---------------------------------------------------------------
 List + multiple passes           0.456s        ~24 MB
 Generator pipeline               0.389s        ~0.1 MB ✓ 1.2x faster
-itertools pipeline               0.367s        ~0.1 MB ✓ 1.2x faster
+filter/map/islice pipeline       0.367s        ~0.1 MB ✓ 1.2x faster
 ```
 
-**Winner:** Use **generators** for large datasets (400x less memory!). Use **itertools** for complex pipelines (fastest). Use **lists** only when you need random access, multiple passes, or small datasets (<10K items).
+**Winner:** Use **generators** or itertools for large datasets: memory stays flat, and lazy pipelines stop as soon as they have enough results, while list pipelines build every stage first. Use **lists** when you need random access, multiple passes, or the data is small.
 
 ---
 
@@ -567,7 +567,7 @@ __setattr__ override             1.456s           145.6ns        4.67x ⚠ very 
 Descriptor protocol              0.789s            78.9ns        2.53x
 ```
 
-**Winner:** Use **__slots__** for high-volume objects (15% faster, 55% less memory). Use **@property** for computed/validated attributes (2x overhead). AVOID **__getattribute__** and **__setattr__** in hot paths (4-5x overhead!).
+**Winner:** Use **__slots__** for high-volume objects to save memory; the access-speed gain is small on Python 3.11+. Use **@property** for computed/validated attributes (2x overhead). AVOID **__getattribute__** and **__setattr__** in hot paths (4-5x overhead!).
 
 ---
 
@@ -596,7 +596,7 @@ Raise + catch Exception          2.345s           23.45μs ⚠ 195x slower!
 Return error code                0.045s            0.45μs ✓ 4x slower
 ```
 
-**Winner:** Use **EAFP (try/except)** when errors are rare (<1%) - "happy path" scenario. Use **LBYL (check first)** when errors are common (>10%) - validation scenario. Exceptions are ~200x slower than normal flow - use for EXCEPTIONAL conditions only!
+**Winner:** Use **EAFP (try/except)** when errors are rare: since Python 3.11 a `try` block that doesn't raise is nearly free. Use **LBYL** or `.get()` when failures are common, because raising and catching costs far more than a branch. The crossover depends on your failure rate, so measure it.
 
 ---
 
@@ -624,10 +624,10 @@ Format          Serialize    Size
 pickle          0.234s       89,123 bytes
 orjson          0.123s       88,894 bytes
 msgpack         0.178s       70,123 bytes
-numpy binary    0.045s       40,080 bytes ✓✓ 2x smaller, 5x faster!
+numpy raw bytes 0.045s       40,080 bytes (no dtype/shape header)
 ```
 
-**Winner:** Use **orjson** for JSON (3-5x faster than stdlib). Use **msgpack** for compact binary (20% smaller). Use **numpy binary** for numeric data (50% size, 10x speed). Use **pickle** only for Python-to-Python. NEVER use pickle with untrusted data!
+**Winner:** Use **orjson** for JSON (3-5x faster than stdlib). Use **msgpack** for compact binary (20% smaller). Raw **NumPy buffers** are fast and compact for fixed-width numbers but carry no dtype or shape; use `np.save`/`np.load` for a self-describing format. Use **pickle** only for Python-to-Python. NEVER use pickle with untrusted data!
 
 ---
 
@@ -656,7 +656,7 @@ Class-based (suppress)           0.456s ✓ 5x faster
 contextlib.suppress()            0.389s ✓ fastest
 ```
 
-**Winner:** Use **class-based context managers** for best performance (40% faster than @contextmanager). Use **manual try/finally** only in performance-critical inner loops (1.5x overhead vs 2.6x). Always use context managers for resources - the 2-4x overhead is worth the safety!
+**Winner:** **Class-based context managers** are cheaper than `@contextmanager` generators. Use **manual try/finally** only in performance-critical inner loops. Always use context managers for resources - each `with` adds a small fixed cost that is negligible next to real resource work.
 
 ---
 
@@ -684,7 +684,7 @@ import module                    0.0065s ✓ cheap (sys.modules lookup)
 from module import name          0.0255s ✓ cheap, plus name binding
 importlib.import_module()        0.0381s ⚠ ~6x import statement: hoist out of hot loops
 
-LAZY vs EAGER (10,000 function calls):
+LAZY vs EAGER (illustrative; the benchmark measures per-call cost after the first import, not startup):
 Strategy                         Startup    First use
 ---------------------------------------------------------------
 Eager (import at top)            0.234s     0.001s (fast use)
@@ -718,7 +718,7 @@ Single-threaded                  0.040s    1.0x
 Threading (both modes)           0.010s    4.0x ✓
 ```
 
-**Winner:** **Free-threaded Python** provides near-linear speedup for CPU-bound threading. Standard Python (with GIL) sees NO speedup from threading for CPU work. For CPU parallelism without free-threading, use **multiprocessing** instead.
+**Winner:** **Free-threaded Python**, officially supported since 3.14 ([PEP 779](https://peps.python.org/pep-0779/)), lets threads run CPU-bound Python code in parallel. The Python docs put its single-threaded slowdown at roughly 1-8% depending on platform, and it uses more memory. Standard (GIL) builds see no speedup from threading for CPU work; use **multiprocessing** there.
 
 **Note:** Free-threaded Python requires Python 3.13+ built with `--disable-gil`. Check with `python -c "import sys; print(sys._is_gil_enabled())"`, which prints `False` when the GIL is disabled.
 
@@ -742,7 +742,7 @@ Float arithmetic            1.00s       0.70s       ~30%
 Integer arithmetic          1.00s       0.85s       ~15%
 ```
 
-**Winner:** Python's **experimental JIT** provides 5-30% improvement for numeric-heavy pure Python code. For serious numeric work, **NumPy** or **Numba** still provide 10-100x better performance. The JIT is "free" performance when available.
+**Winner:** Python's **experimental JIT** ranges from about 10% slower to 20% faster on 3.14 according to its release notes, and averages roughly 7-12% faster on pyperformance in 3.15. Official 3.14 macOS and Windows binaries include it switched off, and free-threaded builds have no JIT. For serious numeric work, **NumPy** or **Numba** remain far faster.
 
 **Note:** The JIT needs a CPython 3.13+ build configured with `--enable-experimental-jit`. Builds configured with `=yes-off`, common for 3.14 distributions, ship it disabled, so enable it with `PYTHON_JIT=1`. Builds configured with plain `=yes` enable it by default, and `PYTHON_JIT=0` turns it off. On 3.14+, check with `python -c "import sys; print(sys._jit.is_enabled())"`.
 
@@ -803,35 +803,35 @@ python jit_numeric_perf_test.py      # Benefits from Python 3.13+ with JIT
 
 ### Basic Performance Principles
 1. **Always use vectorization** with Pandas/NumPy when possible (orders of magnitude faster)
-2. **Avoid string concatenation** with `+` operator in loops - use `str.join()` (10-20x faster)
+2. **Prefer `str.join()`** for building strings in loops - CPython's in-place `s += t` optimization is an implementation detail (PEP 8)
 3. **Use `set` or `dict` for membership testing** - they're O(1) vs O(n) for lists (400x faster!)
 4. **List comprehensions are faster** than manual loops for building lists
-5. **`enumerate()` is the best way** to iterate with indices
-6. **`@lru_cache` can provide massive speedups** for cacheable functions (3x+ faster)
-7. **Pre-allocate data structures** when size is known for better performance
+5. **`enumerate()` is the most readable way** to iterate with indices, and as fast as `range()` indexing
+6. **`@lru_cache` helps when the function is expensive** - for trivial functions a cache hit can cost more than the call
+7. **Prefer comprehensions** - pre-allocating `[0] * n` rarely helps in CPython because `append` is amortized O(1)
 
 ### Advanced Performance Patterns
-8. **Use async/await for I/O-bound**, **multiprocessing for CPU-bound** (10x faster for I/O, 4x for CPU)
+8. **Use async/await or threads for I/O-bound work**, **multiprocessing for CPU-bound work on GIL builds** - process start-up dominates small jobs
 9. **On standard (GIL) builds, async and threads don't parallelize pure-Python CPU work** - free-threaded builds ([section 21](#21-free-threaded-python-313)) and GIL-releasing C code (NumPy, hashlib, zlib) do
-10. **Pre-compile regex patterns** used more than 2-3 times (2x speedup)
+10. **`re.compile()` skips the pattern-cache lookup** - module-level `re.match()` doesn't recompile, so gains are modest outside tight loops
 11. **Use string methods** instead of regex for simple patterns (10-30x faster)
-12. **Use `__slots__` for classes with many instances** (55% memory reduction, 15% speed boost)
+12. **Use `__slots__` for classes with many instances** - mainly a memory win; 3.11+ specializes attribute access for regular classes too
 13. **namedtuple is fastest for immutable data**, dataclass with slots for mutable
-14. **Shallow copy when possible** - deepcopy is 5-10x slower
-15. **Use generators for large datasets** (400x less memory, slightly slower iteration)
-16. **JSON serialization beats deepcopy** for nested structures (2-3x faster)
+14. **Shallow copy when possible** - deepcopy walks the whole structure
+15. **Use generators for large datasets** - memory stays flat and lazy pipelines can stop early
+16. **A JSON round-trip can beat deepcopy for JSON-safe data on older Pythons** - but it turns tuples into lists and non-string keys into strings
 17. **Manual copy constructors are fastest** for custom objects
 
 ### Expert-Level Insights
 18. **Avoid `__getattribute__` and `__setattr__`** - they add 4-5x overhead to every attribute access
 19. **Use `@cached_property`** for expensive computations - nearly zero overhead after first access
-20. **Exceptions are ~200x slower than normal flow** - use for exceptional conditions only
-21. **EAFP (try/except) is faster when errors are rare (<1%)** - LBYL when errors are common (>10%)
+20. **Raising and catching is far costlier than a branch** - a non-raising `try` is nearly free on 3.11+, so don't use exceptions for routine hot-loop control flow
+21. **EAFP wins when failures are rare, LBYL or `.get()` when they are common** - measure the crossover for your failure rate
 22. **orjson is 3-5x faster than standard json** - use for performance-critical APIs
 23. **msgpack is 20% smaller than JSON** - best for network protocols
-24. **numpy binary is 10x faster for numeric data** - 50% smaller than other formats
-25. **Context managers add 2-4x overhead** - but always worth it for resource safety
-26. **Class-based context managers are 40% faster** than @contextmanager decorator
+24. **Raw NumPy buffers are fast and compact for fixed-width numbers** - but carry no dtype or shape; use `np.save` for a self-describing format
+25. **Each `with` has a small fixed cost** - negligible next to real resource work, so always use context managers for resources
+26. **Class-based context managers are cheaper** than `@contextmanager` generators
 27. **Import heavy modules (pandas) takes 350ms** - use lazy imports for CLI tools
 28. **Re-importing a loaded module is cheap but not free** (a `sys.modules` lookup, roughly 100 ns) - import at module top unless lazy loading is needed
 29. **"from X import Y" saves one attribute lookup per use** - it only matters in very hot loops, and it binds at import time, so later patching of `X.Y` is not seen

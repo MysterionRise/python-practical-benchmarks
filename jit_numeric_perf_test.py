@@ -5,8 +5,8 @@ Question: How much does Python's experimental JIT compiler improve numeric workl
 
 WHAT IS PYTHON'S JIT?
 Python 3.13 introduced an experimental copy-and-patch JIT compiler that can
-generate native machine code at runtime. This is especially beneficial for
-numeric and compute-intensive code.
+generate native machine code at runtime. Official 3.14 macOS and Windows binaries
+include it switched off (enable with PYTHON_JIT=1); free-threaded builds have no JIT.
 
 REQUIREMENTS:
 - Python 3.13+ compiled with --enable-experimental-jit
@@ -21,7 +21,8 @@ EXPECTED RESULTS (JIT vs non-JIT on Python 3.13+):
 | Float arithmetic intensive  | 1.00s     | 0.70s     | ~30%        |
 
 KEY FINDINGS:
-- JIT provides 5-30% improvement for numeric-heavy code
+- 3.14 release notes: from about 10% slower to 20% faster depending on workload
+- 3.15 release notes: roughly 7-12% faster on average (pyperformance geometric mean)
 - Greatest benefit for tight loops with arithmetic operations
 - Minimal benefit for I/O-bound or string-heavy code
 - JIT warms up over time - first runs may be slower
@@ -40,8 +41,7 @@ WHEN JIT DOESN'T HELP:
 - Object-heavy code with dynamic dispatch
 - Code that uses many C extensions (already optimized)
 
-NOTE: As of Python 3.13/3.14, the JIT is experimental and evolving.
-Future versions will likely show greater improvements.
+NOTE: As of Python 3.15 the JIT is still experimental and off by default.
 """
 
 import sys
@@ -257,7 +257,8 @@ if __name__ == "__main__":
 
     CURRENT PERFORMANCE:
     These results show the interpreter-only performance.
-    JIT-enabled Python should show 5-30% improvement on these benchmarks.
+    The JIT's effect varies by workload: the 3.14 release notes report about
+    10% slower to 20% faster. Compare PYTHON_JIT=0 and PYTHON_JIT=1 on your build.
         """)
 
     print("=" * 80)

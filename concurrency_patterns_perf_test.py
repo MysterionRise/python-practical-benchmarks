@@ -251,6 +251,6 @@ if __name__ == "__main__":
 
     AVOID:
     ✗ Async/await for CPU-bound work (adds overhead, no benefit)
-    ✗ Threading for CPU-bound work (GIL prevents parallelism)
+    ✗ Threading for CPU-bound work on GIL builds (free-threaded builds do run it in parallel)
     ✗ Multiprocessing for I/O-bound work (high overhead for context switching)
     """)

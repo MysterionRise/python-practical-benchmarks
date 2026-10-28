@@ -2,9 +2,10 @@
 What is the most efficient way to access dictionary value by key for best algorithmic performance?
 
 PYTHON VERSION NOTE:
-Python 3.11+ introduced inline caching for dictionary operations, making dict access
-faster when the same keys are accessed repeatedly. This benchmark shows improved
-performance on 3.11+ for all dictionary access patterns.
+Python 3.11+ specializes subscript bytecode by container type (the specializing
+adaptive interpreter, PEP 659), which makes dict[key] faster on 3.11+. It is not a
+per-key cache. Only existing keys are looked up here, so the default-value paths of
+.get(), .setdefault() and defaultdict are not exercised.
 
 Simple perf test with random strings as values and int as keys
 

@@ -2,9 +2,9 @@
 What is the most efficient way to build and manipulate lists in Python?
 
 PYTHON VERSION NOTE:
-Python 3.12+ improved list comprehension performance by inlining the comprehension
-code, eliminating the overhead of creating a separate function object. Expect
-10-20% faster comprehensions on 3.12+ compared to earlier versions.
+Python 3.12+ inlines list, dict and set comprehensions (PEP 709), removing the hidden
+function call; the PEP reports up to 2x faster comprehension microbenchmarks.
+Generator expressions are not inlined.
 
 Simple performance test of different approaches to list operations:
 Performance results:

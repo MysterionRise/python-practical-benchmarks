@@ -40,7 +40,7 @@ dict                             0.723s            72.3ns
 (namedtuple: immutable - cannot modify)
 
 KEY FINDINGS:
-- __slots__ reduces memory by ~55% and improves speed by ~10-15%
+- __slots__ removes the per-instance __dict__, saving memory; the speed gain is small on 3.11+
 - namedtuple is fastest for immutable data
 - Regular class with __slots__ is best for mutable data
 - dataclass provides best developer experience with comparable performance
@@ -368,15 +368,15 @@ if __name__ == "__main__":
     print("=" * 80)
 
     print(f"Regular class:                   {sys.getsizeof(regular_obj) + sys.getsizeof(regular_obj.__dict__)} bytes")
-    print(f"Regular class with __slots__:    {sys.getsizeof(slotted_obj)} bytes ✓ ~55% reduction")
+    print(f"Regular class with __slots__:    {sys.getsizeof(slotted_obj)} bytes ✓ no per-instance __dict__")
     print(f"namedtuple:                      {sys.getsizeof(tuple_obj)} bytes ✓")
     print(
         f"dataclass:                       {sys.getsizeof(dataclass_obj) + sys.getsizeof(dataclass_obj.__dict__)} bytes"
     )
-    print(f"dataclass with __slots__:        {sys.getsizeof(slotted_dataclass_obj)} bytes ✓ ~55% reduction")
+    print(f"dataclass with __slots__:        {sys.getsizeof(slotted_dataclass_obj)} bytes ✓ no per-instance __dict__")
     if HAS_ATTRS:
         print(f"attrs:                           {sys.getsizeof(attrs_obj) + sys.getsizeof(attrs_obj.__dict__)} bytes")
-        print(f"attrs with slots=True:           {sys.getsizeof(attrs_slotted_obj)} bytes ✓ ~55% reduction")
+        print(f"attrs with slots=True:           {sys.getsizeof(attrs_slotted_obj)} bytes ✓ no per-instance __dict__")
     print(f"dict:                            {sys.getsizeof(dict_obj)} bytes")
 
     # ========================================================================
@@ -396,8 +396,8 @@ if __name__ == "__main__":
     → dataclass: Best readability, acceptable performance
 
     WHEN TO USE __slots__:
-    ✓ Creating millions of instances (55% memory savings)
-    ✓ Performance-critical code (10-15% speed improvement)
+    ✓ Creating millions of instances (large memory savings)
+    ✓ Performance-critical code (small speed gain on 3.11+)
     ✓ You know all attributes at definition time
     ✗ Need dynamic attribute addition
     ✗ Need weak references (requires __weakref__ in slots)

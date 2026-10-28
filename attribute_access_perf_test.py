@@ -29,7 +29,7 @@ Descriptor protocol              0.789s            78.9ns        2.53x
 
 KEY FINDINGS:
 - Direct attribute access is fastest (baseline)
-- __slots__ is 14-15% faster than normal attributes
+- __slots__ saves memory; since 3.11 regular attribute access is specialized too, so its speed gain is small
 - Properties add ~2x overhead (but cached_property is nearly free after first access)
 - __getattribute__ and __getattr__ add 4-5x overhead (avoid in hot paths!)
 - Descriptors add ~3x overhead (reasonable for validation/ORM use cases)
@@ -391,7 +391,7 @@ if __name__ == "__main__":
     DIRECT ATTRIBUTES (obj.attr):
     ✓ Default choice for most cases
     ✓ Fastest read and write performance
-    ✓ Use with __slots__ for high-volume objects (15% faster, 55% less memory)
+    ✓ Use with __slots__ for high-volume objects (mainly saves memory)
 
     PROPERTIES (@property):
     ✓ Computed attributes (lazy evaluation)
@@ -422,7 +422,7 @@ if __name__ == "__main__":
     ⚠ Still 4x overhead - use sparingly
 
     PERFORMANCE HIERARCHY (fastest to slowest):
-    1. __slots__ attribute (15% faster than normal)
+    1. __slots__ attribute (slightly faster than normal on 3.11+)
     2. Direct attribute access (baseline)
     3. cached_property (after first access)
     4. getattr() builtin

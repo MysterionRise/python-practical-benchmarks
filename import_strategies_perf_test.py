@@ -346,7 +346,7 @@ if __name__ == "__main__":
         HAS_FEATURE = False
 
     AVOID DYNAMIC IMPORTS IN HOT PATHS:
-    ✗ Never use importlib/__import__ in loops
+    ✗ Calling importlib/__import__ in hot loops (hoist it out)
     ✗ Don't import inside frequently-called functions
     ✗ Lazy imports in performance-critical code
 
