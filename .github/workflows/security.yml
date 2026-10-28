@@ -33,13 +33,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install pip-audit
 
-    - name: Install project dependencies
-      run: |
-        pip install -r requirements.txt
-
     - name: Run pip-audit
+      # Audit the declared dependencies in an isolated environment. Auditing the
+      # runner's own environment also flags preinstalled tooling such as setuptools,
+      # which this project neither installs nor ships.
       run: |
-        pip-audit --strict --desc on
+        pip-audit --strict --desc on -r requirements.txt -r requirements-optional.txt
 
   secret-scanning:
     name: Secret Scanning

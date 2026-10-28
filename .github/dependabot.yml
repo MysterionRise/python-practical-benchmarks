@@ -1,29 +1,27 @@
 version: 2
 updates:
   # Python dependencies
+  # Reviewers come from .github/CODEOWNERS; the `reviewers` option was removed from Dependabot.
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
-    open-pull-requests-limit: 10
-    reviewers:
-      - "MysterionRise"
+    # Ranges like "pandas>=2.0.0,<4.0.0" only change when a new release falls outside them,
+    # instead of raising the lower bound on every release.
+    versioning-strategy: "widen"
+    cooldown:
+      default-days: 7
+      semver-major-days: 14
     labels:
       - "dependencies"
       - "python"
     commit-message:
       prefix: "chore(deps)"
     groups:
-      dev-dependencies:
+      python:
         patterns:
-          - "ruff*"
-          - "mypy*"
-          - "pytest*"
-          - "pre-commit*"
-          - "pip-audit*"
-          - "*-stubs"
-          - "types-*"
+          - "*"
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
@@ -31,11 +29,14 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-    open-pull-requests-limit: 5
-    reviewers:
-      - "MysterionRise"
+    cooldown:
+      default-days: 7
     labels:
       - "dependencies"
       - "github-actions"
     commit-message:
       prefix: "chore(deps)"
+    groups:
+      actions:
+        patterns:
+          - "*"
