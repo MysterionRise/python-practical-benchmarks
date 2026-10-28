@@ -75,8 +75,8 @@ async def perf_test2_async_io():
 
 
 def perf_test3_threading_pool_io():
-    """I/O-bound: Threading with ThreadPoolExecutor"""
-    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+    """I/O-bound: Threading with ThreadPoolExecutor (one worker per task, like asyncio and manual threads)"""
+    with concurrent.futures.ThreadPoolExecutor(max_workers=NUM_TASKS) as executor:
         results = list(executor.map(io_bound_task, range(NUM_TASKS)))
     return results
 
@@ -148,7 +148,7 @@ def perf_test7_threading_cpu():
 
 
 def perf_test8_multiprocessing_cpu():
-    """CPU-bound: Multiprocessing (bypasses GIL)"""
+    """CPU-bound: Multiprocessing (bypasses GIL; timing includes pool startup)"""
     with concurrent.futures.ProcessPoolExecutor(max_workers=4) as executor:
         results = list(executor.map(cpu_bound_task, range(NUM_TASKS)))
     return results

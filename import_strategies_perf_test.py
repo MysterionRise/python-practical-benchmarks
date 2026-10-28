@@ -62,10 +62,9 @@ ACCESS_ITERATIONS = 1000000
 
 
 def measure_import_time(module_name):
-    """Measure time to import a module (remove from cache first)"""
-    # Remove from cache
-    if module_name in sys.modules:
-        del sys.modules[module_name]
+    """Measure time to import a module (remove it and its submodules from the cache first)"""
+    for name in [name for name in sys.modules if name == module_name or name.startswith(module_name + ".")]:
+        del sys.modules[name]
 
     start = time.perf_counter()
     __import__(module_name)
@@ -82,25 +81,29 @@ def measure_import_time(module_name):
 def perf_test1_regular_import():
     """Regular import statement (already cached)"""
     for _ in range(ITERATIONS):
-        import json  # noqa: F401
+        import json
+    return json
 
 
 def perf_test2_from_import():
     """From import statement (already cached)"""
     for _ in range(ITERATIONS):
-        from json import dumps  # noqa: F401
+        from json import dumps
+    return dumps
 
 
 def perf_test3_importlib():
     """Using importlib.import_module()"""
     for _ in range(ITERATIONS):
-        importlib.import_module("json")
+        module = importlib.import_module("json")
+    return module
 
 
 def perf_test4_builtin_import():
     """Using __import__() builtin"""
     for _ in range(ITERATIONS):
-        __import__("json")
+        module = __import__("json")
+    return module
 
 
 # ============================================================================
@@ -125,10 +128,11 @@ def eager_function_use(json, re, datetime):
 
 
 def perf_test5_eager():
-    """Eager loading: import at top, use later"""
-    for _ in range(10000):
+    """Eager loading: per-call cost of using already imported modules (startup cost is not measured)"""
+    for _ in range(ITERATIONS):
         modules = eager_function_setup()
-        _result = eager_function_use(*modules)  # noqa: F841
+        result = eager_function_use(*modules)
+    return result
 
 
 # Lazy loading simulation
@@ -154,10 +158,11 @@ def lazy_function_use(lazy):
 
 
 def perf_test6_lazy():
-    """Lazy loading: import on first use"""
-    for _ in range(10000):
+    """Lazy loading: per-call cost of a lazy-import property (startup cost is not measured)"""
+    for _ in range(ITERATIONS):
         lazy = LazyImporter()
-        _result = lazy_function_use(lazy)  # noqa: F841
+        result = lazy_function_use(lazy)
+    return result
 
 
 # ============================================================================

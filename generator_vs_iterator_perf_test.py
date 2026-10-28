@@ -140,7 +140,7 @@ def perf_test5_range_builtin():
 
 
 def perf_test6_list_pipeline():
-    """Multi-stage transformation using lists"""
+    """Multi-stage transformation using lists (materializes every stage before taking 1000)"""
     # Stage 1: Generate
     numbers = [i for i in range(PIPELINE_SIZE)]
     # Stage 2: Filter evens
@@ -153,7 +153,7 @@ def perf_test6_list_pipeline():
 
 
 def perf_test7_generator_pipeline():
-    """Multi-stage transformation using generators"""
+    """Multi-stage transformation using generator expressions (stops after 1000 results)"""
     # All stages lazy-evaluated in single pass
     numbers = (i for i in range(PIPELINE_SIZE))
     evens = (n for n in numbers if n % 2 == 0)
@@ -162,12 +162,17 @@ def perf_test7_generator_pipeline():
     return sum(result)
 
 
-def perf_test8_itertools_pipeline():
-    """Multi-stage transformation using itertools"""
-    from itertools import islice
+def _is_even(n):
+    return n % 2 == 0
 
-    result = islice((n * n for n in range(PIPELINE_SIZE) if n % 2 == 0), 1000)
-    return sum(result)
+
+def _square(n):
+    return n * n
+
+
+def perf_test8_itertools_pipeline():
+    """Multi-stage transformation using filter()/map()/islice() (stops after 1000 results)"""
+    return sum(islice(map(_square, filter(_is_even, range(PIPELINE_SIZE))), 1000))
 
 
 # ============================================================================

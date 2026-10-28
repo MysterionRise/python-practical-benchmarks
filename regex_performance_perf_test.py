@@ -41,12 +41,16 @@ import timeit
 PERF_ITERATIONS = 1000
 NUM_STRINGS = 10000
 
-# Generate test data
-TEST_STRINGS = [f"user{i}@example.com" if i % 3 == 0 else f"invalid_email_{i}" for i in range(NUM_STRINGS)]
 
-TEST_URLS = [f"https://example.com/path/{i}" if i % 2 == 0 else f"not_a_url_{i}" for i in range(NUM_STRINGS)]
+def reset_benchmark_data():
+    """Build the test strings from NUM_STRINGS (at import and after quick-mode overrides)."""
+    global TEST_STRINGS, TEST_URLS, TEST_PHONE_NUMBERS
+    TEST_STRINGS = [f"user{i}@example.com" if i % 3 == 0 else f"invalid_email_{i}" for i in range(NUM_STRINGS)]
+    TEST_URLS = [f"https://example.com/path/{i}" if i % 2 == 0 else f"not_a_url_{i}" for i in range(NUM_STRINGS)]
+    TEST_PHONE_NUMBERS = [f"+1-555-{i:04d}" if i % 4 == 0 else f"invalid_phone_{i}" for i in range(NUM_STRINGS)]
 
-TEST_PHONE_NUMBERS = [f"+1-555-{i:04d}" if i % 4 == 0 else f"invalid_phone_{i}" for i in range(NUM_STRINGS)]
+
+reset_benchmark_data()
 
 # Pre-compiled patterns
 COMPILED_SIMPLE = re.compile(r"^user\d+@")

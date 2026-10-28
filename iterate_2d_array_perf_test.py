@@ -33,6 +33,7 @@ def perf_test():
             current_board[i][j] = i * j
             if current_board[i][j] > LIMIT:
                 current_board[i][j] = 0
+    return current_board
 
 
 def perf_test2():
@@ -44,16 +45,18 @@ def perf_test2():
             current_board[current_board.index(row)][row.index(cell)] = current_board.index(row) * row.index(cell)
             if current_board[current_board.index(row)][row.index(cell)] > LIMIT:
                 current_board[current_board.index(row)][row.index(cell)] = 0
+    return current_board
 
 
 def perf_test3():
     """Accessing 2d array with enumerate() function"""
     current_board = [[0 for _ in range(ARRAY_SIZE)] for _ in range(ARRAY_SIZE)]
     for idx, row in enumerate(current_board):
-        for jdx, val in enumerate(row):
+        for jdx, _val in enumerate(row):
             current_board[idx][jdx] = idx * jdx
-            if val > LIMIT:
+            if current_board[idx][jdx] > LIMIT:
                 current_board[idx][jdx] = 0
+    return current_board
 
 
 def perf_test4():
@@ -64,16 +67,18 @@ def perf_test4():
             current_board[i * ARRAY_SIZE + j] = i * j
             if current_board[i * ARRAY_SIZE + j] > LIMIT:
                 current_board[i * ARRAY_SIZE + j] = 0
+    return current_board
 
 
 def perf_test5():
     """Accessing 2d array with numpy ndarray"""
     current_board = np.zeros((ARRAY_SIZE, ARRAY_SIZE))
     for idx, row in enumerate(current_board):
-        for jdx, val in enumerate(row):
+        for jdx, _val in enumerate(row):
             current_board[idx][jdx] = idx * jdx
-            if val > LIMIT:
+            if current_board[idx][jdx] > LIMIT:
                 current_board[idx][jdx] = 0
+    return current_board
 
 
 if __name__ == "__main__":

@@ -237,42 +237,49 @@ def perf_test10_write_normal():
     """Write: Direct attribute assignment"""
     for i in range(ACCESS_ITERATIONS):
         normal_obj.value = i
+    return normal_obj.value
 
 
 def perf_test11_write_slotted():
     """Write: __slots__ attribute assignment"""
     for i in range(ACCESS_ITERATIONS):
         slotted_obj.value = i
+    return slotted_obj.value
 
 
 def perf_test12_write_dict():
     """Write: Direct __dict__ assignment"""
     for i in range(ACCESS_ITERATIONS):
         normal_obj.__dict__["value"] = i
+    return normal_obj.__dict__["value"]
 
 
 def perf_test13_write_setattr():
     """Write: Using setattr() builtin"""
     for i in range(ACCESS_ITERATIONS):
         setattr(normal_obj, "value", i)
+    return normal_obj.value
 
 
 def perf_test14_write_property():
     """Write: Property with setter"""
     for i in range(ACCESS_ITERATIONS):
         property_obj.value = i
+    return property_obj.value
 
 
 def perf_test15_write_setattr_override():
     """Write: __setattr__ override"""
     for i in range(ACCESS_ITERATIONS):
         getattribute_obj.value = i
+    return getattribute_obj.value
 
 
 def perf_test16_write_descriptor():
     """Write: Descriptor protocol"""
     for i in range(ACCESS_ITERATIONS):
         descriptor_obj.value = i
+    return descriptor_obj.value
 
 
 if __name__ == "__main__":

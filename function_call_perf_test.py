@@ -36,9 +36,8 @@ def simple_function(x, y):
     return x + y
 
 
-# Lambda function
-def lambda_function(x, y):
-    return x + y
+# Lambda function (assigned to a name on purpose: the benchmark compares calling a lambda)
+lambda_function = lambda x, y: x + y  # noqa: E731
 
 
 # Class for method testing

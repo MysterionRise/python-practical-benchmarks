@@ -187,10 +187,10 @@ def perf_test10_nested_deepcopy():
 
 
 def perf_test11_nested_json():
-    """Nested structure: JSON serialization (works for JSON-serializable data)"""
+    """Nested list: JSON round-trip (same input as deepcopy; only for JSON-serializable data)"""
     for _ in range(PERF_ITERATIONS_NESTED):
-        new_structure = json.loads(json.dumps(COMPLEX_STRUCTURE))
-    return new_structure
+        new_list = json.loads(json.dumps(NESTED_LIST))
+    return new_list
 
 
 # ============================================================================

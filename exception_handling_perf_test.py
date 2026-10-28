@@ -58,6 +58,21 @@ EXCEPTION_ITERATIONS = 100000
 TEST_DICT = {i: i * 2 for i in range(1000)}
 VALID_KEYS = list(TEST_DICT.keys())
 INVALID_KEYS = list(range(1000, 2000))
+_TYPE_VALUES_CACHE = {}
+
+
+def reset_benchmark_data():
+    """Clear cached type-check inputs after runner quick-mode overrides."""
+    _TYPE_VALUES_CACHE.clear()
+
+
+def get_type_values(mixed):
+    """Return the type-check inputs, built once per configuration instead of inside the timed call."""
+    cache_key = (ITERATIONS, mixed)
+    if cache_key not in _TYPE_VALUES_CACHE:
+        pattern = [42, "string", 3.14, 100, "text"] if mixed else [42, 100, 200, 300, 400]
+        _TYPE_VALUES_CACHE[cache_key] = (pattern * (ITERATIONS // 5))[:ITERATIONS]
+    return _TYPE_VALUES_CACHE[cache_key]
 
 
 class TestObject:
@@ -169,8 +184,7 @@ def perf_test8_attr_getattr_default():
 def perf_test9_type_lbyl():
     """Type checking: LBYL with isinstance()"""
     total = 0
-    test_values = [42, "string", 3.14, 100, "text"] * (ITERATIONS // 5)
-    for val in test_values[:ITERATIONS]:
+    for val in get_type_values(mixed=True):
         if isinstance(val, int):
             total += val
     return total
@@ -179,8 +193,7 @@ def perf_test9_type_lbyl():
 def perf_test10_type_eafp():
     """Type checking: EAFP try operation"""
     total = 0
-    test_values = [42, "string", 3.14, 100, "text"] * (ITERATIONS // 5)
-    for val in test_values[:ITERATIONS]:
+    for val in get_type_values(mixed=True):
         try:
             total += val + 0  # Triggers TypeError for strings
         except TypeError:
@@ -191,8 +204,7 @@ def perf_test10_type_eafp():
 def perf_test11_type_duck():
     """Type checking: Duck typing (no check, assumes int)"""
     total = 0
-    test_values = [42, 100, 200, 300, 400] * (ITERATIONS // 5)
-    for val in test_values[:ITERATIONS]:
+    for val in get_type_values(mixed=False):
         total += val
     return total
 

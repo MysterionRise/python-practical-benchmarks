@@ -6,7 +6,13 @@ from pathlib import Path
 import pytest
 
 from benchmark_manifest import BENCHMARK_SPECS, all_benchmark_modules, get_benchmark_spec
-from run_all_tests import collect_benchmark_cases, missing_dependencies
+from run_all_tests import (
+    collect_benchmark_cases,
+    execute_case,
+    missing_dependencies,
+    missing_optional_dependencies,
+    optional_skip_dependency,
+)
 
 PROJECT_ROOT = Path(__file__).parent.parent
 
@@ -84,6 +90,26 @@ class TestBenchmarkReturnValues:
         for func in collect_benchmark_cases(module)[:3]:
             result = func()
             assert result is not None, f"{func.__name__} should return a value"
+
+    @pytest.mark.parametrize("module_name", ALL_BENCHMARKS)
+    def test_every_case_returns_value(self, module_name):
+        """Test every runnable case returns a value, so results can be sanity-checked."""
+        module = import_or_skip_missing_required(module_name)
+        apply_quick_iterations(module, module_name)
+        missing_optional = missing_optional_dependencies(get_benchmark_spec(module_name).optional_dependencies)
+
+        returned_none = []
+        for func in collect_benchmark_cases(module):
+            if optional_skip_dependency(func, missing_optional):
+                continue
+            try:
+                result = execute_case(func)
+            except PermissionError:
+                continue  # sandboxes may forbid process creation; the runner reports these as skips
+            if result is None:
+                returned_none.append(func.__name__)
+
+        assert not returned_none, f"{module_name} cases returned None: {returned_none}"
 
 
 class TestBenchmarkIsolation:

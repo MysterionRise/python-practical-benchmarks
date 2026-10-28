@@ -119,9 +119,11 @@ new_shape = (360704, 43)
 
 """
 
+from pathlib import Path
+
 import pandas as pd
 
-DATAFRAME = pd.read_csv("data/nslkdd_test.txt")
+DATAFRAME = pd.read_csv(Path(__file__).parent / "data" / "nslkdd_test.txt")
 
 PERF_ITERATIONS = 100
 
@@ -214,8 +216,7 @@ def perf_test6():
     """
     Pandas vectorisation
     """
-    return
-    (
+    return (
         DATAFRAME["dst_bytes"]
         + DATAFRAME["src_bytes"]
         + DATAFRAME["count"]
@@ -230,8 +231,7 @@ def perf_test7():
     """
     Numpy vectorisation
     """
-    return
-    (
+    return (
         DATAFRAME["dst_bytes"].to_numpy()
         + DATAFRAME["src_bytes"].to_numpy()
         + DATAFRAME["count"].to_numpy()
@@ -239,7 +239,7 @@ def perf_test7():
         + DATAFRAME["dst_host_count"].to_numpy()
         + DATAFRAME["dst_host_srv_count"].to_numpy()
         + DATAFRAME["other"].to_numpy()
-    ).to_list()
+    ).tolist()
 
 
 if __name__ == "__main__":
