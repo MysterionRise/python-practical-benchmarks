@@ -35,15 +35,15 @@ EXCEPTION RAISING COST (100,000 iterations):
 Approach                         Total time    Per raise
 ---------------------------------------------------------------
 No exception                     0.012s            0.12μs   (baseline)
-Raise + catch generic Exception  2.345s           23.45μs   (195x slower!)
-Raise + catch specific Exception 2.234s           22.34μs   (186x slower)
-Raise + catch KeyError           2.198s           21.98μs   (183x slower)
-Return error code                0.045s            0.45μs   ✓ (4x slower)
+Raise + catch generic Exception  2.345s           23.45μs
+Raise + catch specific Exception 2.234s           22.34μs
+Raise + catch KeyError           2.198s           21.98μs
+Return error code                0.045s            0.45μs   ✓
 
 KEY FINDINGS:
-- Exception raising is ~200x slower than normal code flow
-- EAFP is faster when errors are rare (<1%)
-- LBYL is faster when errors are common (>10%)
+- Raising and catching costs far more than a branch; a try that doesn't raise is nearly free on 3.11+
+- EAFP is faster when errors are rare
+- LBYL is faster when errors are common (measure the crossover for your failure rate)
 - Specific exceptions are slightly faster than generic
 - Return codes are much faster than exceptions for expected errors
 - Use EAFP for "happy path" scenarios, LBYL for validation
@@ -182,10 +182,10 @@ def perf_test8_attr_getattr_default():
 
 
 def perf_test9_type_lbyl():
-    """Type checking: LBYL with isinstance()"""
+    """Type checking: LBYL with isinstance() (accepts the same int/float values the EAFP case adds)"""
     total = 0
     for val in get_type_values(mixed=True):
-        if isinstance(val, int):
+        if isinstance(val, (int, float)):
             total += val
     return total
 
@@ -383,7 +383,7 @@ if __name__ == "__main__":
     print("=" * 80)
     print("""
     FUNDAMENTAL RULE:
-    → Exceptions are ~200x slower than normal code flow
+    → Raising and catching costs far more than normal code flow
     → Use exceptions for EXCEPTIONAL conditions, not control flow
 
     USE EAFP (try/except) WHEN:

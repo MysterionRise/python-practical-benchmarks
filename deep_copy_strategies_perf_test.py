@@ -74,12 +74,6 @@ NESTED_LIST = [[j for j in range(100)] for i in range(100)]
 # Nested dict
 NESTED_DICT = {f"level1_{i}": {f"level2_{j}": j * i for j in range(10)} for i in range(20)}
 
-# Complex mixed structure
-COMPLEX_STRUCTURE = {
-    "users": [{"id": i, "name": f"User{i}", "tags": [f"tag{j}" for j in range(5)]} for i in range(50)],
-    "metadata": {"version": 1, "config": {"timeout": 30, "retries": 3}},
-}
-
 
 # Custom class for object copying tests
 @dataclass
@@ -365,13 +359,13 @@ if __name__ == "__main__":
     → Objects: copy.copy() or manual constructor
 
     DEEP COPY (when you need independent nested structures):
-    → Simple nested: JSON serialize/deserialize (2-3x faster than deepcopy)
+    → Simple nested, JSON-safe data: a JSON round-trip can beat deepcopy on older Pythons
     → Complex/non-serializable: copy.deepcopy()
     → Custom objects: Manual __deepcopy__ or copy constructors
 
     PERFORMANCE TIPS:
-    ✓ Use shallow copy when possible (5-10x faster)
-    ✓ JSON serialization for simple nested structures (2-3x faster)
+    ✓ Use shallow copy when possible (far cheaper than a deep copy)
+    ✓ JSON round-trip for JSON-safe nested data (check on your Python: the gap disappears on 3.14 in our runs)
     ✓ Manual copy constructors for custom objects (fastest)
     ✓ Profile first: premature optimization is the root of evil
 
@@ -387,7 +381,7 @@ if __name__ == "__main__":
     → When correctness > performance
 
     ALTERNATIVES TO deepcopy():
-    → JSON for JSON-serializable structures (2-3x faster)
+    → JSON for JSON-safe structures (turns tuples into lists and keys into strings)
     → Pickle for complex objects (slower but handles more types)
     → Manual recursion for known structures (fastest but more code)
     → Immutable data structures (no copy needed!)

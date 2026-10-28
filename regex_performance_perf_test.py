@@ -17,7 +17,7 @@ COMPLEX PATTERN MATCHING:
 Approach                         Total time    Per iteration
 ---------------------------------------------------------------
 Complex regex uncompiled         4.567s            0.0046s
-Complex regex pre-compiled       2.345s            0.0023s (2x faster)
+Complex regex pre-compiled       2.345s            0.0023s
 re.findall() uncompiled          3.789s            0.0038s
 re.findall() pre-compiled        1.987s            0.0020s
 
@@ -26,11 +26,11 @@ Approach                         Total time    Per iteration
 ---------------------------------------------------------------
 Full RFC-compliant regex         5.678s            0.0057s
 Simple practical regex           1.234s            0.0012s
-String methods validation        0.567s            0.0006s (2x faster)
+String methods validation        0.567s            0.0006s
 
 KEY FINDINGS:
-- Pre-compile regexes used more than ~3 times (2x speedup)
-- Use string methods for simple patterns (10-30x faster)
+- Pre-compile regexes used in hot loops: re caches compiled patterns, so compile() mainly skips the cache lookup
+- Use string methods for simple patterns (much faster than any regex)
 - Keep regex patterns simple when possible
 - re.search() is slightly slower than re.match() but more flexible
 """
@@ -310,6 +310,6 @@ if __name__ == "__main__":
 
     COMPILATION THRESHOLD:
     → Use uncompiled for one-time operations
-    → Pre-compile for 3+ uses (2x speedup)
+    → Pre-compile for hot loops (skips the pattern-cache lookup)
     → Pre-compile at module level for frequent use
     """)

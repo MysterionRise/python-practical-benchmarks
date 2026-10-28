@@ -114,15 +114,15 @@ What is the optimal way to iterate 2d arrays (lists) in Python?
 **Use case:** Algorithmic and competitive programming (Codeforces, TopCoder, ACM ICPC, etc.)
 
 ```
-Number of iterations = 100, size of 2d array = 1000 x 1000
+Size of 2d array = 1000 x 1000, CPython 3.13.17 on Linux x86-64, run_all_tests.py harness (median of 3 runs)
 
-Approach                         Total time    Per iteration
----------------------------------------------------------------
-- range() + indices              11.2518s            0.1125s
-- iterate + .index()            216.3334s            2.1633s
-- enumerate()                     8.3070s            0.0830s
-- 1d array approach              16.5849s            0.1658s
-- numpy ndarray (NON-STDLIB)     28.0520s            0.2805s
+Approach                         Per iteration
+-----------------------------------------------
+- range() + indices                   0.094s
+- iterate + .index()                  3.374s
+- enumerate()                         0.101s
+- 1d array approach                   0.149s
+- numpy ndarray (NON-STDLIB)          0.530s
 ```
 
 **Winner:** `range()` with indices and `enumerate()` perform about the same when both do the same work per cell, so prefer `enumerate()` for readability. Never look up indices with `.index()`, which makes the loop quadratic. Element-by-element access to a NumPy array is slower than plain lists; vectorize NumPy code instead.
@@ -138,21 +138,21 @@ What is the optimal way to iterate over dataframes in Pandas?
 **Use case:** Data scientists and data analysts working with Pandas DataFrames
 
 ```
-Number of iterations = 100, shape of dataframe  = (22544, 43)
-7 columns summed per row
+Shape of dataframe = (22544, 43), 7 columns summed per row, CPython 3.13.17 on Linux x86-64, pandas 3.1,
+run_all_tests.py harness (median of 3 runs)
 
-Approach                         Total time    Per iteration
----------------------------------------------------------------
-iterrows                         31.231000        0.31231
-loc                              21.503000        0.21503
-iloc                             14.528000        0.14528
-itertuples                        4.045000        0.04045
-list comprehension                0.236000        0.00236
-pandas vectorisation             0.0000065        < 1e-7
-numpy vectorisation              0.0000041        < 1e-7
+Approach                         Per iteration
+-----------------------------------------------
+iterrows                              0.651s
+loc                                   2.508s
+iloc                                  2.149s
+itertuples                            0.115s
+list comprehension                    0.0103s
+pandas vectorisation                  0.00081s
+numpy vectorisation                   0.00045s
 ```
 
-Graph of performance with X-axis representing number of affecting columns (from 2 to 7):
+Graph of performance with X-axis representing number of affecting columns (from 2 to 7). It predates the vectorisation fix, so its two vectorisation lines show an empty function:
 
 <img src="performance.png">
 
@@ -169,14 +169,15 @@ What is the most efficient way to access dictionary values by key?
 **Use case:** High-performance data lookups, caching, algorithmic competitions
 
 ```
-Sequential access, number of iterations = 1000, size of dictionary = 100000
+Random key order, size of dictionary = 1000, existing keys only, CPython 3.13.17 on Linux x86-64
+(30 interleaved rounds with rotating case order, median per call)
 
-Approach                         Total time         Per iteration
-------------------------------------------------------------------
-- dict[key]                         8.987797s            0.008988s
-- dict.get(key)                     7.061445s            0.007061s
-- dict.setdefault(key, default)     7.511971s            0.007512s
-- using defaultdict                 5.458365s            0.005458s
+Approach                              Per call
+------------------------------------------------
+- dict[key]                            57.0 us
+- dict.get(key)                        59.4 us
+- dict.setdefault(key, default)        62.3 us
+- using defaultdict                    57.8 us
 ```
 
 **Winner:** For keys that exist, `dict[key]`, `dict.get()`, `dict.setdefault()` and `defaultdict` perform about the same, so choose by semantics: `d[key]` when the key must exist, `.get()` when it may be missing, and `defaultdict` when a missing key should be created. This benchmark only looks up existing keys.
@@ -677,12 +678,12 @@ re (stdlib)                      0.0034s
 numpy                            0.1234s ⚠
 pandas                           0.3456s ⚠⚠ very heavy!
 
-IMPORT PATTERNS (100,000 iterations, cached, measured on CPython 3.13):
+IMPORT PATTERNS (100,000 iterations, cached; CPython 3.13, median of 12 interleaved rounds):
 Pattern                          Total time
 ---------------------------------------------------------------
-import module                    0.0065s ✓ cheap (sys.modules lookup)
-from module import name          0.0255s ✓ cheap, plus name binding
-importlib.import_module()        0.0381s ⚠ ~6x import statement: hoist out of hot loops
+import module                    0.0071s ✓ cheap (sys.modules lookup)
+from module import name          0.0253s ✓ cheap, plus name binding
+importlib.import_module()        0.0382s ⚠ ~5x import statement: hoist out of hot loops
 
 LAZY vs EAGER (illustrative; the benchmark measures per-call cost after the first import, not startup):
 Strategy                         Startup    First use
@@ -742,7 +743,7 @@ Float arithmetic            1.00s       0.70s       ~30%
 Integer arithmetic          1.00s       0.85s       ~15%
 ```
 
-**Winner:** Python's **experimental JIT** ranges from about 10% slower to 20% faster on 3.14 according to its release notes, and averages roughly 7-12% faster on pyperformance in 3.15. Official 3.14 macOS and Windows binaries include it switched off, and free-threaded builds have no JIT. For serious numeric work, **NumPy** or **Numba** remain far faster.
+**Winner:** Python's **experimental JIT** ranges from about 10% slower to 20% faster on 3.14 according to its release notes, and in 3.15 its release notes report pyperformance geometric-mean gains of about 7-8% on x86-64 Linux and 11-12% on AArch64 macOS. Official 3.14 macOS and Windows binaries include it switched off, and free-threaded builds have no JIT. For serious numeric work, **NumPy** or **Numba** remain far faster.
 
 **Note:** The JIT needs a CPython 3.13+ build configured with `--enable-experimental-jit`. Builds configured with `=yes-off`, common for 3.14 distributions, ship it disabled, so enable it with `PYTHON_JIT=1`. Builds configured with plain `=yes` enable it by default, and `PYTHON_JIT=0` turns it off. On 3.14+, check with `python -c "import sys; print(sys._jit.is_enabled())"`.
 

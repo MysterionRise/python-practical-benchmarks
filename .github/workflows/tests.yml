@@ -52,12 +52,12 @@ jobs:
         python run_all_tests.py --all --quick --output reports/output/ci-quick.json
 
     - name: Render benchmark report
-      if: always() && matrix.python-version == '3.11'
+      if: always() && matrix.python-version == '3.11' && hashFiles('reports/output/ci-quick.json') != ''
       run: |
         python scripts/render_report.py reports/output/ci-quick.json --output reports/output/ci-quick.md
 
     - name: Upload benchmark artifact
-      if: always() && matrix.python-version == '3.11'
+      if: always() && matrix.python-version == '3.11' && hashFiles('reports/output/ci-quick.json') != ''
       uses: actions/upload-artifact@v7
       with:
         name: benchmark-evidence-python-3.11

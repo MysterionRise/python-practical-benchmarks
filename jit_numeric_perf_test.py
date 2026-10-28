@@ -22,7 +22,7 @@ EXPECTED RESULTS (JIT vs non-JIT on Python 3.13+):
 
 KEY FINDINGS:
 - 3.14 release notes: from about 10% slower to 20% faster depending on workload
-- 3.15 release notes: roughly 7-12% faster on average (pyperformance geometric mean)
+- 3.15 release notes: pyperformance geometric mean about 7-8% faster on x86-64 Linux, 11-12% on AArch64 macOS
 - Greatest benefit for tight loops with arithmetic operations
 - Minimal benefit for I/O-bound or string-heavy code
 - JIT warms up over time - first runs may be slower

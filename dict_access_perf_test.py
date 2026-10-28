@@ -11,33 +11,16 @@ Simple perf test with random strings as values and int as keys
 
 Performance results:
 
-Sequential access, number of iterations = 1000, size of dictionary = 100000
+Random key order, size of dictionary = 1000, existing keys only, CPython 3.13.17 on Linux x86-64
+(30 interleaved rounds with rotating case order, median per call)
 
-Approach                         Total time         Per iteration
-------------------------------------------------------------------
-- dict[key]                         8.987797s            0.008988s
-- dict.get(key)                     7.061445s            0.007061s
-- dict.setdefault(key, default)     7.511971s            0.007512s
-- using defaultdict                 5.458365s            0.005458s
+Approach                              Per call
+------------------------------------------------
+- dict[key]                            57.0 us
+- dict.get(key)                        59.4 us
+- dict.setdefault(key, default)        62.3 us
+- using defaultdict                    57.8 us
 
-Sequential access, number of iterations = 1000, size of dictionary = 1000
-
-Approach                         Total time         Per iteration
-------------------------------------------------------------------
-- dict[key]                         0.091688s            0.000092s
-- dict.get(key)                     0.071862s            0.000072s
-- dict.setdefault(key, default)     0.066943s            0.000067s
-- using defaultdict                 0.052413s            0.000052s
-
-
-Random access, number of iterations = 1000, size of dictionary = 100000
-
-Approach                         Total time         Per iteration
-------------------------------------------------------------------
-- dict[key]                         0.091688s            0.000092s
-- dict.get(key)                     0.071862s            0.000072s
-- dict.setdefault(key, default)     0.066943s            0.000067s
-- using defaultdict                 0.052413s            0.000052s
 """
 
 import random

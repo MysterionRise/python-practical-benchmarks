@@ -35,12 +35,12 @@ jobs:
         python run_all_tests.py --all --quick --output reports/output/ci-quick.json
 
     - name: Render Markdown evidence
-      if: always()
+      if: always() && hashFiles('reports/output/ci-quick.json') != ''
       run: |
         python scripts/render_report.py reports/output/ci-quick.json --output reports/output/ci-quick.md
 
     - name: Upload benchmark evidence
-      if: always()
+      if: always() && hashFiles('reports/output/ci-quick.json') != ''
       uses: actions/upload-artifact@v7
       with:
         name: scheduled-benchmark-evidence

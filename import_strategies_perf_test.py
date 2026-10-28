@@ -15,15 +15,15 @@ numpy                            0.1234s       Large (~15MB) ⚠
 pandas                           0.3456s       Very large (~25MB) ⚠
 requests                         0.0789s       Medium (many deps)
 
-IMPORT PATTERNS (100,000 iterations):
+IMPORT PATTERNS (100,000 iterations, cached; CPython 3.13, median of 12 interleaved rounds):
 Pattern                          Total time    Per import
 ---------------------------------------------------------------
-import module                    0.000023s     0.23ns (cached!)
-from module import name          0.000025s     0.25ns (cached!)
-importlib.import_module()        0.345s        3.45μs ⚠ 15000x slower
-__import__()                     0.298s        2.98μs ⚠ 13000x slower
+import module                    0.0071s       71ns (sys.modules lookup)
+from module import name          0.0253s       253ns
+importlib.import_module()        0.0382s       382ns ⚠ hoist out of hot loops
+__import__()                     0.0063s       63ns
 
-LAZY IMPORT vs EAGER (10,000 runs):
+LAZY IMPORT vs EAGER (illustrative; the benchmark measures per-call cost after the first import, not startup):
 Strategy                         Startup time  First use    Total
 ---------------------------------------------------------------
 Eager import at top              0.234s        0.001s       0.235s
@@ -269,7 +269,7 @@ if __name__ == "__main__":
     # LAZY VS EAGER
     # ========================================================================
     print("\n" + "=" * 80)
-    print("LAZY vs EAGER IMPORT STRATEGIES (10,000 function calls)")
+    print(f"LAZY vs EAGER IMPORT STRATEGIES ({ITERATIONS:,} function calls)")
     print("=" * 80)
 
     print("\nEager import (import at module top):")
