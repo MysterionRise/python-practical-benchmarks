@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from benchmark_manifest import BENCHMARK_SPECS, all_benchmark_modules
+from benchmark_manifest import BENCHMARK_SPECS, all_benchmark_modules, get_benchmark_spec
 from run_all_tests import collect_benchmark_cases, missing_dependencies
 
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -96,6 +96,23 @@ class TestBenchmarkStructure:
             if name.isupper() and not name.startswith("_") and isinstance(getattr(module, name), (int, float))
         ]
         assert constants, f"{module_name} has no numeric configuration constants"
+
+    @pytest.mark.parametrize("module_name", ALL_BENCHMARKS)
+    def test_quick_overrides_target_module_constants(self, module_name):
+        """Test that every quick-mode override names a module-level constant.
+
+        The runner skips unknown names silently, so a typo would leave quick mode with full-size settings.
+        """
+        tree = ast.parse((PROJECT_ROOT / f"{module_name}.py").read_text())
+        module_constants = {
+            target.id
+            for node in tree.body
+            if isinstance(node, (ast.Assign, ast.AnnAssign))
+            for target in (node.targets if isinstance(node, ast.Assign) else [node.target])
+            if isinstance(target, ast.Name)
+        }
+        unknown = sorted(set(get_benchmark_spec(module_name).quick_overrides) - module_constants)
+        assert not unknown, f"{module_name} quick overrides name missing constants: {unknown}"
 
     @pytest.mark.parametrize("module_name", ALL_BENCHMARKS)
     def test_no_import_time_timing_or_printing(self, module_name):

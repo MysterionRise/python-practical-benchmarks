@@ -10,8 +10,9 @@ threads on multiple CPU cores. This is a game-changer for CPU-bound workloads.
 
 REQUIREMENTS:
 - Python 3.13+ compiled with --disable-gil (free-threaded build)
-- Check with: python -c "import sys; print(hasattr(sys, '_is_gil_enabled'))"
-- On free-threaded builds: sys._is_gil_enabled() returns False
+- Check the build with: python -c "import sysconfig; print(sysconfig.get_config_var('Py_GIL_DISABLED'))"
+  (1 means a free-threaded build; sys._is_gil_enabled exists on every 3.13+ build)
+- At runtime on free-threaded builds: sys._is_gil_enabled() returns False
 
 EXPECTED RESULTS (free-threaded vs standard Python):
 | Workload Type           | Threads | GIL Python | Free-threaded | Speedup |

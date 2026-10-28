@@ -10,7 +10,7 @@ numeric and compute-intensive code.
 
 REQUIREMENTS:
 - Python 3.13+ compiled with --enable-experimental-jit
-- Check with: python -c "import sys; print(sys._jit)"
+- Check with (Python 3.14+): python -c "import sys; print(sys._jit.is_enabled())"
 
 EXPECTED RESULTS (JIT vs non-JIT on Python 3.13+):
 | Workload                    | No JIT    | With JIT  | Improvement |
@@ -54,22 +54,32 @@ MANDELBROT_SIZE = 200
 MANDELBROT_MAX_ITER = 100
 
 
+def _jit_flag(name):
+    """Return a sys._jit predicate such as is_enabled() as a bool.
+
+    CPython 3.14+ exposes these as functions; reading them without calling
+    returns a function object, which is always truthy.
+    """
+    value = getattr(getattr(sys, "_jit", None), name, None)
+    if callable(value):
+        return bool(value())
+    return bool(value)
+
+
 def is_jit_enabled():
-    """Check if JIT is enabled in this Python build."""
-    return hasattr(sys, "_jit") and sys._jit.is_enabled if hasattr(sys, "_jit") else False
+    """Check if the JIT is enabled in this interpreter."""
+    return _jit_flag("is_enabled")
 
 
 def get_jit_status():
     """Return a string describing JIT status."""
-    if hasattr(sys, "_jit"):
-        try:
-            if sys._jit.is_enabled:
-                return "JIT enabled"
-            else:
-                return "JIT available but disabled"
-        except AttributeError:
-            return "JIT module present (status unknown)"
-    return "No JIT (Python < 3.13 or compiled without --enable-experimental-jit)"
+    if not hasattr(sys, "_jit"):
+        return "Unknown (sys._jit introspection requires Python 3.14+)"
+    if _jit_flag("is_enabled"):
+        return "JIT enabled"
+    if _jit_flag("is_available"):
+        return "JIT available but disabled (set PYTHON_JIT=1)"
+    return "No JIT (interpreter built without --enable-experimental-jit)"
 
 
 # ============================================================================
