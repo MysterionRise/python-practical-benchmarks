@@ -51,9 +51,10 @@ jobs:
         fetch-depth: 0  # Full history for scanning
 
     - name: TruffleHog Secret Scan
-      uses: trufflesecurity/trufflehog@main
+      uses: trufflesecurity/trufflehog@31ce31ee1abbcc7dc8eee5764c17121c3044c8b2 # v3.99.7
       with:
-        extra_args: --only-verified
+        version: 3.99.7
+        extra_args: --results=verified
 
   codeql-analysis:
     name: CodeQL Analysis

@@ -2,7 +2,7 @@
 
 [![Benchmark Tests](https://github.com/MysterionRise/python-practical-benchmarks/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/MysterionRise/python-practical-benchmarks/actions/workflows/tests.yml)
 [![Linting](https://github.com/MysterionRise/python-practical-benchmarks/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/MysterionRise/python-practical-benchmarks/actions/workflows/lint.yml)
-[![Security Scanning](https://github.com/MysterionRise/python-practical-benchmarks/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/MysterionRise/python-practical-benchmarks/actions/workflows/security.yml)
+[![Security Scanning](https://github.com/MysterionRise/python-practical-benchmarks/actions/workflows/security-scan.yml/badge.svg?branch=main)](https://github.com/MysterionRise/python-practical-benchmarks/actions/workflows/security-scan.yml)
 [![codecov](https://codecov.io/gh/MysterionRise/python-practical-benchmarks/branch/main/graph/badge.svg)](https://codecov.io/gh/MysterionRise/python-practical-benchmarks)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
@@ -18,7 +18,7 @@ Most Python performance debates lack empirical data. This repository provides **
 **What makes this different:**
 - **Data-driven**: Every recommendation backed by reproducible benchmarks
 - **Production-focused**: Real-world scenarios, not micro-optimizations
-- **Quality practices**: Type-checked, linted, security-scanned, and CI-tested on Python 3.9-3.14
+- **Quality practices**: Type-checked, linted, security-scanned, and CI-tested on Python 3.9-3.15 and free-threaded 3.14t
 
 Run the benchmarks on YOUR system—results vary by CPU, OS, and Python version.
 

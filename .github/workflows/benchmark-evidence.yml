@@ -32,11 +32,16 @@ jobs:
     - name: Generate JSON and Markdown evidence
       run: |
         mkdir -p reports/output
-        python run_all_tests.py --all --quick --format json --output reports/output/ci-quick.json
+        python run_all_tests.py --all --quick --output reports/output/ci-quick.json
+
+    - name: Render Markdown evidence
+      if: always()
+      run: |
         python scripts/render_report.py reports/output/ci-quick.json --output reports/output/ci-quick.md
 
     - name: Upload benchmark evidence
-      uses: actions/upload-artifact@v4
+      if: always()
+      uses: actions/upload-artifact@v7
       with:
         name: scheduled-benchmark-evidence
         path: |

@@ -113,11 +113,11 @@ Some benchmarks gracefully handle missing optional packages (orjson, ujson, msgp
 
 ## Python Version Support
 
-Benchmarks run on Python 3.9 through 3.14 (tested in CI). The development tooling (mypy 2.x, current pre-commit and pip-audit) needs Python 3.10+.
+Benchmarks run on Python 3.9 through 3.15, plus the free-threaded 3.14t build (tested in CI). The development tooling (mypy 2.x, current pre-commit and pip-audit) needs Python 3.10+.
 
 ## CI/CD Workflows
 
 - `lint.yml`: Ruff linting/formatting, mypy type checking, pre-commit hooks
-- `tests.yml`: Multi-Python version testing, coverage reporting to Codecov
-- `security.yml`: pip-audit, TruffleHog, CodeQL analysis
-- `benchmark-artifacts.yml`: Weekly scheduled quick run that uploads JSON and Markdown results as artifacts
+- `tests.yml`: Unit tests and quick benchmarks on CPython 3.9-3.15 plus free-threaded 3.14t, coverage reporting to Codecov
+- `security-scan.yml`: pip-audit, TruffleHog, CodeQL analysis
+- `benchmark-evidence.yml`: Weekly scheduled quick run that uploads JSON and Markdown results as artifacts

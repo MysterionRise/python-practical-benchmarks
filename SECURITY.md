@@ -103,7 +103,7 @@ When contributing to this project:
 ### GitHub Actions
 
 ```yaml
-# .github/workflows/security.yml includes:
+# .github/workflows/security-scan.yml includes:
 - pip-audit dependency scanning
 - TruffleHog secret scanning
 - CodeQL security analysis
