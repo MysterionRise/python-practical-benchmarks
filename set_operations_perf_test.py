@@ -37,24 +37,30 @@ PERF_ITERATIONS = 1000
 DATA_SIZE = 10000
 SEARCH_SIZE = 1000
 
-# Generate test data
-random.seed(42)
-TEST_LIST = list(range(DATA_SIZE))
-TEST_SET = set(TEST_LIST)
-TEST_DICT = {i: None for i in TEST_LIST}
-TEST_FROZENSET = frozenset(TEST_LIST)
 
-# Generate search items (mix of existing and non-existing)
-SEARCH_ITEMS = [random.randint(0, DATA_SIZE * 2) for _ in range(SEARCH_SIZE)]
+def reset_benchmark_data():
+    """Build the test data from DATA_SIZE and SEARCH_SIZE (at import and after quick-mode overrides)."""
+    global TEST_LIST, TEST_SET, TEST_DICT, TEST_FROZENSET, SEARCH_ITEMS, DUPLICATED_DATA, SET_A, SET_B, LIST_A, LIST_B
+    rng = random.Random(42)
+    TEST_LIST = list(range(DATA_SIZE))
+    TEST_SET = set(TEST_LIST)
+    TEST_DICT = {i: None for i in TEST_LIST}
+    TEST_FROZENSET = frozenset(TEST_LIST)
 
-# Generate data with duplicates for deduplication tests
-DUPLICATED_DATA = [random.randint(0, DATA_SIZE // 2) for _ in range(DATA_SIZE)]
+    # Search items: a mix of existing and non-existing values
+    SEARCH_ITEMS = [rng.randint(0, DATA_SIZE * 2) for _ in range(SEARCH_SIZE)]
 
-# Generate two sets for set operations
-SET_A = set(random.sample(range(DATA_SIZE * 2), DATA_SIZE // 2))
-SET_B = set(random.sample(range(DATA_SIZE * 2), DATA_SIZE // 2))
-LIST_A = list(SET_A)
-LIST_B = list(SET_B)
+    # Data with duplicates for deduplication tests
+    DUPLICATED_DATA = [rng.randint(0, DATA_SIZE // 2) for _ in range(DATA_SIZE)]
+
+    # Two overlapping sets for set operations
+    SET_A = set(rng.sample(range(DATA_SIZE * 2), DATA_SIZE // 2))
+    SET_B = set(rng.sample(range(DATA_SIZE * 2), DATA_SIZE // 2))
+    LIST_A = list(SET_A)
+    LIST_B = list(SET_B)
+
+
+reset_benchmark_data()
 
 
 # MEMBERSHIP TESTING

@@ -36,9 +36,9 @@ Manual open/close                0.189s            ⚠ Error-prone
 try/finally with open/close      0.201s            ✓ Guaranteed
 
 KEY FINDINGS:
-- Context managers add 2-4x overhead vs no context
-- Class-based is faster than @contextmanager (40% faster)
-- Manual try/finally is fastest if you need cleanup (1.5x overhead)
+- Each with statement adds a small fixed cost compared with no context manager
+- Class-based context managers are cheaper than @contextmanager generators
+- Manual try/finally is the cheapest way to guarantee cleanup
 - Nested contexts multiply overhead (use ExitStack for many contexts)
 - Suppressing exceptions is 5x faster than re-raising
 - Always use context managers for resources - overhead is worth safety!
@@ -356,12 +356,12 @@ if __name__ == "__main__":
     ✓ Setup/teardown patterns
     ✓ Temporary state changes
     ✓ Exception safety is critical
-    ⚠ Adds 2-4x overhead, but worth it for correctness!
+    ⚠ Adds a small fixed cost per use, but worth it for correctness!
 
     IMPLEMENTATION CHOICES:
 
     CLASS-BASED (__enter__/__exit__):
-    ✓ Best performance (40% faster than @contextmanager)
+    ✓ Cheaper than @contextmanager (no generator involved)
     ✓ Clear control flow
     ✓ Can suppress exceptions by returning True
     ✓ Reusable, testable
@@ -375,7 +375,7 @@ if __name__ == "__main__":
     → Use for readability unless performance matters
 
     MANUAL try/finally:
-    ✓ Lowest overhead (1.5x vs 2.6x for context managers)
+    ✓ Lowest overhead
     ✓ Direct control
     ⚠ Error-prone (easy to forget cleanup)
     ⚠ Verbose for multiple resources
@@ -417,11 +417,12 @@ if __name__ == "__main__":
             return exc_type in (FileNotFoundError, PermissionError)
 
     PERFORMANCE HIERARCHY:
-    1. No context (baseline) - 89ns
-    2. Manual try/finally - 134ns (1.5x)
-    3. contextlib.nullcontext() - 198ns (2.2x)
-    4. Class-based context - 234ns (2.6x) ✓ best reusable
-    5. @contextmanager - 345ns (3.9x)
+    (cheapest first, as measured on CPython 3.13)
+    1. No context (baseline)
+    2. Manual try/finally
+    3. Class-based context ✓ best reusable
+    4. contextlib.nullcontext()
+    5. @contextmanager
 
     REAL-WORLD EXAMPLES:
 
@@ -474,5 +475,5 @@ if __name__ == "__main__":
     7. Correctness > Performance (resource leaks are expensive!)
 
     Remember: The overhead is worth it! Resource leaks, deadlocks,
-    and other cleanup failures cost far more than the 2-4x overhead.
+    and other cleanup failures cost far more than the small per-use overhead.
     """)

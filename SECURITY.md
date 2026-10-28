@@ -4,7 +4,7 @@
 
 | Version | Supported          | Python Versions |
 | ------- | ------------------ | --------------- |
-| 1.x.x   | :white_check_mark: | 3.9 - 3.14      |
+| 1.x.x   | :white_check_mark: | 3.9 - 3.15      |
 | < 1.0   | :x:                | N/A             |
 
 ## Automated Security Scanning
@@ -103,7 +103,7 @@ When contributing to this project:
 ### GitHub Actions
 
 ```yaml
-# .github/workflows/security.yml includes:
+# .github/workflows/security-scan.yml includes:
 - pip-audit dependency scanning
 - TruffleHog secret scanning
 - CodeQL security analysis

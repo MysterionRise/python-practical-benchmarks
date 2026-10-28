@@ -29,13 +29,13 @@ pickle          0.234s       0.267s       89,123
 json            0.678s       0.567s       88,894
 orjson          0.123s       0.145s       88,894       ✓ fastest
 msgpack         0.178s       0.189s       70,123       ✓ 20% smaller
-numpy binary    0.045s       0.034s       40,080       ✓✓ 2x smaller, 10x faster!
+numpy raw bytes 0.045s       0.034s       40,080       ✓ no dtype/shape header
 
 KEY FINDINGS:
 - marshal is fastest but Python-version specific (use for caching only)
 - orjson is 3-5x faster than standard json
 - msgpack is most space-efficient general format
-- numpy binary is best for numeric arrays (50% size, 10x speed)
+- raw numpy buffers are compact and fast for fixed-width numbers but carry no dtype or shape
 - pickle is good all-rounder but Python-specific
 - JSON is best for interoperability (but slowest)
 - YAML/TOML are too slow for performance use cases (70x slower!)
@@ -448,7 +448,7 @@ if __name__ == "__main__":
     USE NUMPY BINARY WHEN:
     ✓ Large numeric arrays
     ✓ Scientific computing, ML models
-    ✓ 10x faster, 50% smaller than other formats
+    ✓ Compact and fast for fixed-width numbers (np.save adds dtype and shape)
     ✓ np.save/np.load for convenience
     ⚠ Only for numeric data
 
@@ -488,7 +488,7 @@ if __name__ == "__main__":
     → msgpack (compact, fast, cross-language)
 
     ML Model Weights:
-    → numpy binary (10x faster, half the size)
+    → np.save/np.load (compact, keeps dtype and shape)
 
     Session Cache:
     → pickle (convenient) or marshal (fastest, same Python version)

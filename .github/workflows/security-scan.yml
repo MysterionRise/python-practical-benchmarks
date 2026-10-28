@@ -33,13 +33,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install pip-audit
 
-    - name: Install project dependencies
-      run: |
-        pip install -r requirements.txt
-
     - name: Run pip-audit
+      # Audit the declared dependencies in an isolated environment. Auditing the
+      # runner's own environment also flags preinstalled tooling such as setuptools,
+      # which this project neither installs nor ships.
       run: |
-        pip-audit --strict --desc on
+        pip-audit --strict --desc on -r requirements.txt -r requirements-optional.txt
 
   secret-scanning:
     name: Secret Scanning
@@ -52,9 +51,10 @@ jobs:
         fetch-depth: 0  # Full history for scanning
 
     - name: TruffleHog Secret Scan
-      uses: trufflesecurity/trufflehog@main
+      uses: trufflesecurity/trufflehog@31ce31ee1abbcc7dc8eee5764c17121c3044c8b2 # v3.99.7
       with:
-        extra_args: --only-verified
+        version: 3.99.7
+        extra_args: --results=verified
 
   codeql-analysis:
     name: CodeQL Analysis

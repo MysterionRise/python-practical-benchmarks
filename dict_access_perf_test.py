@@ -2,41 +2,25 @@
 What is the most efficient way to access dictionary value by key for best algorithmic performance?
 
 PYTHON VERSION NOTE:
-Python 3.11+ introduced inline caching for dictionary operations, making dict access
-faster when the same keys are accessed repeatedly. This benchmark shows improved
-performance on 3.11+ for all dictionary access patterns.
+Python 3.11+ specializes subscript bytecode by container type (the specializing
+adaptive interpreter, PEP 659), which makes dict[key] faster on 3.11+. It is not a
+per-key cache. Only existing keys are looked up here, so the default-value paths of
+.get(), .setdefault() and defaultdict are not exercised.
 
 Simple perf test with random strings as values and int as keys
 
 Performance results:
 
-Sequential access, number of iterations = 1000, size of dictionary = 100000
+Random key order, size of dictionary = 1000, existing keys only, CPython 3.13.17 on Linux x86-64
+(30 interleaved rounds with rotating case order, median per call)
 
-Approach                         Total time         Per iteration
-------------------------------------------------------------------
-- dict[key]                         8.987797s            0.008988s
-- dict.get(key)                     7.061445s            0.007061s
-- dict.setdefault(key, default)     7.511971s            0.007512s
-- using defaultdict                 5.458365s            0.005458s
+Approach                              Per call
+------------------------------------------------
+- dict[key]                            57.0 us
+- dict.get(key)                        59.4 us
+- dict.setdefault(key, default)        62.3 us
+- using defaultdict                    57.8 us
 
-Sequential access, number of iterations = 1000, size of dictionary = 1000
-
-Approach                         Total time         Per iteration
-------------------------------------------------------------------
-- dict[key]                         0.091688s            0.000092s
-- dict.get(key)                     0.071862s            0.000072s
-- dict.setdefault(key, default)     0.066943s            0.000067s
-- using defaultdict                 0.052413s            0.000052s
-
-
-Random access, number of iterations = 1000, size of dictionary = 100000
-
-Approach                         Total time         Per iteration
-------------------------------------------------------------------
-- dict[key]                         0.091688s            0.000092s
-- dict.get(key)                     0.071862s            0.000072s
-- dict.setdefault(key, default)     0.066943s            0.000067s
-- using defaultdict                 0.052413s            0.000052s
 """
 
 import random
@@ -71,30 +55,14 @@ def random_value(data_type, seed=None):
         raise ValueError("Unsupported data type")
 
 
-def dict_iteration(method, n=None):
-    """
-    Iterate over a range of integer keys of size n
-
-    Parameters:
-    - method: str, one of 'seq_keys', 'rand_keys'
-    - n: size of integers
-
-    Yields:
-    - key: key of the next item in the dictionary
-    """
-    if n is None:
-        n = DICTIONARY_SIZE
-
-    if method == "seq_keys":
-        for key in range(n):
-            yield key
-    elif method == "rand_keys":
-        keys = list(range(n))
-        random.shuffle(keys)
-        for key in keys:
-            yield key
-    else:
+def access_order(method, n):
+    """Return the key order to access: 'seq_keys' (0..n-1) or 'rand_keys' (seeded shuffle)."""
+    keys = list(range(n))
+    if method == "rand_keys":
+        random.Random(0).shuffle(keys)
+    elif method != "seq_keys":
         raise ValueError("Unsupported method")
+    return keys
 
 
 def reset_benchmark_data():
@@ -103,53 +71,53 @@ def reset_benchmark_data():
 
 
 def get_test_data():
-    """Return dictionaries built with the current configuration constants."""
-    cache_key = DICTIONARY_SIZE
+    """Return (dict, defaultdict, key order) built once per configuration, outside the timed loops."""
+    cache_key = (DICTIONARY_SIZE, TYPE)
     if cache_key not in _DATA_CACHE:
         data = {i: random_value(str, seed=i) for i in range(DICTIONARY_SIZE)}
         default_data = defaultdict(lambda: "")
         default_data.update(data)
-        _DATA_CACHE[cache_key] = (data, default_data)
+        _DATA_CACHE[cache_key] = (data, default_data, access_order(TYPE, DICTIONARY_SIZE))
     return _DATA_CACHE[cache_key]
 
 
 def perf_test1_dict_key():
     """Access values with dict[key]."""
-    data, _ = get_test_data()
+    data, _, keys = get_test_data()
     total = 0
-    for key in dict_iteration(TYPE):
+    for key in keys:
         value = data[key]
-        total += len(value) + random.randint(0, 10)
+        total += len(value)
     return total
 
 
 def perf_test2_dict_get():
     """Access values with dict.get(key)."""
-    data, _ = get_test_data()
+    data, _, keys = get_test_data()
     total = 0
-    for key in dict_iteration(TYPE):
+    for key in keys:
         value = data.get(key)
-        total += len(value) + random.randint(0, 10)
+        total += len(value)
     return total
 
 
 def perf_test3_dict_setdefault():
     """Access values with dict.setdefault(key, default)."""
-    data, _ = get_test_data()
+    data, _, keys = get_test_data()
     total = 0
-    for key in dict_iteration(TYPE):
+    for key in keys:
         value = data.setdefault(key, "")
-        total += len(value) + random.randint(0, 10)
+        total += len(value)
     return total
 
 
 def perf_test4_defaultdict():
     """Access values with defaultdict."""
-    _, default_data = get_test_data()
+    _, default_data, keys = get_test_data()
     total = 0
-    for key in dict_iteration(TYPE):
+    for key in keys:
         value = default_data[key]
-        total += len(value) + random.randint(0, 10)
+        total += len(value)
     return total
 
 

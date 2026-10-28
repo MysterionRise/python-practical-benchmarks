@@ -17,7 +17,7 @@ COMPLEX PATTERN MATCHING:
 Approach                         Total time    Per iteration
 ---------------------------------------------------------------
 Complex regex uncompiled         4.567s            0.0046s
-Complex regex pre-compiled       2.345s            0.0023s (2x faster)
+Complex regex pre-compiled       2.345s            0.0023s
 re.findall() uncompiled          3.789s            0.0038s
 re.findall() pre-compiled        1.987s            0.0020s
 
@@ -26,11 +26,11 @@ Approach                         Total time    Per iteration
 ---------------------------------------------------------------
 Full RFC-compliant regex         5.678s            0.0057s
 Simple practical regex           1.234s            0.0012s
-String methods validation        0.567s            0.0006s (2x faster)
+String methods validation        0.567s            0.0006s
 
 KEY FINDINGS:
-- Pre-compile regexes used more than ~3 times (2x speedup)
-- Use string methods for simple patterns (10-30x faster)
+- Pre-compile regexes used in hot loops: re caches compiled patterns, so compile() mainly skips the cache lookup
+- Use string methods for simple patterns (much faster than any regex)
 - Keep regex patterns simple when possible
 - re.search() is slightly slower than re.match() but more flexible
 """
@@ -41,12 +41,16 @@ import timeit
 PERF_ITERATIONS = 1000
 NUM_STRINGS = 10000
 
-# Generate test data
-TEST_STRINGS = [f"user{i}@example.com" if i % 3 == 0 else f"invalid_email_{i}" for i in range(NUM_STRINGS)]
 
-TEST_URLS = [f"https://example.com/path/{i}" if i % 2 == 0 else f"not_a_url_{i}" for i in range(NUM_STRINGS)]
+def reset_benchmark_data():
+    """Build the test strings from NUM_STRINGS (at import and after quick-mode overrides)."""
+    global TEST_STRINGS, TEST_URLS, TEST_PHONE_NUMBERS
+    TEST_STRINGS = [f"user{i}@example.com" if i % 3 == 0 else f"invalid_email_{i}" for i in range(NUM_STRINGS)]
+    TEST_URLS = [f"https://example.com/path/{i}" if i % 2 == 0 else f"not_a_url_{i}" for i in range(NUM_STRINGS)]
+    TEST_PHONE_NUMBERS = [f"+1-555-{i:04d}" if i % 4 == 0 else f"invalid_phone_{i}" for i in range(NUM_STRINGS)]
 
-TEST_PHONE_NUMBERS = [f"+1-555-{i:04d}" if i % 4 == 0 else f"invalid_phone_{i}" for i in range(NUM_STRINGS)]
+
+reset_benchmark_data()
 
 # Pre-compiled patterns
 COMPILED_SIMPLE = re.compile(r"^user\d+@")
@@ -306,6 +310,6 @@ if __name__ == "__main__":
 
     COMPILATION THRESHOLD:
     → Use uncompiled for one-time operations
-    → Pre-compile for 3+ uses (2x speedup)
+    → Pre-compile for hot loops (skips the pattern-cache lookup)
     → Pre-compile at module level for frequent use
     """)

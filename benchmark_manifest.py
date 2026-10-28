@@ -141,7 +141,7 @@ BENCHMARK_SPECS: tuple[BenchmarkSpec, ...] = (
         module="exception_handling_perf_test",
         title="Exception Handling",
         category="expert",
-        quick_overrides={"ITERATIONS": 1000, "NESTED_ITERATIONS": 100, "EXCEPTION_ITERATIONS": 100},
+        quick_overrides={"ITERATIONS": 1000, "EXCEPTION_ITERATIONS": 100},
     ),
     BenchmarkSpec(
         module="serialization_formats_perf_test",

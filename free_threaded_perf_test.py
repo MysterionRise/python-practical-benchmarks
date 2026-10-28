@@ -4,14 +4,16 @@ FREE-THREADED PYTHON PERFORMANCE TEST (Python 3.13+ with free-threading build)
 Question: How much faster is free-threaded Python for parallel CPU-bound work?
 
 WHAT IS FREE-THREADING?
-Python 3.13 introduced an experimental free-threaded mode (PEP 703) that removes
+Python 3.13 introduced an experimental free-threaded build (PEP 703) that removes
 the Global Interpreter Lock (GIL), allowing true parallel execution of Python
-threads on multiple CPU cores. This is a game-changer for CPU-bound workloads.
+threads on multiple CPU cores. Since 3.14 it is officially supported but optional
+(PEP 779); the default build still has the GIL.
 
 REQUIREMENTS:
 - Python 3.13+ compiled with --disable-gil (free-threaded build)
-- Check with: python -c "import sys; print(hasattr(sys, '_is_gil_enabled'))"
-- On free-threaded builds: sys._is_gil_enabled() returns False
+- Check the build with: python -c "import sysconfig; print(sysconfig.get_config_var('Py_GIL_DISABLED'))"
+  (1 means a free-threaded build; sys._is_gil_enabled exists on every 3.13+ build)
+- At runtime on free-threaded builds: sys._is_gil_enabled() returns False
 
 EXPECTED RESULTS (free-threaded vs standard Python):
 | Workload Type           | Threads | GIL Python | Free-threaded | Speedup |
@@ -25,7 +27,8 @@ KEY FINDINGS:
 - Free-threaded Python provides near-linear speedup for CPU-bound threaded work
 - Standard Python (with GIL) sees NO speedup from threading for CPU work
 - I/O-bound work benefits from threading in both modes (GIL released during I/O)
-- Free-threaded builds have ~5-10% single-thread overhead (tradeoff)
+- Free-threaded builds run single-threaded code roughly 1-8% slower (per the Python docs) and use more memory
+- Free-threaded builds have no JIT
 
 WHEN TO USE FREE-THREADED PYTHON:
 - CPU-bound workloads that can be parallelized

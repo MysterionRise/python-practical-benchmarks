@@ -6,14 +6,18 @@ on:
   pull_request:
     branches: [ main, master ]
 
+permissions:
+  contents: read
+
 jobs:
   test-benchmarks:
     name: Test benchmarks on Python ${{ matrix.python-version }}
-    runs-on: ubuntu-latest
+    # Pinned: CPython 3.9 builds are only published for Ubuntu 22.04 and 24.04.
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "3.14t", "3.15"]
 
     steps:
     - name: Checkout code
@@ -32,35 +36,29 @@ jobs:
 
     - name: Install optional dependencies
       run: |
-        pip install orjson ujson msgpack attrs || true
-        echo "Optional dependencies installed (some may have failed)"
+        # One package at a time, so one failure doesn't block the rest; missing packages become skipped cases.
+        # orjson is wheel-only: free-threaded builds have no wheel and its Rust source build is slow.
+        grep -vE '^[[:space:]]*(#|$)' requirements-optional.txt | while read -r req; do
+          pip install --only-binary orjson "$req" || echo "::warning::Could not install $req; its benchmark cases will be skipped"
+        done
 
-    - name: Run basic benchmarks
+    - name: Run unit tests
       run: |
-        python run_all_tests.py --category basic --quick
+        python -m pytest tests/ -q
 
-    - name: Run advanced benchmarks
-      run: |
-        python run_all_tests.py --category advanced --quick
-
-    - name: Run expert benchmarks
-      run: |
-        python run_all_tests.py --category expert --quick
-
-    - name: Run all benchmarks (sanity check)
-      run: |
-        python run_all_tests.py --all --quick
-
-    - name: Generate structured benchmark artifact
-      if: matrix.python-version == '3.11'
+    - name: Run all benchmarks (quick mode)
       run: |
         mkdir -p reports/output
-        python run_all_tests.py --all --quick --format json --output reports/output/ci-quick.json
+        python run_all_tests.py --all --quick --output reports/output/ci-quick.json
+
+    - name: Render benchmark report
+      if: always() && matrix.python-version == '3.11' && hashFiles('reports/output/ci-quick.json') != ''
+      run: |
         python scripts/render_report.py reports/output/ci-quick.json --output reports/output/ci-quick.md
 
     - name: Upload benchmark artifact
-      if: matrix.python-version == '3.11'
-      uses: actions/upload-artifact@v4
+      if: always() && matrix.python-version == '3.11' && hashFiles('reports/output/ci-quick.json') != ''
+      uses: actions/upload-artifact@v7
       with:
         name: benchmark-evidence-python-3.11
         path: |
@@ -90,10 +88,10 @@ jobs:
 
     - name: Run pytest with coverage
       run: |
-        pytest tests/ -v --cov=run_all_tests --cov-report=xml --cov-report=term-missing
+        pytest tests/ -v --cov --cov-report=xml --cov-report=term-missing
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@v7
       with:
         files: ./coverage.xml
         flags: unittests
@@ -119,7 +117,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install orjson ujson msgpack cbor2 attrs
+        pip install -r requirements-optional.txt
 
     - name: Run serialization benchmarks with all formats
       run: |

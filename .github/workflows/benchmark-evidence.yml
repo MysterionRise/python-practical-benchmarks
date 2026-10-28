@@ -5,6 +5,9 @@ on:
   schedule:
     - cron: '0 6 * * 1'
 
+permissions:
+  contents: read
+
 jobs:
   quick-benchmark-artifacts:
     name: Generate quick benchmark evidence
@@ -29,11 +32,16 @@ jobs:
     - name: Generate JSON and Markdown evidence
       run: |
         mkdir -p reports/output
-        python run_all_tests.py --all --quick --format json --output reports/output/ci-quick.json
+        python run_all_tests.py --all --quick --output reports/output/ci-quick.json
+
+    - name: Render Markdown evidence
+      if: always() && hashFiles('reports/output/ci-quick.json') != ''
+      run: |
         python scripts/render_report.py reports/output/ci-quick.json --output reports/output/ci-quick.md
 
     - name: Upload benchmark evidence
-      uses: actions/upload-artifact@v4
+      if: always() && hashFiles('reports/output/ci-quick.json') != ''
+      uses: actions/upload-artifact@v7
       with:
         name: scheduled-benchmark-evidence
         path: |

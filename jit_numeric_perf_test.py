@@ -5,12 +5,12 @@ Question: How much does Python's experimental JIT compiler improve numeric workl
 
 WHAT IS PYTHON'S JIT?
 Python 3.13 introduced an experimental copy-and-patch JIT compiler that can
-generate native machine code at runtime. This is especially beneficial for
-numeric and compute-intensive code.
+generate native machine code at runtime. Official 3.14 macOS and Windows binaries
+include it switched off (enable with PYTHON_JIT=1); free-threaded builds have no JIT.
 
 REQUIREMENTS:
 - Python 3.13+ compiled with --enable-experimental-jit
-- Check with: python -c "import sys; print(sys._jit)"
+- Check with (Python 3.14+): python -c "import sys; print(sys._jit.is_enabled())"
 
 EXPECTED RESULTS (JIT vs non-JIT on Python 3.13+):
 | Workload                    | No JIT    | With JIT  | Improvement |
@@ -21,7 +21,8 @@ EXPECTED RESULTS (JIT vs non-JIT on Python 3.13+):
 | Float arithmetic intensive  | 1.00s     | 0.70s     | ~30%        |
 
 KEY FINDINGS:
-- JIT provides 5-30% improvement for numeric-heavy code
+- 3.14 release notes: from about 10% slower to 20% faster depending on workload
+- 3.15 release notes: pyperformance geometric mean about 7-8% faster on x86-64 Linux, 11-12% on AArch64 macOS
 - Greatest benefit for tight loops with arithmetic operations
 - Minimal benefit for I/O-bound or string-heavy code
 - JIT warms up over time - first runs may be slower
@@ -40,8 +41,7 @@ WHEN JIT DOESN'T HELP:
 - Object-heavy code with dynamic dispatch
 - Code that uses many C extensions (already optimized)
 
-NOTE: As of Python 3.13/3.14, the JIT is experimental and evolving.
-Future versions will likely show greater improvements.
+NOTE: As of Python 3.15 the JIT is still experimental and off by default.
 """
 
 import sys
@@ -54,22 +54,34 @@ MANDELBROT_SIZE = 200
 MANDELBROT_MAX_ITER = 100
 
 
+def _jit_flag(name):
+    """Return a sys._jit predicate such as is_enabled() as a bool.
+
+    CPython 3.14+ exposes these as functions; reading them without calling
+    returns a function object, which is always truthy.
+    """
+    value = getattr(getattr(sys, "_jit", None), name, None)
+    if callable(value):
+        return bool(value())
+    return bool(value)
+
+
 def is_jit_enabled():
-    """Check if JIT is enabled in this Python build."""
-    return hasattr(sys, "_jit") and sys._jit.is_enabled if hasattr(sys, "_jit") else False
+    """Check if the JIT is enabled in this interpreter."""
+    return _jit_flag("is_enabled")
 
 
 def get_jit_status():
     """Return a string describing JIT status."""
-    if hasattr(sys, "_jit"):
-        try:
-            if sys._jit.is_enabled:
-                return "JIT enabled"
-            else:
-                return "JIT available but disabled"
-        except AttributeError:
-            return "JIT module present (status unknown)"
-    return "No JIT (Python < 3.13 or compiled without --enable-experimental-jit)"
+    if sys.version_info < (3, 13):
+        return "No JIT (requires Python 3.13+)"
+    if not hasattr(sys, "_jit"):
+        return "Unknown (sys._jit introspection requires Python 3.14+)"
+    if _jit_flag("is_enabled"):
+        return "JIT enabled"
+    if _jit_flag("is_available"):
+        return "JIT available but disabled (set PYTHON_JIT=1)"
+    return "No JIT (interpreter built without --enable-experimental-jit)"
 
 
 # ============================================================================
@@ -245,7 +257,8 @@ if __name__ == "__main__":
 
     CURRENT PERFORMANCE:
     These results show the interpreter-only performance.
-    JIT-enabled Python should show 5-30% improvement on these benchmarks.
+    The JIT's effect varies by workload: the 3.14 release notes report about
+    10% slower to 20% faster. Compare PYTHON_JIT=0 and PYTHON_JIT=1 on your build.
         """)
 
     print("=" * 80)

@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from benchmark_manifest import BENCHMARK_SPECS, all_benchmark_modules
+from benchmark_manifest import BENCHMARK_SPECS, all_benchmark_modules, get_benchmark_spec
 from run_all_tests import collect_benchmark_cases, missing_dependencies
 
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -96,6 +96,70 @@ class TestBenchmarkStructure:
             if name.isupper() and not name.startswith("_") and isinstance(getattr(module, name), (int, float))
         ]
         assert constants, f"{module_name} has no numeric configuration constants"
+
+    @pytest.mark.parametrize("module_name", ALL_BENCHMARKS)
+    def test_quick_overrides_target_module_constants(self, module_name):
+        """Test that every quick-mode override names a module-level constant.
+
+        The runner skips unknown names silently, so a typo would leave quick mode with full-size settings.
+        """
+        tree = ast.parse((PROJECT_ROOT / f"{module_name}.py").read_text())
+        module_constants = {
+            target.id
+            for node in tree.body
+            if isinstance(node, (ast.Assign, ast.AnnAssign))
+            for target in (node.targets if isinstance(node, ast.Assign) else [node.target])
+            if isinstance(target, ast.Name)
+        }
+        unknown = sorted(set(get_benchmark_spec(module_name).quick_overrides) - module_constants)
+        assert not unknown, f"{module_name} quick overrides name missing constants: {unknown}"
+
+    @pytest.mark.parametrize("module_name", ALL_BENCHMARKS)
+    def test_import_time_data_can_be_rebuilt(self, module_name):
+        """Test that data built at import time from quick-mode constants has a reset hook.
+
+        Without reset_benchmark_data(), the runner reports overrides as applied while the data keeps its full size.
+        """
+        tree = ast.parse((PROJECT_ROOT / f"{module_name}.py").read_text())
+        overrides = set(get_benchmark_spec(module_name).quick_overrides)
+        read_at_import = set()
+
+        def visit(node):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
+                return
+            if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load):
+                read_at_import.add(node.id)
+            for child in ast.iter_child_nodes(node):
+                visit(child)
+
+        for node in tree.body:
+            if not is_main_guard(node):
+                visit(node)
+
+        used = sorted(overrides & read_at_import)
+        has_reset = any(isinstance(node, ast.FunctionDef) and node.name == "reset_benchmark_data" for node in tree.body)
+        assert not used or has_reset, (
+            f"{module_name} builds import-time data from {used} without reset_benchmark_data()"
+        )
+
+    @pytest.mark.parametrize("module_name", ALL_BENCHMARKS)
+    def test_no_unreachable_code_in_cases(self, module_name):
+        """Test that no statement follows a return/raise/break/continue inside a perf_test function."""
+        tree = ast.parse((PROJECT_ROOT / f"{module_name}.py").read_text())
+        unreachable = []
+        for func in tree.body:
+            if not (isinstance(func, (ast.FunctionDef, ast.AsyncFunctionDef)) and func.name.startswith("perf_test")):
+                continue
+            for node in ast.walk(func):
+                for field in ("body", "orelse", "finalbody"):
+                    block = getattr(node, field, None)
+                    if not isinstance(block, list):
+                        continue
+                    for stmt, following in zip(block, block[1:]):
+                        if isinstance(stmt, (ast.Return, ast.Raise, ast.Break, ast.Continue)):
+                            unreachable.append((func.name, following.lineno))
+
+        assert not unreachable, f"{module_name} has unreachable statements: {unreachable}"
 
     @pytest.mark.parametrize("module_name", ALL_BENCHMARKS)
     def test_no_import_time_timing_or_printing(self, module_name):

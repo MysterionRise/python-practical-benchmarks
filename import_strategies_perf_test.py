@@ -15,15 +15,15 @@ numpy                            0.1234s       Large (~15MB) ⚠
 pandas                           0.3456s       Very large (~25MB) ⚠
 requests                         0.0789s       Medium (many deps)
 
-IMPORT PATTERNS (100,000 iterations):
+IMPORT PATTERNS (100,000 iterations, cached; CPython 3.13, median of 12 interleaved rounds):
 Pattern                          Total time    Per import
 ---------------------------------------------------------------
-import module                    0.000023s     0.23ns (cached!)
-from module import name          0.000025s     0.25ns (cached!)
-importlib.import_module()        0.345s        3.45μs ⚠ 15000x slower
-__import__()                     0.298s        2.98μs ⚠ 13000x slower
+import module                    0.0071s       71ns (sys.modules lookup)
+from module import name          0.0253s       253ns
+importlib.import_module()        0.0382s       382ns ⚠ hoist out of hot loops
+__import__()                     0.0063s       63ns
 
-LAZY IMPORT vs EAGER (10,000 runs):
+LAZY IMPORT vs EAGER (illustrative; the benchmark measures per-call cost after the first import, not startup):
 Strategy                         Startup time  First use    Total
 ---------------------------------------------------------------
 Eager import at top              0.234s        0.001s       0.235s
@@ -62,10 +62,9 @@ ACCESS_ITERATIONS = 1000000
 
 
 def measure_import_time(module_name):
-    """Measure time to import a module (remove from cache first)"""
-    # Remove from cache
-    if module_name in sys.modules:
-        del sys.modules[module_name]
+    """Measure time to import a module (remove it and its submodules from the cache first)"""
+    for name in [name for name in sys.modules if name == module_name or name.startswith(module_name + ".")]:
+        del sys.modules[name]
 
     start = time.perf_counter()
     __import__(module_name)
@@ -82,25 +81,29 @@ def measure_import_time(module_name):
 def perf_test1_regular_import():
     """Regular import statement (already cached)"""
     for _ in range(ITERATIONS):
-        import json  # noqa: F401
+        import json
+    return json
 
 
 def perf_test2_from_import():
     """From import statement (already cached)"""
     for _ in range(ITERATIONS):
-        from json import dumps  # noqa: F401
+        from json import dumps
+    return dumps
 
 
 def perf_test3_importlib():
     """Using importlib.import_module()"""
     for _ in range(ITERATIONS):
-        importlib.import_module("json")
+        module = importlib.import_module("json")
+    return module
 
 
 def perf_test4_builtin_import():
     """Using __import__() builtin"""
     for _ in range(ITERATIONS):
-        __import__("json")
+        module = __import__("json")
+    return module
 
 
 # ============================================================================
@@ -125,10 +128,11 @@ def eager_function_use(json, re, datetime):
 
 
 def perf_test5_eager():
-    """Eager loading: import at top, use later"""
-    for _ in range(10000):
+    """Eager loading: per-call cost of using already imported modules (startup cost is not measured)"""
+    for _ in range(ITERATIONS):
         modules = eager_function_setup()
-        _result = eager_function_use(*modules)  # noqa: F841
+        result = eager_function_use(*modules)
+    return result
 
 
 # Lazy loading simulation
@@ -154,10 +158,11 @@ def lazy_function_use(lazy):
 
 
 def perf_test6_lazy():
-    """Lazy loading: import on first use"""
-    for _ in range(10000):
+    """Lazy loading: per-call cost of a lazy-import property (startup cost is not measured)"""
+    for _ in range(ITERATIONS):
         lazy = LazyImporter()
-        _result = lazy_function_use(lazy)  # noqa: F841
+        result = lazy_function_use(lazy)
+    return result
 
 
 # ============================================================================
@@ -264,7 +269,7 @@ if __name__ == "__main__":
     # LAZY VS EAGER
     # ========================================================================
     print("\n" + "=" * 80)
-    print("LAZY vs EAGER IMPORT STRATEGIES (10,000 function calls)")
+    print(f"LAZY vs EAGER IMPORT STRATEGIES ({ITERATIONS:,} function calls)")
     print("=" * 80)
 
     print("\nEager import (import at module top):")
@@ -341,7 +346,7 @@ if __name__ == "__main__":
         HAS_FEATURE = False
 
     AVOID DYNAMIC IMPORTS IN HOT PATHS:
-    ✗ Never use importlib/__import__ in loops
+    ✗ Calling importlib/__import__ in hot loops (hoist it out)
     ✗ Don't import inside frequently-called functions
     ✗ Lazy imports in performance-critical code
 
