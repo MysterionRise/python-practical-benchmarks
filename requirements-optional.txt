@@ -10,4 +10,4 @@ attrs>=23.1.0,<27.0.0
 
 # Serialization libraries for serialization_formats_perf_test.py
 msgpack>=1.0.0,<2.0.0
-cbor2>=5.4.0,<6.0.0
+cbor2>=5.4.0,<7.0.0
